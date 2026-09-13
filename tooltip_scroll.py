@@ -1736,7 +1736,7 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
 
     const TERMS_NAV_COLLAPSE_KEY = "scoop-terms-nav-collapse";
     const TERMS_NAV_SUPPRESS_MS = 15000;
-    const PAGE_NAV_BIND_VERSION = 10;
+    const PAGE_NAV_BIND_VERSION = 11;
 
     const enforceMobileTermsMainView = () => {
         if (!__scoopShouldHoldTermsMainView()) {
@@ -1796,6 +1796,35 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         enforceMobileTermsMainView();
     };
 
+    const resolveGatingTermsLink = (node, event) => {
+        if (!node || typeof node.closest !== "function") {
+            return null;
+        }
+        const direct = node.closest('a[href*="Terms_of_Service"]');
+        if (direct) {
+            return direct;
+        }
+        const box = node.closest('[data-testid="stCheckbox"]');
+        if (!box) {
+            return null;
+        }
+        const termsLink = box.querySelector('a[href*="Terms_of_Service"]');
+        if (!termsLink) {
+            return null;
+        }
+        const x = event && event.clientX;
+        const y = event && event.clientY;
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+            return null;
+        }
+        const r = termsLink.getBoundingClientRect();
+        const pad = 8;
+        if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
+            return termsLink;
+        }
+        return null;
+    };
+
     const handleMobileTermsNavPointer = (event) => {
         const target = event.target;
         const el =
@@ -1808,7 +1837,8 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         if (el.closest("a.scoop-analyze-back")) {
             return;
         }
-        const link = el.closest(
+        const gatingTerms = resolveGatingTermsLink(el, event);
+        const link = gatingTerms || el.closest(
             '[data-testid="stPageLink"] a, [data-testid="stSidebarNav"] a, a[href*="Top_10"], a[href*="Terms_of_Service"]'
         );
         if (!link || link.classList?.contains("scoop-analyze-back")) {

@@ -3756,6 +3756,19 @@ _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE = f"""
         width: 14px !important;
         height: 14px !important;
     }}
+    /* Streamlit wraps the markdown Terms link in <label>, so mobile/tablet taps
+       toggle the box instead of opening Disclaimer & Terms. */
+    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
+        pointer-events: none !important;
+    }}
+    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) [data-baseweb="checkbox"],
+    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) input,
+    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) a[href*="Terms_of_Service"] {{
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 7 !important;
+        cursor: pointer !important;
+    }}
 }}
 """
 
@@ -4162,6 +4175,17 @@ MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS = f"""
         position: relative !important;
         z-index: 6 !important;
         text-decoration: underline !important;
+        cursor: pointer !important;
+    }}
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
+        pointer-events: none !important;
+    }}
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) [data-baseweb="checkbox"],
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) input,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) a[href*="Terms_of_Service"] {{
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 7 !important;
         cursor: pointer !important;
     }}
 }}

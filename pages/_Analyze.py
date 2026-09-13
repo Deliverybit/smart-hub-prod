@@ -1113,6 +1113,51 @@ st.markdown(
             margin: 0.15rem 0 0.35rem 0 !important;
             white-space: normal !important;
         }
+        /* Desktop Analyze: drop injector chrome (white bars) and top dead space. */
+        [data-testid="stMainBlockContainer"],
+        .stMainBlockContainer,
+        section.main > div {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stCustomComponentV1"]),
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]),
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(.scoop-analyze-back)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)):not(:has(.mood-feed)):not(:has(.scoop-analyze-direction-banner)):not(:has(.scoop-mood-summary)):not(:has(.scoop-selected-asset-card)) {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            border: none !important;
+            background: transparent !important;
+        }
+        [data-testid="stMainBlockContainer"] hr:not(.search-52w-range-divider) {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+        }
+        .scoop-env-banner {
+            margin-bottom: 0.25rem !important;
+        }
+        a.scoop-analyze-back {
+            margin-top: 0 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        [data-testid="stMarkdownContainer"]:has(.scoop-analyze-back) style {
+            display: none !important;
+        }
+        [data-testid="stElementContainer"]:has(.scoop-analyze-back),
+        [data-testid="stElementContainer"]:has(.scoop-env-banner) {
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 0 !important;
+        }
     }
 
     </style>
@@ -1530,7 +1575,7 @@ def _render_search_dashboard(ticker: str) -> None:
 
     st.markdown(
         f"""
-        <div style="background:{bg}; border: 3px solid {color}; border-radius:15px;
+        <div class="scoop-analyze-direction-banner" style="background:{bg}; border: 3px solid {color}; border-radius:15px;
                     padding:1.5rem 2rem; text-align:center; margin-bottom:1.5rem;">
             <div style="display:flex; align-items:center; justify-content:center; gap:1.5rem; flex-wrap:wrap;">
                 <span style="font-size:4rem;">{arrow}</span>
@@ -1544,31 +1589,45 @@ def _render_search_dashboard(ticker: str) -> None:
         unsafe_allow_html=True,
     )
 
-    _render_crypto_responsive_price_card(
-        last_price=last_price,
-        change_24h_pct=change_24h_pct,
-        week52_low=week52_low,
-        week52_high=week52_high,
-        low_date=low_date,
-        high_date=high_date,
-    )
-
-    st.metric(
-        label="Live Price (USD)",
-        value=_format_search_price(last_price),
-        delta=f"{change_24h_pct:+.2f}% (24h)",
-    )
-
-    if last_price < 0.01:
-        st.warning("⚠️ Low-Cap/Penny Asset Detected")
-
-    if is_mobile_tablet_viewport(page="pages/_Analyze.py"):
+    _is_mobile_tablet_analyze = is_mobile_tablet_viewport(page="pages/_Analyze.py")
+    if _is_mobile_tablet_analyze:
+        _render_crypto_responsive_price_card(
+            last_price=last_price,
+            change_24h_pct=change_24h_pct,
+            week52_low=week52_low,
+            week52_high=week52_high,
+            low_date=low_date,
+            high_date=high_date,
+        )
+        st.metric(
+            label="Live Price (USD)",
+            value=_format_search_price(last_price),
+            delta=f"{change_24h_pct:+.2f}% (24h)",
+        )
+        if last_price < 0.01:
+            st.warning("⚠️ Low-Cap/Penny Asset Detected")
         col_chart = st.container()
         col_mood = st.container()
     else:
         col_chart, col_mood = st.columns([2, 1])
 
     with col_chart:
+        if not _is_mobile_tablet_analyze:
+            _render_crypto_responsive_price_card(
+                last_price=last_price,
+                change_24h_pct=change_24h_pct,
+                week52_low=week52_low,
+                week52_high=week52_high,
+                low_date=low_date,
+                high_date=high_date,
+            )
+            st.metric(
+                label="Live Price (USD)",
+                value=_format_search_price(last_price),
+                delta=f"{change_24h_pct:+.2f}% (24h)",
+            )
+            if last_price < 0.01:
+                st.warning("⚠️ Low-Cap/Penny Asset Detected")
         st.markdown(
             '<h3 class="search-52week-range-heading">📊 52-Week Range</h3>',
             unsafe_allow_html=True,

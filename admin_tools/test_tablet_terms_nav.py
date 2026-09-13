@@ -10,6 +10,15 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
+def test_desktop_terms_top_has_no_padding() -> None:
+    from admin_tools.tablet_mobile_layout_css import DESKTOP_TERMS_TOP_COMPACT
+
+    css = DESKTOP_TERMS_TOP_COMPACT
+    assert "@media (min-width: 1367px)" in css
+    assert "padding-top: 0 !important;" in css
+    assert 'html[data-scoop-desktop-layout="1"][data-scoop-terms-active="1"]' in css
+
+
 def test_tablet_terms_main_view_css_scoped() -> None:
     from admin_tools.tablet_mobile_layout_css import MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS
 
@@ -25,7 +34,7 @@ def test_tooltip_scroll_holds_terms_on_tablet() -> None:
     source = (ROOT / "tooltip_scroll.py").read_text(encoding="utf-8")
     assert "__scoopShouldHoldTermsMainView" in source
     assert "__scoopViewportWidth() <= 1366" in source
-    assert "PAGE_NAV_BIND_VERSION = 9" in source
+    assert "PAGE_NAV_BIND_VERSION = 10" in source
     assert (
         "if (__scoopIsTermsPage() && __scoopShouldHoldTermsMainView())" in source
     )
@@ -35,7 +44,7 @@ def test_tooltip_scroll_holds_terms_on_tablet() -> None:
 
 def test_consent_bridge_marks_tablet_tab_nav() -> None:
     source = (ROOT / "legal_consent_logger.py").read_text(encoding="utf-8")
-    assert "__scoopMobileConsentTermsNavVersion !== 4" in source
+    assert "__scoopMobileConsentTermsNavVersion !== 5" in source
     assert "scoop-terms-force-responsive" in source
     assert 'setAttribute("data-scoop-tab-nav", "1")' in source
 
@@ -50,6 +59,7 @@ def test_landing_skips_desktop_sidebar_for_forced_terms() -> None:
 
 if __name__ == "__main__":
     tests = [
+        test_desktop_terms_top_has_no_padding,
         test_tablet_terms_main_view_css_scoped,
         test_tooltip_scroll_holds_terms_on_tablet,
         test_consent_bridge_marks_tablet_tab_nav,

@@ -35,7 +35,9 @@ def test_phone_positioner_in_tooltip_scroll() -> None:
     assert "scoop-phone-generic-tip-runtime-css" in source
     assert "scoop-phone-generic-tip-standalone" in source
     assert "_PHONE_GENERIC_TIP_STANDALONE_JS" in source
-    assert "__scoopPhoneGenericTipStandalone = 2" in source
+    assert "__scoopPhoneGenericTipStandalone = 4" in source
+    assert "_MOBILE_TABLET_TIP_EXCLUSIVE_JS" in source
+    assert "closeResponsiveHeadlinesPopups" in source
     assert "--scoop-mobile-tip-left" in source
     # Headlines phone path stays separate.
     assert "getPhoneMobileHeadlinesSlot" in source
@@ -53,6 +55,8 @@ def test_phone_positioner_in_tooltip_scroll() -> None:
     assert "touchmove" in phone_js
     assert "Dead space" in phone_js or "closeAll()" in phone_js
     assert "OPEN_GRACE_MS" in phone_js
+    assert "closeHeadlines();" in phone_js
+    assert "hl-tip-cb:checked" in phone_js
 
 
 def test_override_css_uses_mobile_tip_left_var() -> None:

@@ -6,8 +6,10 @@ import streamlit as st
 
 _CSS = """
 @media (min-width: 1367px) {
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody .tip-wrap.headlines-tip:not(:has(.hl-tip-cb:checked)):not(.hl-tip-desktop-open) > .tip-text,
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody .tip-wrap.headlines-tip:hover > .tip-text,
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody .tip-wrap.headlines-tip .tip-text:hover {
+        display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;

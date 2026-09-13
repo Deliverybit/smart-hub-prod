@@ -3238,11 +3238,12 @@ else:
             "Analyze": ANALYZE_COLUMN_TIP,
         }
 
-        def _tip(text, tooltip, anchor_id: str = ""):
+        def _tip(text, tooltip, anchor_id: str = "", extra_class: str = ""):
             anchor_style = f' style="anchor-name: {anchor_id};"' if anchor_id else ""
             tip_style = f' style="position-anchor: {anchor_id};"' if anchor_id else ""
+            wrap_class = " ".join(part for part in ("tip-wrap", extra_class) if part)
             return (
-                f'<span class="tip-wrap"{anchor_style}>{text}'
+                f'<span class="{wrap_class}"{anchor_style}>{text}'
                 f'<span class="tip-text"{tip_style}>{tooltip}</span></span>'
             )
 
@@ -3316,7 +3317,7 @@ else:
                     if c == "Commodity":
                         tip = COMMODITY_SUMMARIES.get(r["Ticker"], "")
                         cells += (
-                            _td(c, _tip(val, tip), COLUMN_TIPS.get(c, "")) if tip else _td(c, str(val), COLUMN_TIPS.get(c, ""))
+                            _td(c, _tip(val, tip, extra_class="scoop-name-tip"), COLUMN_TIPS.get(c, "")) if tip else _td(c, str(val), COLUMN_TIPS.get(c, ""))
                         )
                     elif c == "Headlines":
                         hl_pairs = headline_map.get(r["Ticker"], [])

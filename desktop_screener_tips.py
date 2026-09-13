@@ -131,6 +131,10 @@ _JS = r"""
             if (other !== wrap) clearNameTip(other);
         });
         wrap.classList.add(OPEN_CLASS);
+        const tip = wrap.querySelector(":scope > .tip-text");
+        if (tip) {
+            tip.style.setProperty("display", "block", "important");
+        }
         positionNameTip(wrap);
         appWin.requestAnimationFrame(() => positionNameTip(wrap));
     };
@@ -281,6 +285,10 @@ _JS = r"""
         if (!wrap || !wrap.classList.contains(OPEN_CLASS)) return;
         const related = event.relatedTarget;
         if (related && wrap.contains(related)) return;
+        // relatedTarget is often null while moving across text nodes; keep the tip if still hovered.
+        try {
+            if (wrap.matches(":hover")) return;
+        } catch (e) {}
         clearNameTip(wrap);
     };
 

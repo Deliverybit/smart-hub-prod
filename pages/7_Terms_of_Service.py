@@ -21,14 +21,14 @@ st.html(
     try {
         const win = (window.parent && window.parent !== window) ? window.parent : window;
         const w = win.innerWidth || window.innerWidth || 0;
+        document.documentElement.setAttribute("data-scoop-terms-active", "1");
+        try { win.document.documentElement.setAttribute("data-scoop-terms-active", "1"); } catch (e) {}
         const forced = (win.sessionStorage || sessionStorage).getItem("scoop-terms-force-responsive") === "1"
             || (win.sessionStorage || sessionStorage).getItem("scoop-terms-nav-collapse") === "1";
         if (w <= 1366 || forced) {
             document.documentElement.setAttribute("data-scoop-tab-nav", "1");
-            document.documentElement.setAttribute("data-scoop-terms-active", "1");
             document.documentElement.removeAttribute("data-scoop-desktop-layout");
             try { win.document.documentElement.setAttribute("data-scoop-tab-nav", "1"); } catch (e) {}
-            try { win.document.documentElement.setAttribute("data-scoop-terms-active", "1"); } catch (e) {}
             try { win.document.documentElement.removeAttribute("data-scoop-desktop-layout"); } catch (e) {}
         }
     } catch (e) {}
@@ -93,8 +93,49 @@ st.markdown(
     h2 { font-size: 3.2rem !important; }
     h3 { font-size: 2.6rem !important; }
     h4 { font-size: 2.1rem !important; }
-    p, li, span, div { font-size: 1.6rem !important; line-height: 1.75 !important; }
+    p, li, span { font-size: 1.6rem !important; line-height: 1.75 !important; }
     .stMarkdown p { font-size: 1.6rem !important; }
+    /* Desktop: do not inflate empty Streamlit wrappers (was a large top band). */
+    @media (min-width: 1367px) {
+        [data-testid="stMainBlockContainer"],
+        [data-testid="stMainBlockContainer"].block-container,
+        section.main > div,
+        .block-container {
+            padding-top: 0 !important;
+        }
+        [data-testid="stHeader"] {
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            overflow: hidden !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(h2)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)),
+        [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(h2)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)),
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)),
+        [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stHtml"]):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)),
+        [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[data-testid="stCustomComponentV1"]),
+        [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]) {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        [data-testid="stMainBlockContainer"] h1 {
+            margin-top: 0 !important;
+            margin-bottom: 0.35rem !important;
+            font-size: clamp(32px, 2.4vw, 48px) !important;
+            line-height: 1.15 !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stHeading"] {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
     /* Alerts */
     .stAlert p, [data-testid="stAlert"] p { font-size: 1.6rem !important; }
     /* Captions */

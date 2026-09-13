@@ -761,18 +761,19 @@ def mark_post_consent_collapsed_view() -> None:
 
 def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
     """Mobile/tablet: consent-page Terms links navigate in main view (no slide-out sidebar)."""
-    st_module.components.v1.html(
-        f"""
-<script>
+    script = f"""
 (function() {{
-    const aw = window.parent || window;
+    const aw = (window.parent && window.parent !== window && window.parent.document)
+        ? window.parent : window;
     const doc = aw.document || document;
-    const w = aw.innerWidth || window.innerWidth || 0;
-    if (w > {RESPONSIVE_MAX_WIDTH}) {{
-        return;
-    }}
     const TERMS_NAV_COLLAPSE_KEY = "scoop-terms-nav-collapse";
     const TERMS_NAV_SUPPRESS_MS = 15000;
+    const retargetTermsLinks = () => {{
+        doc.querySelectorAll('a[href*="Terms_of_Service"]').forEach((a) => {{
+            a.setAttribute("target", "_self");
+            a.style.setProperty("pointer-events", "auto", "important");
+        }});
+    }};
     const mark = () => {{
         try {{
             aw.sessionStorage.setItem(TERMS_NAV_COLLAPSE_KEY, "1");
@@ -786,7 +787,6 @@ def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
         }}
         doc.documentElement.removeAttribute("data-scoop-screener-gated");
         doc.documentElement.removeAttribute("data-scoop-desktop-layout");
-        // Phone/tablet: keep tab-nav main view when opening Terms from consent.
         doc.documentElement.setAttribute("data-scoop-tab-nav", "1");
         try {{
             aw.sessionStorage.setItem("scoop-terms-force-responsive", "1");
@@ -806,18 +806,35 @@ def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
             view.style.setProperty("padding-left", "0", "important");
         }}
     }};
-    const onPointer = (event) => {{
+    const termsHref = (link) => {{
+        if (!link) {{
+            return "";
+        }}
+        return `${{link.getAttribute("href") || ""}} ${{link.href || ""}}`;
+    }};
+    const onClick = (event) => {{
+        if (event.type !== "click") {{
+            return;
+        }}
+        const w = aw.innerWidth || window.innerWidth || 0;
+        if (w > {RESPONSIVE_MAX_WIDTH}) {{
+            return;
+        }}
         const target = event.target;
         const el = target && target.nodeType === 1 ? target : target && target.parentElement;
         if (!el || typeof el.closest !== "function") {{
             return;
         }}
-        const link = el.closest('a[href*="Terms_of_Service"]');
-        if (!link) {{
+        const link = el.closest("a");
+        if (!link || !/Terms_of_Service/i.test(termsHref(link))) {{
             return;
         }}
         event.preventDefault();
         event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === "function") {{
+            event.stopImmediatePropagation();
+        }}
+        link.setAttribute("target", "_self");
         mark();
         const href = link.getAttribute("href") || link.href || "/Terms_of_Service";
         const url = /^https?:\\/\\//i.test(href)
@@ -825,23 +842,32 @@ def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
             : `${{aw.location.origin}}${{href.startsWith("/") ? href : `/${{href}}`}}`;
         aw.location.assign(url);
     }};
-    if (aw.__scoopMobileConsentTermsNavVersion !== 4) {{
+    retargetTermsLinks();
+    if (aw.__scoopMobileConsentTermsNavVersion !== 5) {{
         if (aw.__scoopMobileConsentTermsNavHandler) {{
             doc.removeEventListener("click", aw.__scoopMobileConsentTermsNavHandler, true);
             doc.removeEventListener("touchstart", aw.__scoopMobileConsentTermsNavHandler, true);
             doc.removeEventListener("pointerdown", aw.__scoopMobileConsentTermsNavHandler, true);
         }}
-        aw.__scoopMobileConsentTermsNavHandler = onPointer;
-        aw.__scoopMobileConsentTermsNavVersion = 4;
+        aw.__scoopMobileConsentTermsNavHandler = onClick;
+        aw.__scoopMobileConsentTermsNavVersion = 5;
         doc.addEventListener("click", aw.__scoopMobileConsentTermsNavHandler, true);
-        doc.addEventListener("touchstart", aw.__scoopMobileConsentTermsNavHandler, {{ passive: false, capture: true }});
-        doc.addEventListener("pointerdown", aw.__scoopMobileConsentTermsNavHandler, true);
+    }}
+    if (!aw.__scoopMobileConsentTermsRetarget) {{
+        aw.__scoopMobileConsentTermsRetarget = true;
+        try {{
+            new MutationObserver(retargetTermsLinks).observe(doc.documentElement, {{
+                childList: true,
+                subtree: true,
+            }});
+        }} catch (e) {{}}
     }}
 }})();
-</script>
-""",
-        height=0,
-    )
+"""
+    if hasattr(st_module, "html"):
+        st_module.html(f"<script>{script}</script>", unsafe_allow_javascript=True)
+    else:
+        st_module.components.v1.html(f"<script>{script}</script>", height=0)
 
 
 def render_terms_gate(

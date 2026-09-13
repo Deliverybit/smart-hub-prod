@@ -3125,13 +3125,55 @@ html[data-scoop-desktop-layout="1"] {{
 _DESKTOP_ANALYZE_TOP_COMPACT_RULES = """
     html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"],
     html[data-scoop-analyze-active="1"] section.main > div,
-    html[data-scoop-analyze-active="1"] [data-testid="stAppViewContainer"] > section.main {
-        padding-top: 0.75rem !important;
+    html[data-scoop-analyze-active="1"] [data-testid="stAppViewContainer"] > section.main,
+    html[data-scoop-analyze-active="1"] .stMainBlockContainer {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(.scoop-env-banner),
+    html[data-scoop-analyze-active="1"] [data-testid="element-container"]:has(.scoop-env-banner) {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] .scoop-env-banner {
+        margin-bottom: 0.25rem !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(.scoop-analyze-back),
+    html[data-scoop-analyze-active="1"] [data-testid="element-container"]:has(.scoop-analyze-back) {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stMarkdownContainer"]:has(.scoop-analyze-back) style {
+        display: none !important;
+    }
+    html[data-scoop-analyze-active="1"] a.scoop-analyze-back {
+        margin-top: 0 !important;
+        margin-bottom: 0.5rem !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(.disclaimer-footer),
+    html[data-scoop-analyze-active="1"] [data-testid="element-container"]:has(.disclaimer-footer) {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]),
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stHtml"]),
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(.scoop-analyze-back)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)):not(:has(.mood-feed)):not(:has(.scoop-analyze-direction-banner)):not(:has(.scoop-mood-summary)):not(:has(.scoop-selected-asset-card)),
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(.scoop-analyze-back)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)):not(:has(.mood-feed)):not(:has(.scoop-analyze-direction-banner)):not(:has(.scoop-mood-summary)):not(:has(.scoop-selected-asset-card)) {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {
         gap: 0 !important;
     }
-    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]) {
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stCustomComponentV1"]),
+    html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stCustomComponentV1"]) {
         display: none !important;
         height: 0 !important;
         min-height: 0 !important;
@@ -3145,6 +3187,20 @@ _DESKTOP_ANALYZE_TOP_COMPACT_RULES = """
         padding: 0 !important;
         border: none !important;
         height: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) {
+        align-items: stretch !important;
+    }
+    html[data-scoop-analyze-active="1"] .mood-column,
+    html[data-scoop-analyze-active="1"] .scoop-mood-summary {
+        margin-bottom: 0.5rem !important;
+    }
+    html[data-scoop-analyze-active="1"] .mood-feed {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        margin-bottom: 0 !important;
+        min-height: 320px !important;
+        box-sizing: border-box !important;
     }
 """
 
@@ -3906,9 +3962,11 @@ RESPONSIVE_SCREENER_TOP_COMPACT = f"""
 # Desktop Terms page: collapse bootstrap gaps above the title (no large white band).
 _DESKTOP_TERMS_TOP_COMPACT_RULES = """
     html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"],
+    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"].block-container,
     html[data-scoop-terms-active="1"] section.main > div,
-    html[data-scoop-terms-active="1"] [data-testid="stAppViewContainer"] > section.main {
-        padding-top: 0.35rem !important;
+    html[data-scoop-terms-active="1"] [data-testid="stAppViewContainer"] > section.main,
+    html[data-scoop-terms-active="1"] .block-container {
+        padding-top: 0 !important;
     }
     html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {
         gap: 0 !important;
@@ -3931,18 +3989,21 @@ _DESKTOP_TERMS_TOP_COMPACT_RULES = """
         padding: 0 !important;
         overflow: hidden !important;
     }
-    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stMarkdownContainer"] style):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)),
-    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stMarkdownContainer"] style):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)) {
+    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(h2)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)),
+    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stMarkdownContainer"] style):not(:has(h1)):not(:has(h2)):not(:has(.scoop-env-banner)):not(:has(.disclaimer-footer)) {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        min-height: 0 !important;
+        overflow: hidden !important;
     }
     html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-env-banner),
     html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-env-banner) {
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
-        margin: 0 0 0.35rem 0 !important;
+        margin: 0 0 0.2rem 0 !important;
         padding: 0 !important;
         overflow: visible !important;
     }
@@ -3981,8 +4042,19 @@ _DESKTOP_TERMS_TOP_COMPACT_RULES = """
         overflow: hidden !important;
     }
     html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] h1 {
-        margin-top: 0.15rem !important;
+        margin-top: 0 !important;
         margin-bottom: 0.35rem !important;
+        font-size: clamp(32px, 2.4vw, 48px) !important;
+        line-height: 1.15 !important;
+    }
+    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stHeading"] {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(+ [data-testid="stElementContainer"] h1),
+    html[data-scoop-terms-active="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(+ [data-testid="element-container"] h1) {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
 """
 
@@ -4085,6 +4157,13 @@ _CONSENT_TERMS_MAIN_VIEW_RULES = """
 MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS = f"""
 @media (max-width: 1366px) {{
 {_CONSENT_TERMS_MAIN_VIEW_RULES}
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] a[href*="Terms_of_Service"] {{
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 6 !important;
+        text-decoration: underline !important;
+        cursor: pointer !important;
+    }}
 }}
 """
 

@@ -149,7 +149,7 @@ _RESPONSIVE_GENERIC_TOOLTIP_CSS = f"""
 
 _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
 (() => {
-    const VERSION = 15;
+    const VERSION = 22;
     let appDoc = document;
     let appWin = window;
     try {
@@ -168,6 +168,8 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
 
     const DESKTOP_MIN = 1367;
     const OPEN_CLASS = "scoop-desktop-name-tip-open";
+    const HEADER_OPEN = "scoop-desktop-header-tip-open";
+    const GENERIC_OPEN = "scoop-desktop-generic-tip-open";
     const TIP_CLEAR_PROPS = [
         "position",
         "left",
@@ -185,6 +187,7 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
         "margin-left",
         "z-index",
         "pointer-events",
+        "display",
         "--tip-center-x",
         "--tip-center-y",
         "--tip-fixed-width",
@@ -193,6 +196,9 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
         "--scoop-se-name-tip-top",
     ];
     const isDesktop = () => (appWin.innerWidth || 0) >= DESKTOP_MIN;
+
+    const isDesktopHeaderTip = (wrap) =>
+        !!(wrap && wrap.classList && !wrap.classList.contains("headlines-tip") && wrap.closest("thead"));
 
     const isDesktopNameTip = (wrap) => {
         if (!wrap || !wrap.classList || wrap.classList.contains("headlines-tip")) {
@@ -214,17 +220,22 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
             return;
         }
         TIP_CLEAR_PROPS.forEach((prop) => tip.style.removeProperty(prop));
+        tip.style.setProperty("display", "none", "important");
         tip.style.setProperty("visibility", "hidden", "important");
         tip.style.setProperty("opacity", "0", "important");
         tip.style.setProperty("pointer-events", "none", "important");
-        tip.style.setProperty("left", "-10000px", "important");
-        tip.style.setProperty("top", "-10000px", "important");
         tip.style.setProperty("transition", "none", "important");
     };
 
     const resetGenericTooltips = () => {
         appDoc.querySelectorAll(".tip-wrap:not(.headlines-tip)").forEach((wrap) => {
-            wrap.classList.remove("generic-tip-open", "scoop-mobile-tip-open", OPEN_CLASS);
+            wrap.classList.remove(
+                "generic-tip-open",
+                "scoop-mobile-tip-open",
+                OPEN_CLASS,
+                HEADER_OPEN,
+                GENERIC_OPEN
+            );
             const tip = wrap.querySelector(":scope > .tip-text");
             if (!tip) {
                 return;
@@ -282,23 +293,27 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
         tip.style.setProperty("max-width", `${maxW}px`, "important");
         tip.style.setProperty("width", "auto", "important");
 
-        const anchor = wrap.getBoundingClientRect();
+        const raw = wrap.getBoundingClientRect();
+        const vh = appWin.innerHeight || 800;
+        const visTop = Math.min(Math.max(raw.top, gap), vh - gap);
+        const visBottom = Math.max(Math.min(raw.bottom, vh - gap), visTop + 8);
         const tipRect = tip.getBoundingClientRect();
-        const height = tipRect.height || 72;
+        const height = Math.min(tipRect.height || 72, vh - gap * 2);
         const boxW = Math.max(minW, Math.min(maxW, tipRect.width || minW));
 
-        // Center on the name when there is room; otherwise pin to sidebar edge (col 1).
-        let left = anchor.left + anchor.width / 2 - boxW / 2;
+        // Use the on-screen slice of the name so tall table cells do not park the tip off-screen.
+        let left = raw.left + raw.width / 2 - boxW / 2;
         if (left < sbRight + gap) {
             left = sbRight + gap;
         }
         if (left + boxW > viewRight) {
             left = Math.max(sbRight + gap, viewRight - boxW);
         }
-        let top = anchor.top - height - 12;
+        let top = visTop - height - 12;
         if (top < gap) {
-            top = Math.min(appWin.innerHeight - height - gap, anchor.bottom + 12);
+            top = Math.min(vh - height - gap, visBottom + 12);
         }
+        top = Math.max(gap, Math.min(top, vh - height - gap));
 
         tip.style.setProperty("left", `${Math.round(left)}px`, "important");
         tip.style.setProperty("top", `${Math.round(top)}px`, "important");
@@ -314,6 +329,10 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
             }
         });
         wrap.classList.add(OPEN_CLASS);
+        const tip = wrap.querySelector(":scope > .tip-text");
+        if (tip) {
+            tip.style.setProperty("display", "block", "important");
+        }
         positionDesktopNameTip(wrap);
         appWin.requestAnimationFrame(() => {
             positionDesktopNameTip(wrap);
@@ -332,6 +351,7 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
         if (appWin.__scoopGenericTooltipNameOver) {
             appDoc.removeEventListener("mouseover", appWin.__scoopGenericTooltipNameOver, true);
             appDoc.removeEventListener("mouseout", appWin.__scoopGenericTooltipNameOut, true);
+            appDoc.removeEventListener("mouseleave", appWin.__scoopGenericTooltipNameOut, true);
         }
         const onOver = (event) => {
             if (!isDesktop()) {
@@ -343,10 +363,17 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
                 return;
             }
             const wrap = el.closest(".tip-wrap:not(.headlines-tip)");
-            if (!wrap || !isDesktopNameTip(wrap)) {
+            if (!wrap) {
                 return;
             }
-            openDesktopNameTip(wrap);
+            if (isDesktopNameTip(wrap)) {
+                openDesktopNameTip(wrap);
+                return;
+            }
+            wrap.classList.add(GENERIC_OPEN);
+            if (isDesktopHeaderTip(wrap)) {
+                wrap.classList.add(HEADER_OPEN);
+            }
         };
         const onOut = (event) => {
             const raw = event.target;
@@ -355,7 +382,7 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
                 return;
             }
             const wrap = el.closest(".tip-wrap:not(.headlines-tip)");
-            if (!wrap || !wrap.classList.contains(OPEN_CLASS)) {
+            if (!wrap) {
                 return;
             }
             const related = event.relatedTarget;
@@ -364,7 +391,15 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
                     return;
                 }
             }
-            closeDesktopNameTip(wrap);
+            wrap.classList.remove(HEADER_OPEN, GENERIC_OPEN);
+            if (wrap.classList.contains(OPEN_CLASS)) {
+                try {
+                    if (wrap.matches(":hover")) {
+                        return;
+                    }
+                } catch (e) {}
+                closeDesktopNameTip(wrap);
+            }
         };
         appWin.__scoopGenericTooltipNameOver = onOver;
         appWin.__scoopGenericTooltipNameOut = onOut;
@@ -819,6 +854,67 @@ _DESKTOP_TOOLTIP_TYPE_CSS = """
         line-height: 1.55 !important;
     }
 
+    /* Closed body tips must not stay in table layout. Header tips stay CSS-hover. */
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody .tip-wrap.scoop-name-tip:not(.scoop-desktop-name-tip-open) > .tip-text,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody .tip-wrap.headlines-tip:not(.hl-tip-desktop-open):not(:has(.hl-tip-cb:checked)) > .tip-text,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap.scoop-name-tip:not(.scoop-desktop-name-tip-open) > .tip-text {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap.scoop-desktop-generic-tip-open > .tip-text,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap.scoop-desktop-header-tip-open > .tip-text,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead .tip-wrap.scoop-desktop-header-tip-open > .tip-text,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead .tip-wrap:hover > .tip-text,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead .tip-wrap .tip-text:hover {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        z-index: 2147483000 !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead tr,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead th {
+        overflow: visible !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .tip-wrap {
+        display: inline-block !important;
+        max-width: 100% !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table .fr-analyze-cell .fr-analyze-mobile-tip {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table .fr-analyze-cell a.fr-analyze-link,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody a.fr-analyze-link,
+    html body .stApp [data-testid="stAppViewContainer"] .disclaimer-footer a,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .tip-wrap.headlines-tip:has(.hl-tip-cb:checked) .tip-text a,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .tip-wrap.headlines-tip.hl-tip-desktop-open .tip-text a {
+        display: inline !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .tip-wrap.headlines-tip:not(:has(.hl-tip-cb:checked)):not(.hl-tip-desktop-open) .headlines-tip-list {
+        display: none !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody tr,
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody td {
+        overflow: visible !important;
+    }
+
     /*
      * Desktop name tips: CSS :hover paints a cell-clipped vertical box after the
      * JS fixed (horizontal) tip closes. Never show name tips via CSS hover.
@@ -832,6 +928,7 @@ _DESKTOP_TOOLTIP_TYPE_CSS = """
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val .tip-wrap:not(.headlines-tip):hover > .tip-text,
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val .tip-wrap:not(.headlines-tip) > .tip-text,
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val .tip-wrap:not(.headlines-tip):hover > .tip-text {
+        display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
@@ -846,6 +943,7 @@ _DESKTOP_TOOLTIP_TYPE_CSS = """
     html body .stApp [data-testid="stAppViewContainer"] .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val .tip-wrap.scoop-desktop-name-tip-open > .tip-text,
     html body .stApp [data-testid="stAppViewContainer"] .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val .tip-wrap.scoop-desktop-name-tip-open > .tip-text,
     html body .stApp [data-testid="stAppViewContainer"] .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val .tip-wrap.scoop-desktop-name-tip-open > .tip-text {
+        display: block !important;
         position: fixed !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -1384,8 +1482,12 @@ _RESPONSIVE_LAYOUT_CORE_JS = (
             return;
         }
         if (isDesktopViewport() && (analyzeActive || screenerActive || termsActive)) {
+            if (analyzeActive) {
+                doc.documentElement.setAttribute("data-scoop-analyze-active", "1");
+            }
+            const padTop = (termsActive || analyzeActive) ? "0px" : "12px";
             targets.forEach((el) => {
-                el.style.setProperty("padding-top", "12px", "important");
+                el.style.setProperty("padding-top", padTop, "important");
             });
             return;
         }
@@ -1634,7 +1736,7 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
 
     const TERMS_NAV_COLLAPSE_KEY = "scoop-terms-nav-collapse";
     const TERMS_NAV_SUPPRESS_MS = 15000;
-    const PAGE_NAV_BIND_VERSION = 9;
+    const PAGE_NAV_BIND_VERSION = 10;
 
     const enforceMobileTermsMainView = () => {
         if (!__scoopShouldHoldTermsMainView()) {
@@ -1712,10 +1814,19 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         if (!link || link.classList?.contains("scoop-analyze-back")) {
             return;
         }
-        if (/Terms_of_Service/i.test(link.getAttribute("href") || "")) {
+        const termsHref = `${link.getAttribute("href") || ""} ${link.href || ""}`;
+        if (/Terms_of_Service/i.test(termsHref)) {
+            // pointerdown/touchstart preventDefault blocks mobile/tablet navigation.
+            if (event.type !== "click") {
+                return;
+            }
             if (__scoopShouldHoldTermsMainView()) {
                 event.preventDefault();
                 event.stopPropagation();
+                if (typeof event.stopImmediatePropagation === "function") {
+                    event.stopImmediatePropagation();
+                }
+                link.setAttribute("target", "_self");
                 markMobileTermsNav();
                 __scoopNavigateMobileTerms(link, appWin);
             }
@@ -2666,6 +2777,11 @@ _TOOLTIP_SCROLL_JS = """
             return;
         }
         if (isDesktopLayoutViewport() && isDesktopHeadlinesSessionOpen()) {
+            if (Date.now() - (window.__scoopDesktopHlOpenedAt || 0) < 500) {
+                root.classList.remove(className);
+                document.body.classList.remove(className);
+                return;
+            }
             if (event && isInsideDesktopHeadlinesPopup(event.target)) {
                 root.classList.remove(className);
                 document.body.classList.remove(className);
@@ -3284,6 +3400,7 @@ _TOOLTIP_SCROLL_JS = """
                 closeAllMobileGenericTips();
                 scheduleResponsiveHeadlinesPosition(wrap);
             } else if (isPhoneMobileHeadlinesViewport()) {
+                closeAllMobileGenericTips();
                 const savedScrollTop = getPageScrollEl().scrollTop;
                 schedulePhoneMobileHeadlinesPosition(wrap);
                 window.requestAnimationFrame(() => {
@@ -3675,6 +3792,13 @@ _TOOLTIP_SCROLL_JS = """
 
     const resetGenericTooltips = () => {
         document.querySelectorAll(".tip-wrap:not(.headlines-tip)").forEach((wrap) => {
+            if (
+                isDesktopLayoutViewport() &&
+                (wrap.classList.contains("scoop-name-tip") ||
+                    wrap.classList.contains("scoop-desktop-name-tip-open"))
+            ) {
+                return;
+            }
             wrap.classList.remove("generic-tip-open", "scoop-mobile-tip-open");
             const tip = wrap.querySelector(":scope > .tip-text");
             if (!tip) {
@@ -3927,11 +4051,27 @@ _TOOLTIP_SCROLL_JS = """
         window.requestAnimationFrame(() => positionMobileGenericTip(wrap, event));
     };
 
+    const closeResponsiveHeadlinesPopups = () => {
+        if (!isTapGenericTipViewport()) {
+            return;
+        }
+        document
+            .querySelectorAll(".tip-wrap.headlines-tip .hl-tip-cb:checked")
+            .forEach((checkbox) => {
+                checkbox.checked = false;
+                const headlinesWrap = checkbox.closest(".tip-wrap.headlines-tip");
+                if (headlinesWrap) {
+                    clearHeadlinesPosition(headlinesWrap);
+                }
+            });
+    };
+
     const openMobileGenericTip = (wrap, event) => {
         if (!isMobileGenericTipViewport() || !isMobileGenericTipWrap(wrap)) {
             return;
         }
         ensurePhoneGenericTipRuntimeCss();
+        closeResponsiveHeadlinesPopups();
         closeAllMobileGenericTips();
         wrap.classList.add("scoop-mobile-tip-open");
         scheduleMobileGenericTip(wrap, event);
@@ -3942,6 +4082,7 @@ _TOOLTIP_SCROLL_JS = """
             return;
         }
         ensureTabletGenericTipRuntimeCss();
+        closeResponsiveHeadlinesPopups();
         closeAllMobileGenericTips();
         wrap.classList.add("scoop-mobile-tip-open");
         clearTooltipScrollingHide();
@@ -4065,10 +4206,10 @@ _TOOLTIP_SCROLL_JS = """
     };
 
     const bindMobileGenericTips = () => {
-        if (window.__scoopMobileGenericTipBindVersion === 9) {
+        if (window.__scoopMobileGenericTipBindVersion === 10) {
             return;
         }
-        window.__scoopMobileGenericTipBindVersion = 9;
+        window.__scoopMobileGenericTipBindVersion = 10;
 
         const handleMobileGenericTipPointer = (event) => {
             if (!isMobileGenericTipViewport()) {
@@ -4140,7 +4281,7 @@ _TOOLTIP_SCROLL_JS = """
         window.__scoopTabletGenericTipTapHandler = handleTabletGenericTipTap;
         document.addEventListener("pointerdown", handleTabletGenericTipTap, true);
         document.addEventListener("click", handleTabletGenericTipTap, true);
-        window.__scoopTabletGenericTipBindVersion = 8;
+        window.__scoopTabletGenericTipBindVersion = 9;
 
         if (!window.__scoopTabletGenericTipCssWatch) {
             window.__scoopTabletGenericTipCssWatch = true;
@@ -4208,7 +4349,7 @@ _TOOLTIP_SCROLL_JS = """
         repositionVisibleGenericTooltips,
     };
 
-    if (window.__scoopGenericTooltipBindVersion !== 7) {
+    if ((window.__scoopGenericTooltipBindVersion || 0) < 7) {
         window.__scoopGenericTooltipBindVersion = 7;
         resetGenericTooltips();
     }
@@ -4862,9 +5003,31 @@ def inject_desktop_analyze_top_compact() -> None:
         f"<style id='scoop-crypto-analyze-responsive-metrics-css'>{CRYPTO_ANALYZE_RESPONSIVE_METRICS_CSS}</style>"
         + "<script>(function(){try{"
         + "var doc=(window.parent&&window.parent!==window&&window.parent.document)?window.parent.document:document;"
+        + "var win=doc.defaultView||window;"
         + "var root=doc.documentElement;"
         + 'root.setAttribute("data-scoop-analyze-active","1");'
         + source_js
+        + "if(win.__scoopDesktopAnalyzeMoodV===3)return;"
+        + "win.__scoopDesktopAnalyzeMoodV=3;"
+        + "var size=function(){"
+        + "if((win.innerWidth||0)<1367)return;"
+        + "if(root.getAttribute('data-scoop-analyze-active')!=='1')return;"
+        + "var feed=doc.querySelector('.mood-feed');if(!feed)return;"
+        + "var footer=doc.querySelector('.disclaimer-footer');"
+        + "var row=feed.closest('[data-testid=\"stHorizontalBlock\"]');"
+        + "var top=feed.getBoundingClientRect().top;"
+        + "var bottom=top+480;"
+        + "if(row){var rb=row.getBoundingClientRect().bottom;if(rb>top)bottom=rb-8;}"
+        + "if(footer){var ft=footer.getBoundingClientRect().top;if(ft>top)bottom=Math.min(bottom,ft-12);}"
+        + "var h=Math.max(320,Math.round(bottom-top));"
+        + "feed.style.setProperty('height',h+'px','important');"
+        + "feed.style.setProperty('max-height',h+'px','important');"
+        + "};"
+        + "var tick=function(){try{size();}catch(e){}};"
+        + "tick();"
+        + "win.requestAnimationFrame(tick);"
+        + "win.addEventListener('resize',tick);"
+        + "if(win.MutationObserver){new MutationObserver(tick).observe(doc.body,{childList:true,subtree:true});}"
         + "}catch(e){}})();</script>",
         unsafe_allow_javascript=True,
     )
@@ -4976,6 +5139,26 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
             clearTipStyles(wrap.querySelector(":scope > .tip-text"));
         });
     };
+    const closeHeadlines = () => {
+        if (!isPhone()) return;
+        document
+            .querySelectorAll(".tip-wrap.headlines-tip .hl-tip-cb:checked")
+            .forEach((cb) => {
+                cb.checked = false;
+                const wrap = cb.closest(".tip-wrap.headlines-tip");
+                if (!wrap) return;
+                wrap.classList.remove("hl-tip-desktop-open");
+                const tip = wrap.querySelector(":scope > .tip-text");
+                if (!tip) return;
+                [
+                    "--hl-fixed-top", "--hl-fixed-left", "--hl-fixed-width",
+                    "--hl-fixed-max-height", "--hl-fixed-height",
+                    "height", "position", "left", "top", "right", "bottom", "transform",
+                    "width", "max-width", "max-height", "visibility", "opacity",
+                    "pointer-events", "display", "flex-direction", "overflow",
+                ].forEach((p) => tip.style.removeProperty(p));
+            });
+    };
     const RUNTIME_CSS = `
 @media (max-width: 743px) {
   html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip):not(.scoop-mobile-tip-open) .tip-text,
@@ -5059,6 +5242,7 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
     const open = (wrap, clientY) => {
         if (!isPhone() || !isGeneric(wrap)) return;
         ensureCss();
+        closeHeadlines();
         closeAll();
         wrap.classList.add("scoop-mobile-tip-open");
         window.__scoopPhoneGenericTipOpenedAt = Date.now();
@@ -5083,7 +5267,12 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         if (openWrap && t.closest(".tip-text")) return;
 
         const wrap = t.closest(".tip-wrap:not(.headlines-tip)");
-        if (wrap && isGeneric(wrap)) {
+        if (wrap) {
+            closeHeadlines();
+            if (!isGeneric(wrap)) {
+                closeAll();
+                return;
+            }
             if (event.type === "pointerdown" && event.cancelable) event.preventDefault();
             // Same tip trigger again → close; other tip → switch.
             if (wrap.classList.contains("scoop-mobile-tip-open")) {
@@ -5139,7 +5328,7 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         setInterval(ensureCss, 1500);
         window.addEventListener("resize", ensureCss, { passive: true });
     }
-    window.__scoopPhoneGenericTipStandalone = 2;
+    window.__scoopPhoneGenericTipStandalone = 4;
 })();
 """
 
@@ -5549,6 +5738,117 @@ _TABLET_TIP_DISMISS_STANDALONE_JS = r"""
     document.addEventListener("touchmove", onScrollDismiss, { passive: true, capture: true });
     window.__scoopCloseTabletTips = closeTips;
     window.__scoopTabletTipDismissStandalone = 4;
+})();
+"""
+
+# Phone + tablet only: one tip at a time. Does not move or restyle tips.
+_MOBILE_TABLET_TIP_EXCLUSIVE_CSS = """
+@media (max-width: 1366px) {
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap:has(.hl-tip-cb:checked) .tip-wrap:not(.headlines-tip):not(.scoop-mobile-tip-open) > .tip-text,
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap:has(.hl-tip-cb:checked) .tip-wrap:not(.headlines-tip):not(.scoop-mobile-tip-open):hover > .tip-text,
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap:has(.hl-tip-cb:checked) .tip-wrap:not(.headlines-tip):not(.scoop-mobile-tip-open):active > .tip-text {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .tip-wrap.headlines-tip:has(.hl-tip-cb:checked) .tip-text,
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap.headlines-tip:has(.hl-tip-cb:checked) .tip-text {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+"""
+
+_MOBILE_TABLET_TIP_EXCLUSIVE_JS = r"""
+(() => {
+    const DESKTOP_MIN = 1367;
+    const isDesktop = () =>
+        (window.innerWidth || 0) >= DESKTOP_MIN ||
+        window.matchMedia("(min-width: 1367px)").matches;
+    const isPhoneOrTablet = () => !isDesktop();
+    const isDesktopTipTarget = (node) =>
+        !!(
+            node &&
+            node.closest &&
+            node.closest(
+                ".scoop-desktop-name-tip-open, .scoop-desktop-generic-tip-open, .scoop-desktop-header-tip-open, .hl-tip-desktop-open"
+            )
+        );
+    const clearHl = (tip) => {
+        if (!tip) return;
+        [
+            "--hl-fixed-top", "--hl-fixed-left", "--hl-fixed-width",
+            "--hl-fixed-max-height", "--hl-fixed-height",
+            "height", "position", "left", "top", "right", "bottom", "transform",
+            "width", "max-width", "max-height", "visibility", "opacity",
+            "pointer-events", "display", "flex-direction", "overflow",
+        ].forEach((p) => tip.style.removeProperty(p));
+    };
+    const clearGeneric = (tip) => {
+        if (!tip) return;
+        [
+            "position", "left", "top", "right", "bottom", "transform", "width",
+            "max-width", "min-width", "max-height", "overflow-y", "overflow-x",
+            "visibility", "opacity", "pointer-events", "display", "z-index",
+            "white-space", "word-break", "overflow-wrap", "box-sizing", "text-align",
+            "--scoop-mobile-tip-left", "--scoop-mobile-tip-top",
+            "--scoop-tablet-tip-left", "--scoop-tablet-tip-top", "--scoop-tablet-tip-width",
+        ].forEach((p) => tip.style.removeProperty(p));
+    };
+    const closeHeadlines = (exceptWrap) => {
+        if (isDesktop()) return;
+        document.querySelectorAll(".tip-wrap.headlines-tip .hl-tip-cb:checked").forEach((cb) => {
+            const wrap = cb.closest(".tip-wrap.headlines-tip");
+            if (exceptWrap && wrap === exceptWrap) return;
+            cb.checked = false;
+        });
+    };
+    const closeGenerics = (exceptWrap) => {
+        if (isDesktop()) return;
+        document.querySelectorAll(".tip-wrap:not(.headlines-tip).scoop-mobile-tip-open").forEach((wrap) => {
+            if (exceptWrap && wrap === exceptWrap) return;
+            wrap.classList.remove("scoop-mobile-tip-open");
+            clearGeneric(wrap.querySelector(":scope > .tip-text"));
+        });
+    };
+    const onTap = (event) => {
+        if (isDesktop() || !isPhoneOrTablet() || !event || !event.target || !event.target.closest) return;
+        if (isDesktopTipTarget(event.target)) return;
+        if (event.type === "pointerdown" && event.pointerType === "mouse" && event.button !== 0) return;
+        if (event.type === "click" && event.pointerType) return;
+        const t = event.target;
+        const hlWrap = t.closest(".tip-wrap.headlines-tip");
+        const count = t.closest(".hl-tip-count");
+        const genWrap = t.closest(".tip-wrap:not(.headlines-tip)");
+        if (hlWrap || count) {
+            const inOpenBody =
+                hlWrap &&
+                hlWrap.querySelector(".hl-tip-cb") &&
+                hlWrap.querySelector(".hl-tip-cb").checked &&
+                t.closest(".tip-text") &&
+                !t.closest(".hl-tip-backdrop") &&
+                !t.closest(".hl-tip-count");
+            if (inOpenBody) return;
+            closeGenerics(null);
+            return;
+        }
+        if (genWrap) {
+            const inOpenBody =
+                genWrap.classList.contains("scoop-mobile-tip-open") && t.closest(".tip-text");
+            if (inOpenBody) return;
+            closeHeadlines(null);
+            closeGenerics(genWrap);
+        }
+    };
+    if (window.__scoopMobileTabletTipExclusiveHandler) {
+        document.removeEventListener("pointerdown", window.__scoopMobileTabletTipExclusiveHandler, true);
+        document.removeEventListener("click", window.__scoopMobileTabletTipExclusiveHandler, true);
+    }
+    window.__scoopMobileTabletTipExclusiveHandler = onTap;
+    document.addEventListener("pointerdown", onTap, true);
+    document.addEventListener("click", onTap, true);
+    window.__scoopMobileTabletTipExclusive = 3;
 })();
 """
 
@@ -6225,6 +6525,8 @@ def install_tooltip_scroll_handler() -> None:
         f"<script id='scoop-tablet-headlines-center-standalone'>{_TABLET_HEADLINES_CENTER_STANDALONE_JS}</script>"
         f"<script id='scoop-ipad-mini-headlines-center-standalone'>{_IPAD_MINI_HEADLINES_CENTER_STANDALONE_JS}</script>"
         f"<script id='scoop-tablet-tip-dismiss-standalone'>{_TABLET_TIP_DISMISS_STANDALONE_JS}</script>"
+        f"<style id='scoop-mobile-tablet-tip-exclusive-css'>{_MOBILE_TABLET_TIP_EXCLUSIVE_CSS}</style>"
+        f"<script id='scoop-mobile-tablet-tip-exclusive'>{_MOBILE_TABLET_TIP_EXCLUSIVE_JS}</script>"
         f"<style id='scoop-desktop-headlines-css'>{_DESKTOP_HEADLINES_CSS}</style>",
         unsafe_allow_javascript=True,
     )

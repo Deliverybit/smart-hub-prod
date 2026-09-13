@@ -6,7 +6,7 @@ import streamlit as st
 
 _JS = r"""
 (() => {
-    const VERSION = 2;
+    const VERSION = 3;
     const DESKTOP_MIN = 1367;
     let appDoc = document;
     let appWin = window;
@@ -59,13 +59,14 @@ _JS = r"""
             return;
         }
         if (isInsideOpenPopup(t)) return;
+        if (Date.now() - (appWin.__scoopDesktopHlOpenedAt || 0) < 500) return;
         closeAll();
     };
 
     const onScroll = (event) => {
         if (!isDesktop()) return;
         if (event && event.target && isInsideOpenPopup(event.target)) return;
-        if (Date.now() - (appWin.__scoopDesktopHlOpenedAt || 0) < 400) return;
+        if (Date.now() - (appWin.__scoopDesktopHlOpenedAt || 0) < 500) return;
         closeAll();
     };
 

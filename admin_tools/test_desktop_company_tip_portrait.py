@@ -21,6 +21,7 @@ def test_css_caps_company_tip_width() -> None:
     assert "max-width: min(700px, calc(100vw - 2rem)) !important" in css
     assert "font-size: 1.25rem !important" in css
     assert "line-height: 1.55 !important" in css
+    assert "font-size: 16px !important" not in css
     assert "width: 220px !important" not in css
 
 

@@ -2088,6 +2088,10 @@ _HOME_LOGO_MAX = "clamp(240px, 64vw, 340px)"
 _HOME_LOGO_TABLET_MAX = "clamp(360px, 50vw, 520px)"
 _HOME_HEADER_CLEARANCE = "calc(4.75rem + env(safe-area-inset-top, 0px))"
 _MOBILE_TAB_MAIN = 'html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"]'
+# Do not prefix _MOBILE_TAB_MAIN with another html[...] — that becomes html html.
+_GATED_MOBILE_TAB_MAIN = (
+    'html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"]'
+)
 _MOBILE_TAB_DARK_MODE_SCOPE = f'{_MOBILE_TAB_MAIN} .scoop-mobile-inner-top-toggle'
 _MOBILE_TAB_TOGGLE_WRAP = (
     f'{_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="element-container"]:has([data-testid="stToggle"]), '
@@ -3727,13 +3731,13 @@ _RESPONSIVE_SCREENER_TOP_COMPACT_RULES = """
 # Mobile/tablet terms gate checkbox — restore compact page styling (not Dark mode box).
 _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE = f"""
 @media (max-width: 1366px) {{
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)),
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) {{
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)),
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) {{
         margin-bottom: {_DESKTOP_MARKET_NAV_GAP} !important;
         padding-bottom: {_DESKTOP_MARKET_NAV_GAP} !important;
     }}
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"],
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {{
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"],
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {{
         padding: 0.5rem 0.8rem !important;
         margin-top: 0.35rem !important;
         margin-bottom: {_DESKTOP_MARKET_NAV_GAP} !important;
@@ -3745,25 +3749,25 @@ _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE = f"""
         font-size: inherit !important;
         overflow: visible !important;
     }}
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] [data-testid="stWidgetLabel"] p,
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] label p {{
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] [data-testid="stWidgetLabel"] p,
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] label p {{
         font-size: inherit !important;
         line-height: normal !important;
     }}
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] [data-testid="stTooltipIcon"],
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] [data-testid="stTooltipIcon"] {{
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] [data-testid="stTooltipIcon"],
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] [data-testid="stTooltipIcon"] {{
         font-size: 14px !important;
         width: 14px !important;
         height: 14px !important;
     }}
     /* Streamlit wraps the markdown Terms link in <label>, so mobile/tablet taps
        toggle the box instead of opening Disclaimer & Terms. */
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
         pointer-events: none !important;
     }}
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) [data-baseweb="checkbox"],
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) input,
-    html[data-scoop-screener-gated="1"] {_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) a[href*="Terms_of_Service"] {{
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) [data-baseweb="checkbox"],
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) input,
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) a[href*="Terms_of_Service"] {{
         pointer-events: auto !important;
         position: relative !important;
         z-index: 7 !important;

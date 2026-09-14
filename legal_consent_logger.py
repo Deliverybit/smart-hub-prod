@@ -813,7 +813,7 @@ def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
         return `${{link.getAttribute("href") || ""}} ${{link.href || ""}}`;
     }};
     const onClick = (event) => {{
-        if (event.type !== "click") {{
+        if (event.type === "touchstart") {{
             return;
         }}
         const w = aw.innerWidth || window.innerWidth || 0;
@@ -852,6 +852,10 @@ def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
         if (typeof event.stopImmediatePropagation === "function") {{
             event.stopImmediatePropagation();
         }}
+        if (aw.__scoopTermsNavLock && Date.now() < aw.__scoopTermsNavLock) {{
+            return;
+        }}
+        aw.__scoopTermsNavLock = Date.now() + 1500;
         link.setAttribute("target", "_self");
         mark();
         const href = link.getAttribute("href") || link.href || "/Terms_of_Service";
@@ -861,15 +865,16 @@ def inject_mobile_consent_terms_nav_bridge(st_module) -> None:
         aw.location.assign(url);
     }};
     retargetTermsLinks();
-    if (aw.__scoopMobileConsentTermsNavVersion !== 6) {{
+    if (aw.__scoopMobileConsentTermsNavVersion !== 7) {{
         if (aw.__scoopMobileConsentTermsNavHandler) {{
             doc.removeEventListener("click", aw.__scoopMobileConsentTermsNavHandler, true);
             doc.removeEventListener("touchstart", aw.__scoopMobileConsentTermsNavHandler, true);
             doc.removeEventListener("pointerdown", aw.__scoopMobileConsentTermsNavHandler, true);
         }}
         aw.__scoopMobileConsentTermsNavHandler = onClick;
-        aw.__scoopMobileConsentTermsNavVersion = 6;
+        aw.__scoopMobileConsentTermsNavVersion = 7;
         doc.addEventListener("click", aw.__scoopMobileConsentTermsNavHandler, true);
+        doc.addEventListener("pointerdown", aw.__scoopMobileConsentTermsNavHandler, true);
     }}
     if (!aw.__scoopMobileConsentTermsRetarget) {{
         aw.__scoopMobileConsentTermsRetarget = true;

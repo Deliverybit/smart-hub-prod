@@ -1736,7 +1736,7 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
 
     const TERMS_NAV_COLLAPSE_KEY = "scoop-terms-nav-collapse";
     const TERMS_NAV_SUPPRESS_MS = 15000;
-    const PAGE_NAV_BIND_VERSION = 11;
+    const PAGE_NAV_BIND_VERSION = 12;
 
     const enforceMobileTermsMainView = () => {
         if (!__scoopShouldHoldTermsMainView()) {
@@ -1846,8 +1846,10 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         }
         const termsHref = `${link.getAttribute("href") || ""} ${link.href || ""}`;
         if (/Terms_of_Service/i.test(termsHref)) {
-            // pointerdown/touchstart preventDefault blocks mobile/tablet navigation.
-            if (event.type !== "click") {
+            // Mobile/tablet: the link lives inside the consent <label>. Streamlit
+            // consumes touch on pointerdown and often never fires click. Navigate
+            // on pointerdown (and click as fallback), once per gesture.
+            if (event.type === "touchstart") {
                 return;
             }
             if (__scoopShouldHoldTermsMainView()) {
@@ -1856,6 +1858,10 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
                 if (typeof event.stopImmediatePropagation === "function") {
                     event.stopImmediatePropagation();
                 }
+                if (appWin.__scoopTermsNavLock && Date.now() < appWin.__scoopTermsNavLock) {
+                    return;
+                }
+                appWin.__scoopTermsNavLock = Date.now() + 1500;
                 link.setAttribute("target", "_self");
                 markMobileTermsNav();
                 __scoopNavigateMobileTerms(link, appWin);

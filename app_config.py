@@ -108,7 +108,7 @@ def get_screener_symbol_limit(default: int = 1000) -> int:
 SCREENER_CACHE_VERSION = 6
 
 # Visible in the staging banner so Streamlit Cloud deploys are easy to verify.
-APP_BUILD_ID = "2026-09-13-gating-terms-touch"
+APP_BUILD_ID = "2026-09-13-gating-disclaimer"
 
 # Back-compat aliases used by some page variants.
 ALPHAVANTAGE_CACHE_TIMEOUT = 900

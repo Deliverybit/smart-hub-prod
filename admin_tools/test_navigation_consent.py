@@ -48,9 +48,16 @@ class _FakeSt:
         self.context = SimpleNamespace(headers=headers)
         self.warnings: list[str] = []
         self.checkboxes: list[tuple[str, str]] = []
+        self.page_links: list[tuple[str, str]] = []
 
     def warning(self, text: str) -> None:
         self.warnings.append(text)
+
+    def page_link(self, path: str, *, label: str, use_container_width: bool = False) -> None:
+        self.page_links.append((path, label))
+
+    def html(self, *_args, **_kwargs) -> None:
+        return None
 
     def checkbox(self, label: str, *, key: str) -> bool:  # noqa: ARG002
         self.checkboxes.append((label, key))
@@ -74,6 +81,7 @@ def test_cookie_does_not_skip_gate_without_session() -> None:
     assert consent.terms_accepted(st, "agree_terms_nyse") is False
     assert st.warnings
     assert st.checkboxes
+    assert st.page_links == [("pages/7_Terms_of_Service.py", "Disclaimer & Terms")]
 
 
 def test_other_page_cookie_does_not_skip_gate() -> None:

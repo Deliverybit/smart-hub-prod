@@ -62,6 +62,8 @@ def test_consent_bridge_marks_tablet_tab_nav() -> None:
     assert 'doc.addEventListener("pointerdown"' in source
     assert "scoop-terms-force-responsive" in source
     assert 'setAttribute("data-scoop-tab-nav", "1")' in source
+    assert 'st_module.page_link(' in source
+    assert "pages/7_Terms_of_Service.py" in source
 
 
 def test_landing_skips_desktop_sidebar_for_forced_terms() -> None:

@@ -8,10 +8,11 @@ support when DATABASE_URL is configured and psycopg is available.
 
 from __future__ import annotations
 
-import ipaddress
 import hashlib
+import ipaddress
 import json
 import os
+import re
 import sqlite3
 import uuid
 from functools import lru_cache
@@ -904,7 +905,15 @@ def render_terms_gate(
 
     st_module.warning(warning_text)
     inject_mobile_consent_terms_nav_bridge(st_module)
-    if st_module.checkbox(checkbox_label, key=f"{consent_key}__widget"):
+    # Native Streamlit page link — Cloud swallows <a> taps inside checkbox labels
+    # and st.html listeners often never bind on the app iframe.
+    st_module.page_link(
+        "pages/7_Terms_of_Service.py",
+        label="Disclaimer & Terms",
+        use_container_width=True,
+    )
+    plain_label = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", checkbox_label)
+    if st_module.checkbox(plain_label, key=f"{consent_key}__widget"):
         st_module.session_state[flag] = True
         persist_terms_to_browser(consent_key)
         mark_post_consent_collapsed_view()

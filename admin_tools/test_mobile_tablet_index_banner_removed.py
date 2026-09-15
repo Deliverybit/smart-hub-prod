@@ -21,7 +21,8 @@ def test_responsive_css_hides_banners_on_gate() -> None:
     assert "--scoop-tablet-gutter" in css
     assert "flex-direction: column !important" in css
     assert "flex-direction: row !important" in css
-    assert 'html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])' in css
+    assert 'html:has([class*="st-key-agree_terms"])' in css
+    assert 'html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"]))' in css
     assert "max-width: 100% !important" in css
     assert "min-width: 0 !important" in css
     assert "[style*=\"max-width:50%\"]" in css or '[style*="max-width:50%"]' in css
@@ -48,6 +49,7 @@ def test_banner_css_is_injected_to_parent() -> None:
 
     src = Path(__file__).resolve().parents[1].joinpath("tooltip_scroll.py").read_text(encoding="utf-8")
     assert "scoop-mobile-tablet-index-banner-parent-css" in src
+    assert "scoop-mobile-tablet-index-banner-page-css" in src
     assert "MOBILE_TABLET_INDEX_BANNER_CSS" in src
     assert "_inject_mobile_tablet_index_banner_parent_css" in src
 

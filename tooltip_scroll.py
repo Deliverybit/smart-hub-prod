@@ -5039,22 +5039,33 @@ def inject_desktop_sidebar_nav_market() -> None:
 
 
 def _inject_mobile_tablet_index_banner_parent_css() -> None:
-    """Put index-banner CSS on the parent document so phone/tablet layout actually applies."""
-    css_json = json.dumps(MOBILE_TABLET_INDEX_BANNER_CSS)
+    """Ship index-banner CSS in the page (Cloud) and copy it onto parent docs."""
+    css = MOBILE_TABLET_INDEX_BANNER_CSS
+    st.markdown(
+        f'<style id="scoop-mobile-tablet-index-banner-page-css">{css}</style>',
+        unsafe_allow_html=True,
+    )
+    css_json = json.dumps(css)
     st.html(
         f"""<script>
 (function() {{
   try {{
     const css = {css_json};
-    const doc = (window.parent && window.parent.document) ? window.parent.document : document;
     const id = "scoop-mobile-tablet-index-banner-parent-css";
-    let el = doc.getElementById(id);
-    if (!el) {{
-      el = doc.createElement("style");
-      el.id = id;
-      (doc.head || doc.documentElement).appendChild(el);
+    function apply(doc) {{
+      if (!doc || !doc.documentElement) return;
+      let el = doc.getElementById(id);
+      if (!el) {{
+        el = doc.createElement("style");
+        el.id = id;
+        (doc.head || doc.documentElement).appendChild(el);
+      }}
+      if (el.textContent !== css) el.textContent = css;
     }}
-    if (el.textContent !== css) el.textContent = css;
+    apply(document);
+    try {{
+      if (window.parent && window.parent.document) apply(window.parent.document);
+    }} catch (e) {{}}
   }} catch (e) {{}}
 }})();
 </script>""",

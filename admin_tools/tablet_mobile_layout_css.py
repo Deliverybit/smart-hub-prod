@@ -4063,11 +4063,11 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
     html[data-scoop-screener-gated="1"] body .stApp .scoop-banner-desktop,
     html[data-scoop-screener-gated="1"] body .stApp .scoop-banner-compact,
     html[data-scoop-screener-gated="1"] body .stApp .scoop-index-card,
-    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp .scoop-banner-desktop,
-    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp .scoop-banner-compact,
-    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp .scoop-index-card,
-    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
-    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact) {
+    html:has([class*="st-key-agree_terms"]) body .stApp .scoop-banner-desktop,
+    html:has([class*="st-key-agree_terms"]) body .stApp .scoop-banner-compact,
+    html:has([class*="st-key-agree_terms"]) body .stApp .scoop-index-card,
+    html:has([class*="st-key-agree_terms"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:has([class*="st-key-agree_terms"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact) {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -4079,10 +4079,10 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
     }
 }
 @media (max-width: 743px) {
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-desktop),
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-compact) {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-compact) {
         display: block !important;
         visibility: visible !important;
         width: calc(100% + (2 * var(--scoop-tablet-gutter, 1.125rem))) !important;
@@ -4094,8 +4094,8 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
         height: auto !important;
         overflow: visible !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop,
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-desktop,
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-compact {
         display: flex !important;
         flex-direction: column !important;
         flex-wrap: nowrap !important;
@@ -4104,10 +4104,10 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
         gap: 0.5rem !important;
         box-sizing: border-box !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop .scoop-index-card,
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact .scoop-index-card,
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="max-width:50%"],
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="min-width:220px"] {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-desktop .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-compact .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card[style*="max-width:50%"],
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card[style*="min-width:220px"] {
         display: flex !important;
         visibility: visible !important;
         flex: 1 1 auto !important;
@@ -4118,9 +4118,9 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
     }
 }
 @media (min-width: 744px) and (max-width: 1366px) {
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-desktop) {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-desktop) {
         display: block !important;
         visibility: visible !important;
         width: calc(100% + (2 * var(--scoop-tablet-gutter, 1.125rem))) !important;
@@ -4132,8 +4132,8 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
         height: auto !important;
         overflow: visible !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop,
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-desktop,
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-compact {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
@@ -4142,10 +4142,10 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
         gap: 0.5rem !important;
         box-sizing: border-box !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop .scoop-index-card,
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact .scoop-index-card,
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="max-width:50%"],
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="min-width:220px"] {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-desktop .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-banner-compact .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card[style*="max-width:50%"],
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card[style*="min-width:220px"] {
         display: flex !important;
         visibility: visible !important;
         flex: 1 1 0 !important;
@@ -4154,23 +4154,23 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
         max-width: none !important;
         box-sizing: border-box !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
         font-size: 1.18rem !important;
         line-height: 1.3 !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
         font-size: 1.85rem !important;
         line-height: 1.2 !important;
     }
 }
 @media (max-width: 743px) {
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
         font-size: 1.28rem !important;
         white-space: normal !important;
         overflow: visible !important;
         text-overflow: unset !important;
     }
-    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
+    html:not([data-scoop-screener-gated="1"]):not(:has([class*="st-key-agree_terms"])) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
         font-size: 2.05rem !important;
     }
 }

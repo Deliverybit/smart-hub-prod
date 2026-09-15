@@ -11,12 +11,14 @@ from admin_tools.dark_mode_css import DARK_MODE_CSS
 
 SESSION_KEY = "scoop_dark_mode"
 TOGGLE_KEY = "scoop_dark_mode_toggle"
+MAIN_TOGGLE_KEY = "scoop_dark_mode_toggle_main"
 STORAGE_KEY = "scoop-theme"
 HYDRATED_KEY = "_scoop_theme_hydrated"
 PAGE_KEY = "_scoop_theme_page"
 SKIP_HYDRATE_KEY = "_scoop_theme_skip_hydrate"
 WRITE_SEQ_KEY = "_scoop_theme_write_seq"
-# Use sessionStorage so each new browser session starts light; persists across pages in the same tab.
+# Parent sessionStorage: same-origin Streamlit iframes each have their own
+# sessionStorage, so iframe writes never stick. New browser tab still starts light.
 _BROWSER_STORAGE = "sessionStorage"
 
 
@@ -29,11 +31,25 @@ def _theme_known_in_session() -> bool:
     return bool(st.session_state.get(HYDRATED_KEY))
 
 
+def _parent_theme_store_js() -> str:
+    """Read/write the parent tab's sessionStorage (shared across Streamlit iframes)."""
+    storage = json.dumps(STORAGE_KEY)
+    return (
+        "function scoopThemeStore() {"
+        "  var win = window;"
+        "  try { if (window.parent && window.parent !== window) win = window.parent; } catch (e) {}"
+        "  try { win.localStorage.removeItem(" + storage + "); } catch (e) {}"
+        "  try { return win.sessionStorage || sessionStorage; } catch (e) { return sessionStorage; }"
+        "}"
+    )
+
+
 def _set_theme_session(dark: bool, *, touch_toggle_key: bool = True) -> None:
     st.session_state[SESSION_KEY] = dark
     st.session_state[HYDRATED_KEY] = True
     if touch_toggle_key:
         st.session_state[TOGGLE_KEY] = dark
+        st.session_state[MAIN_TOGGLE_KEY] = dark
 
 
 def _calling_page_id() -> str:
@@ -76,12 +92,9 @@ def _hydrate_theme_from_storage() -> bool:
 
     stored = streamlit_js_eval(
         js_expressions=(
-            f"(() => {{ "
-            f"  const nav = performance.getEntriesByType('navigation')[0]; "
-            f"  const reloaded = nav && nav.type === 'reload' ? '1' : '0'; "
-            f"  try {{ localStorage.removeItem('{STORAGE_KEY}'); }} catch (e) {{}} "
-            f"  const theme = {_BROWSER_STORAGE}.getItem('{STORAGE_KEY}') || ''; "
-            f"  return reloaded + '|' + theme; "
+            f"(() => {{ {_parent_theme_store_js()} "
+            f"  try {{ return scoopThemeStore().getItem('{STORAGE_KEY}') || ''; }} "
+            f"  catch (e) {{ return ''; }} "
             f"}})()"
         ),
         key=_storage_read_key(),
@@ -93,15 +106,11 @@ def _hydrate_theme_from_storage() -> bool:
 
     raw = str(stored)
     if "|" in raw:
-        reloaded, theme_raw = raw.split("|", 1)
+        _prefix, theme_raw = raw.split("|", 1)
     else:
-        reloaded, theme_raw = "0", raw
+        theme_raw = raw
 
-    should_sync = (
-        not _theme_known_in_session()
-        or last_page != page
-        or reloaded == "1"
-    )
+    should_sync = not _theme_known_in_session() or last_page != page
     if should_sync:
         _set_theme_session(_dark_from_storage_value(theme_raw))
         st.session_state[PAGE_KEY] = page
@@ -112,29 +121,6 @@ def _hydrate_theme_from_storage() -> bool:
 def _write_theme_to_storage(theme: str) -> None:
     seq = int(st.session_state.get(WRITE_SEQ_KEY, 0)) + 1
     st.session_state[WRITE_SEQ_KEY] = seq
-
-    try:
-        from streamlit_js_eval import streamlit_js_eval
-    except ImportError:
-        _save_theme_preference(theme)
-        return
-
-    if theme == "dark":
-        js = (
-            f"(() => {{ try {{ localStorage.removeItem('{STORAGE_KEY}'); "
-            f"{_BROWSER_STORAGE}.setItem('{STORAGE_KEY}', 'dark'); }} catch (e) {{}} }})()"
-        )
-    else:
-        js = (
-            f"(() => {{ try {{ localStorage.removeItem('{STORAGE_KEY}'); "
-            f"{_BROWSER_STORAGE}.removeItem('{STORAGE_KEY}'); }} catch (e) {{}} }})()"
-        )
-    streamlit_js_eval(
-        js_expressions=js,
-        key=f"scoop_theme_write_{seq}",
-        want_output=False,
-        height=0,
-    )
     _save_theme_preference(theme)
 
 
@@ -209,37 +195,22 @@ def _apply_theme_dom(theme: str) -> None:
 
 
 def _save_theme_preference(theme: str) -> None:
-    storage = json.dumps(STORAGE_KEY)
-    browser_storage = _BROWSER_STORAGE
-    if theme == "dark":
-        payload = json.dumps("dark")
-        st.html(
-            f"""
+    payload = json.dumps("dark" if theme == "dark" else "")
+    st.html(
+        f"""
 <script>
 (function() {{
+    {_parent_theme_store_js()}
     try {{
-        localStorage.removeItem({storage});
-        {browser_storage}.setItem({storage}, {payload});
+        var store = scoopThemeStore();
+        if ({payload} === "dark") store.setItem({json.dumps(STORAGE_KEY)}, "dark");
+        else store.removeItem({json.dumps(STORAGE_KEY)});
     }} catch (e) {{}}
 }})();
 </script>
 """,
-            unsafe_allow_javascript=True,
-        )
-    else:
-        st.html(
-            f"""
-<script>
-(function() {{
-    try {{
-        localStorage.removeItem({storage});
-        {browser_storage}.removeItem({storage});
-    }} catch (e) {{}}
-}})();
-</script>
-""",
-            unsafe_allow_javascript=True,
-        )
+        unsafe_allow_javascript=True,
+    )
 
 
 def inject_dark_mode_styles() -> None:
@@ -280,17 +251,16 @@ def inject_dark_mode_styles() -> None:
 def _early_theme_bootstrap_script() -> None:
     """Apply session theme to <html> before first paint on every page load."""
     storage = json.dumps(STORAGE_KEY)
-    browser_storage = _BROWSER_STORAGE
     st.html(
         f"""
 <script>
 (function() {{
+    {_parent_theme_store_js()}
     const doc = window.parent && window.parent.document ? window.parent.document : document;
     const root = doc.documentElement;
     let theme = "light";
     try {{
-        localStorage.removeItem({storage});
-        const stored = {browser_storage}.getItem({storage});
+        const stored = scoopThemeStore().getItem({storage});
         if (stored === "dark") {{
             theme = "dark";
         }}
@@ -356,12 +326,10 @@ def install_theme_support() -> None:
 
 def _on_dark_mode_toggle_change() -> None:
     dark = bool(st.session_state.get(TOGGLE_KEY, False))
-    st.session_state[SESSION_KEY] = dark
-    st.session_state[HYDRATED_KEY] = True
+    _set_theme_session(dark)
     st.session_state[PAGE_KEY] = _calling_page_id()
     st.session_state[SKIP_HYDRATE_KEY] = True
-    theme = "dark" if dark else "light"
-    _write_theme_to_storage(theme)
+    _write_theme_to_storage("dark" if dark else "light")
 
 
 def render_dark_mode_toggle() -> None:
@@ -389,14 +357,13 @@ def render_dark_mode_toggle_main(*, label: str = "Dark") -> None:
     Always render on first paint so the control is visible before storage
     hydration completes (market inner pages especially).
     """
-    main_key = f"{TOGGLE_KEY}_main"
+    main_key = MAIN_TOGGLE_KEY
     if main_key not in st.session_state:
         st.session_state[main_key] = is_dark_mode()
 
     def _on_main_toggle_change() -> None:
         dark = bool(st.session_state.get(main_key, False))
-        st.session_state[SESSION_KEY] = dark
-        st.session_state[HYDRATED_KEY] = True
+        _set_theme_session(dark)
         st.session_state[PAGE_KEY] = _calling_page_id()
         st.session_state[SKIP_HYDRATE_KEY] = True
         _write_theme_to_storage("dark" if dark else "light")

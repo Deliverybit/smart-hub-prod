@@ -49,11 +49,12 @@ def test_toggle_key_controls_mode() -> None:
 
 def test_bootstrap_only_restores_explicit_dark() -> None:
     src = Path(theme_mode.__file__).read_text(encoding="utf-8")
+    helper = src.split("def _parent_theme_store_js")[1].split("def _set_theme_session")[0]
     bootstrap = src.split("def _early_theme_bootstrap_script")[1].split("def apply_theme_from_query_param")[0]
     assert 'let theme = "light";' in bootstrap
     assert 'if (stored === "dark")' in bootstrap
-    assert ".getItem" in bootstrap
-    assert "localStorage.removeItem" in bootstrap
+    assert "scoopThemeStore" in bootstrap
+    assert "localStorage.removeItem" in helper
     assert 'getAttribute("data-scoop-theme") === "dark"' not in bootstrap
 
 
@@ -128,6 +129,7 @@ def test_hydrate_dark_storage_restores_toggle() -> None:
     theme_mode._hydrate_theme_from_storage()
     assert theme_mode.is_dark_mode() is True
     assert theme_mode.st.session_state[theme_mode.TOGGLE_KEY] is True
+    assert theme_mode.st.session_state[theme_mode.MAIN_TOGGLE_KEY] is True
 
 
 def test_apply_theme_uses_session_while_storage_pending() -> None:
@@ -196,6 +198,22 @@ def test_toggle_skip_hydrate_preserves_session() -> None:
     assert theme_mode.is_dark_mode() is True
 
 
+def test_hydrate_reads_parent_session_storage() -> None:
+    src = Path(theme_mode.__file__).read_text(encoding="utf-8")
+    hydrate = src.split("def _hydrate_theme_from_storage")[1].split("def _write_theme_to_storage")[0]
+    assert "scoopThemeStore" in hydrate
+    assert "getEntriesByType('navigation')" not in hydrate
+    assert 'reloaded == "1"' not in hydrate
+
+
+def test_set_theme_session_syncs_main_toggle() -> None:
+    ss = _fresh_session()
+    theme_mode._set_theme_session(True)
+    assert ss[theme_mode.SESSION_KEY] is True
+    assert ss[theme_mode.TOGGLE_KEY] is True
+    assert ss[theme_mode.MAIN_TOGGLE_KEY] is True
+
+
 def test_static_css_requires_dark_attribute() -> None:
     from admin_tools.dark_mode_css import DARK_MODE_CSS
 
@@ -220,6 +238,8 @@ def main() -> int:
         test_apply_theme_uses_session_while_storage_pending,
         test_page_navigation_rehydrates_from_storage,
         test_toggle_skip_hydrate_preserves_session,
+        test_hydrate_reads_parent_session_storage,
+        test_set_theme_session_syncs_main_toggle,
         test_static_css_requires_dark_attribute,
     ]
     for fn in tests:

@@ -439,18 +439,31 @@ def render_mobile_back_home_bar(*, current_page: str | None) -> None:
     function revealAll() {
         docs().forEach(revealDisclaimerBanner);
     }
-    bind(document.getElementById("scoop-mobile-dark-cb"));
-    document.addEventListener("change", function(ev) {
-        const t = ev.target;
+    function bindAll() {
+        docs().forEach(function(doc) {
+            bind(doc.getElementById("scoop-mobile-dark-cb"));
+        });
+    }
+    function onThemeChange(ev) {
+        const t = ev && ev.target;
         if (t && t.id === "scoop-mobile-dark-cb") apply(t.checked);
-    }, true);
+    }
+    docs().forEach(function(doc) {
+        const root = doc.documentElement;
+        if (!root || root.dataset.scoopThemeListen === "1") return;
+        root.dataset.scoopThemeListen = "1";
+        doc.addEventListener("change", onThemeChange, true);
+    });
+    bindAll();
     revealAll();
     [120, 400, 1000, 2000].forEach(function(ms) {
-        setTimeout(revealAll, ms);
+        setTimeout(function() { bindAll(); revealAll(); }, ms);
     });
     try {
-        const obs = new MutationObserver(function() { revealAll(); });
-        obs.observe(document.documentElement, { childList: true, subtree: true });
+        const obs = new MutationObserver(function() { bindAll(); revealAll(); });
+        docs().forEach(function(doc) {
+            obs.observe(doc.documentElement, { childList: true, subtree: true });
+        });
     } catch (e) {}
 })();
 </script>

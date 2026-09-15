@@ -4968,6 +4968,9 @@ MOBILE_BACK_HOME_BAR = """
         background: #334155 !important;
         box-shadow: inset 0 0 0 1px #94a3b8 !important;
     }
+    html[data-scoop-theme="dark"] .scoop-mobile-fixed-dark-switch::after {
+        left: 1.2rem !important;
+    }
     /* Spacer no longer doubles banner clearance — back bar is in document flow. */
     .scoop-mobile-back-home-spacer {
         display: none !important;

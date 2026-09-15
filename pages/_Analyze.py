@@ -37,7 +37,7 @@ from theme_mode import (
     install_theme_support,
     is_dark_mode,
 )
-from landing_page import is_mobile_tablet_viewport, render_responsive_navigation
+from landing_page import is_desktop_viewport, render_responsive_navigation
 from tooltip_scroll import install_tooltip_scroll_handler, inject_desktop_analyze_top_compact
 
 # Search price chart: axis tick/title sizes (px in Plotly). Mobile matches existing UI.
@@ -1142,6 +1142,26 @@ st.markdown(
             margin: 0 !important;
             border: none !important;
         }
+        [data-testid="stHorizontalBlock"]:has(.mood-feed),
+        [data-testid="stHorizontalBlock"]:has(.mood-column) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.mood-feed) > div,
+        [data-testid="stHorizontalBlock"]:has(.mood-column) > div {
+            min-width: 0 !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:first-child,
+        [data-testid="stHorizontalBlock"]:has(.mood-column) > div:first-child {
+            flex: 2 1 0 !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:last-child,
+        [data-testid="stHorizontalBlock"]:has(.mood-column) > div:last-child {
+            flex: 1 1 0 !important;
+        }
         .scoop-env-banner {
             margin-bottom: 0.25rem !important;
         }
@@ -1589,7 +1609,9 @@ def _render_search_dashboard(ticker: str) -> None:
         unsafe_allow_html=True,
     )
 
-    _is_mobile_tablet_analyze = is_mobile_tablet_viewport(page="pages/_Analyze.py")
+    # Confirmed phone/tablet only. Unknown probe stays on the desktop two-column
+    # layout; ≤1366px CSS still stacks those columns.
+    _is_mobile_tablet_analyze = is_desktop_viewport(page="pages/_Analyze.py") is False
     if _is_mobile_tablet_analyze:
         _render_crypto_responsive_price_card(
             last_price=last_price,
@@ -1609,7 +1631,7 @@ def _render_search_dashboard(ticker: str) -> None:
         col_chart = st.container()
         col_mood = st.container()
     else:
-        col_chart, col_mood = st.columns([2, 1])
+        col_chart, col_mood = st.columns([2, 1], gap="medium")
 
     with col_chart:
         if not _is_mobile_tablet_analyze:

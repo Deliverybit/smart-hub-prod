@@ -24,20 +24,23 @@ def test_phone_final_css_beats_page_right_edge() -> None:
     # Theme-border rules may mention headlines-tip; layout/width is generic-only.
     # Must retarget fr-val so page right:0 cannot park tips off-screen.
     assert ".fr-val .tip-wrap:not(.headlines-tip).scoop-mobile-tip-open > .tip-text" in css
-    assert "min(26rem, calc(100vw - 1.25rem))" in css
+    assert "50vw" in css
+    assert "scoop-tip-title" in css
     assert "font-size: 1.08rem" in css
 
 
 def test_phone_positioner_in_tooltip_scroll() -> None:
     source = (ROOT / "tooltip_scroll.py").read_text(encoding="utf-8")
-    assert "applyPhoneViewportCenteredGenericTip" in source
+    assert "ensureGenericTipTitle" in source
+    assert "scoop-tip-title" in source
+    assert "innerWidth * 0.5" in source
     assert "ensurePhoneGenericTipRuntimeCss" in source
     assert "PHONE_GENERIC_TIP_FINAL_CSS" in source
     assert "scoop-phone-generic-tip-final-css" in source
     assert "scoop-phone-generic-tip-runtime-css" in source
     assert "scoop-phone-generic-tip-standalone" in source
     assert "_PHONE_GENERIC_TIP_STANDALONE_JS" in source
-    assert "__scoopPhoneGenericTipStandalone = 5" in source
+    assert "__scoopPhoneGenericTipStandalone = 6" in source
     assert "_MOBILE_TABLET_TIP_EXCLUSIVE_JS" in source
     assert "closeResponsiveHeadlinesPopups" in source
     assert "--scoop-mobile-tip-left" in source

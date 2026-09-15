@@ -3562,7 +3562,7 @@ _TOOLTIP_SCROLL_JS = """
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
         tip.style.setProperty("transform", "none", "important");
-        tip.style.setProperty("width", "min(26rem, calc(100vw - 1.25rem))", "important");
+        tip.style.setProperty("width", "50vw", "important");
         const ipadW = tip.getBoundingClientRect().width || tip.offsetWidth;
         const ipadLeft = Math.max(pad, (window.innerWidth - ipadW) / 2);
         tip.style.setProperty("left", `${ipadLeft}px`, "important");
@@ -3882,7 +3882,7 @@ _TOOLTIP_SCROLL_JS = """
             tip.style.setProperty("position", "fixed", "important");
             tip.style.setProperty("left", "-9999px", "important");
             tip.style.setProperty("top", "0", "important");
-            tip.style.setProperty("width", "min(26rem, calc(100vw - 1.25rem))", "important");
+            tip.style.setProperty("width", "50vw", "important");
         }
         const height = tip.offsetHeight;
         tip.style.removeProperty("visibility");
@@ -3900,8 +3900,8 @@ _TOOLTIP_SCROLL_JS = """
             return;
         }
         const pad = 8;
-        const maxWidth = Math.max(120, window.innerWidth - pad * 2);
-        const tipWidth = Math.round(Math.min(26 * 16, maxWidth));
+        const tipWidth = Math.round(window.innerWidth * 0.5);
+        const maxWidth = tipWidth;
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
         tip.style.setProperty("bottom", "auto", "important");
@@ -3964,16 +3964,8 @@ _TOOLTIP_SCROLL_JS = """
             !!wrap.closest(".fr-val") ||
             wrapRect.left > (cardLeft + cardRight) / 2;
 
-        let tipWidth = Math.round(
-            Math.min(520, Math.max(220, Math.min(window.innerWidth * 0.72, cardInnerW * 0.82)))
-        );
-        if (preferLeft) {
-            const maxLeftW = Math.max(140, Math.floor(wrapRect.left - gap - cardLeft));
-            tipWidth = Math.min(tipWidth, maxLeftW);
-        } else {
-            const maxRightW = Math.max(140, Math.floor(cardRight - (wrapRect.right + gap)));
-            tipWidth = Math.min(tipWidth, maxRightW);
-        }
+        let tipWidth = Math.round(window.innerWidth * 0.5);
+        tipWidth = Math.max(120, Math.min(tipWidth, viewRight - viewLeft));
 
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
@@ -4088,6 +4080,36 @@ _TOOLTIP_SCROLL_JS = """
             });
     };
 
+    const genericTipName = (wrap) => {
+        const td = wrap.closest("td[data-label]");
+        if (td) {
+            const label = String(td.getAttribute("data-label") || "").trim();
+            if (label) return label;
+        }
+        let t = "";
+        wrap.childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE) t += node.textContent || "";
+        });
+        t = t.replace(/\s+/g, " ").trim();
+        if (t) return t;
+        const clone = wrap.cloneNode(true);
+        clone.querySelectorAll(".tip-text, .hl-tip-cb, .scoop-tip-title").forEach((el) => el.remove());
+        return (clone.textContent || "").replace(/\s+/g, " ").trim();
+    };
+    const ensureGenericTipTitle = (wrap) => {
+        const tip = wrap.querySelector(":scope > .tip-text");
+        if (!tip) return;
+        let title = tip.querySelector(":scope > .scoop-tip-title");
+        if (!title) {
+            title = document.createElement("div");
+            title.className = "scoop-tip-title";
+            tip.insertBefore(title, tip.firstChild);
+        }
+        const name = genericTipName(wrap);
+        title.textContent = name;
+        title.style.display = name ? "block" : "none";
+    };
+
     const openMobileGenericTip = (wrap, event) => {
         if (!isMobileGenericTipViewport() || !isMobileGenericTipWrap(wrap)) {
             return;
@@ -4096,6 +4118,7 @@ _TOOLTIP_SCROLL_JS = """
         closeResponsiveHeadlinesPopups();
         closeAllMobileGenericTips();
         wrap.classList.add("scoop-mobile-tip-open");
+        ensureGenericTipTitle(wrap);
         scheduleMobileGenericTip(wrap, event);
     };
 
@@ -4107,6 +4130,7 @@ _TOOLTIP_SCROLL_JS = """
         closeResponsiveHeadlinesPopups();
         closeAllMobileGenericTips();
         wrap.classList.add("scoop-mobile-tip-open");
+        ensureGenericTipTitle(wrap);
         clearTooltipScrollingHide();
         window.__scoopTabletGenericTipOpenedAt = Date.now();
         scheduleMobileGenericTip(wrap, event);
@@ -4141,9 +4165,9 @@ _TOOLTIP_SCROLL_JS = """
     bottom: auto !important;
     transform: none !important;
     margin: 0 !important;
-    width: var(--scoop-tablet-tip-width, min(32rem, 78vw)) !important;
+    width: var(--scoop-tablet-tip-width, 50vw) !important;
     min-width: 0 !important;
-    max-width: min(36rem, calc(100vw - 1.5rem)) !important;
+    max-width: 50vw !important;
     font-size: 1.08rem !important;
     line-height: 1.42 !important;
     z-index: 100002 !important;
@@ -4161,6 +4185,11 @@ _TOOLTIP_SCROLL_JS = """
     bottom: auto !important;
     transform: none !important;
     z-index: 100002 !important;
+  }
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip) .tip-text > .scoop-tip-title {
+    display: block !important; font-weight: 700 !important; font-size: 1.12rem !important;
+    line-height: 1.25 !important; margin: 0 0 0.45rem 0 !important; padding: 0 0 0.4rem 0 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.45) !important; color: #f8fafc !important;
   }
 }
 `;
@@ -4180,8 +4209,8 @@ _TOOLTIP_SCROLL_JS = """
     left: var(--scoop-mobile-tip-left, -10000px) !important;
     top: var(--scoop-mobile-tip-top, -10000px) !important;
     right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important;
-    width: min(26rem, calc(100vw - 1.25rem)) !important;
-    max-width: min(26rem, calc(100vw - 1.25rem)) !important;
+    width: 50vw !important;
+    max-width: 50vw !important;
     font-size: 1.08rem !important;
     line-height: 1.42 !important;
     z-index: 100002 !important;
@@ -4194,6 +4223,11 @@ _TOOLTIP_SCROLL_JS = """
     top: var(--scoop-mobile-tip-top, 8px) !important;
     right: auto !important; bottom: auto !important; transform: none !important;
     z-index: 100002 !important;
+  }
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip) .tip-text > .scoop-tip-title {
+    display: block !important; font-weight: 700 !important; font-size: 1.12rem !important;
+    line-height: 1.25 !important; margin: 0 0 0.45rem 0 !important; padding: 0 0 0.4rem 0 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.45) !important; color: #f8fafc !important;
   }
 }
 `;
@@ -4862,7 +4896,7 @@ def _inject_responsive_bootstrap_css() -> str:
 BOOTSTRAP_INSTALLED_KEY = "_scoop_responsive_bootstrap_installed"
 BOOTSTRAP_SCRIPT_VERSION = 10
 TOOLTIP_INSTALLED_KEY = "_scoop_tooltip_scroll_installed"
-TOOLTIP_SCRIPT_VERSION = 74
+TOOLTIP_SCRIPT_VERSION = 75
 SIDEBAR_HANDLER_INSTALLED_KEY = "_scoop_responsive_sidebar_handler_v3"
 
 
@@ -5224,8 +5258,8 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
     left: var(--scoop-mobile-tip-left, -10000px) !important;
     top: var(--scoop-mobile-tip-top, -10000px) !important;
     right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important;
-    width: min(26rem, calc(100vw - 1.25rem)) !important;
-    max-width: min(26rem, calc(100vw - 1.25rem)) !important;
+    width: 50vw !important;
+    max-width: 50vw !important;
     font-size: 1.08rem !important;
     line-height: 1.42 !important;
     z-index: 100002 !important;
@@ -5238,6 +5272,11 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
     top: var(--scoop-mobile-tip-top, 8px) !important;
     right: auto !important; bottom: auto !important; transform: none !important;
     z-index: 100002 !important;
+  }
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip) .tip-text > .scoop-tip-title {
+    display: block !important; font-weight: 700 !important; font-size: 1.12rem !important;
+    line-height: 1.25 !important; margin: 0 0 0.45rem 0 !important; padding: 0 0 0.4rem 0 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.45) !important; color: #f8fafc !important;
   }
 }`;
     const ensureCss = () => {
@@ -5255,13 +5294,13 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         if (!isPhone() || !isGeneric(wrap) || !wrap.classList.contains("scoop-mobile-tip-open")) return;
         const tip = wrap.querySelector(":scope > .tip-text");
         if (!tip) return;
-        const tipWidth = Math.round(Math.min(26 * 16, Math.max(120, window.innerWidth - PAD * 2)));
+        const tipWidth = Math.round(window.innerWidth * 0.5);
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
         tip.style.setProperty("bottom", "auto", "important");
         tip.style.setProperty("transform", "none", "important");
         tip.style.setProperty("width", tipWidth + "px", "important");
-        tip.style.setProperty("max-width", (window.innerWidth - PAD * 2) + "px", "important");
+        tip.style.setProperty("max-width", tipWidth + "px", "important");
         tip.style.setProperty("box-sizing", "border-box", "important");
         tip.style.setProperty("white-space", "normal", "important");
         tip.style.setProperty("word-break", "break-word", "important");
@@ -5301,6 +5340,27 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         window.__scoopPhoneGenericTipOpenedAt = Date.now();
         document.documentElement.classList.remove("scoop-tooltip-scrolling");
         document.body.classList.remove("scoop-tooltip-scrolling");
+        (function ensureTitle() {
+            const tip = wrap.querySelector(":scope > .tip-text");
+            if (!tip) return;
+            let title = tip.querySelector(":scope > .scoop-tip-title");
+            if (!title) {
+                title = document.createElement("div");
+                title.className = "scoop-tip-title";
+                tip.insertBefore(title, tip.firstChild);
+            }
+            const td = wrap.closest("td[data-label]");
+            let name = td ? String(td.getAttribute("data-label") || "").trim() : "";
+            if (!name) {
+                let t = "";
+                wrap.childNodes.forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE) t += node.textContent || "";
+                });
+                name = t.replace(/\s+/g, " ").trim();
+            }
+            title.textContent = name;
+            title.style.display = name ? "block" : "none";
+        })();
         position(wrap, clientY);
         requestAnimationFrame(() => position(wrap, clientY));
     };
@@ -5381,7 +5441,7 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         setInterval(ensureCss, 1500);
         window.addEventListener("resize", ensureCss, { passive: true });
     }
-    window.__scoopPhoneGenericTipStandalone = 5;
+    window.__scoopPhoneGenericTipStandalone = 6;
 })();
 """
 
@@ -5438,8 +5498,8 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
     left: var(--scoop-tablet-tip-left, -10000px) !important;
     top: var(--scoop-tablet-tip-top, -10000px) !important;
     right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important;
-    width: var(--scoop-tablet-tip-width, min(32rem, 78vw)) !important;
-    min-width: 0 !important; max-width: min(36rem, calc(100vw - 1.5rem)) !important;
+    width: var(--scoop-tablet-tip-width, 50vw) !important;
+    min-width: 0 !important; max-width: 50vw !important;
     font-size: 1.08rem !important; line-height: 1.42 !important;
     white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;
     box-sizing: border-box !important; text-align: left !important;
@@ -5455,6 +5515,11 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
     right: auto !important; bottom: auto !important; transform: none !important;
     white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;
     z-index: 100002 !important;
+  }
+  html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip) .tip-text > .scoop-tip-title {
+    display: block !important; font-weight: 700 !important; font-size: 1.12rem !important;
+    line-height: 1.25 !important; margin: 0 0 0.45rem 0 !important; padding: 0 0 0.4rem 0 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.45) !important; color: #f8fafc !important;
   }
 }`;
     const ensureCss = () => {
@@ -5518,8 +5583,8 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
             laneLeft = Math.min(laneRight - 140, wrapRect.right + GAP);
         }
         const laneW = Math.max(140, laneRight - laneLeft);
-        let tipWidth = Math.round(Math.min(520, laneW * 0.98, window.innerWidth * 0.72));
-        tipWidth = Math.max(220, Math.min(tipWidth, viewRight - viewLeft));
+        let tipWidth = Math.round(window.innerWidth * 0.5);
+        tipWidth = Math.max(120, Math.min(tipWidth, viewRight - viewLeft));
 
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
@@ -5573,6 +5638,27 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
         wrap.classList.add("scoop-mobile-tip-open");
         document.documentElement.classList.remove("scoop-tooltip-scrolling");
         document.body.classList.remove("scoop-tooltip-scrolling");
+        (function ensureTitle() {
+            const tip = wrap.querySelector(":scope > .tip-text");
+            if (!tip) return;
+            let title = tip.querySelector(":scope > .scoop-tip-title");
+            if (!title) {
+                title = document.createElement("div");
+                title.className = "scoop-tip-title";
+                tip.insertBefore(title, tip.firstChild);
+            }
+            const td = wrap.closest("td[data-label]");
+            let name = td ? String(td.getAttribute("data-label") || "").trim() : "";
+            if (!name) {
+                let t = "";
+                wrap.childNodes.forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE) t += node.textContent || "";
+                });
+                name = t.replace(/\s+/g, " ").trim();
+            }
+            title.textContent = name;
+            title.style.display = name ? "block" : "none";
+        })();
         position(wrap);
         requestAnimationFrame(() => position(wrap));
     };
@@ -5611,7 +5697,7 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
         window.addEventListener("resize", ensureCss, { passive: true });
     }
     window.__scoopTabletGenericTipBindVersion = 13;
-    window.__scoopTabletGenericTipStandalone = 8;
+    window.__scoopTabletGenericTipStandalone = 9;
 })();
 """
 
@@ -6551,7 +6637,7 @@ def install_tooltip_scroll_handler() -> None:
         unsafe_allow_javascript=True,
     )
     # Chunked: a single giant <script> is dropped by Streamlit; tablet tips never bind.
-    _inject_js_source(_COMBINED_PAGE_JS, key="combined-page-v74")
+    _inject_js_source(_COMBINED_PAGE_JS, key="combined-page-v75")
     inject_desktop_sidebar_nav_market()
     inject_desktop_tablet_disclaimer_flow()
     st.session_state[TOOLTIP_INSTALLED_KEY] = TOOLTIP_SCRIPT_VERSION

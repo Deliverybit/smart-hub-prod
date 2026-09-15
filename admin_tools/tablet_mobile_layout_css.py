@@ -588,6 +588,26 @@ _MOBILE_TABLET_ANALYZE_LINK_FINAL = """
 _RESPONSIVE_TIP_SCOPE = (
     "html body .stApp [data-testid=\"stAppViewContainer\"] .stMarkdown"
 )
+_MOBILE_TABLET_GENERIC_TIP_TITLE_CSS = f"""
+        {_RESPONSIVE_TIP_SCOPE} .tip-wrap:not(.headlines-tip) .tip-text > .scoop-tip-title {{
+            display: block !important;
+            font-weight: 700 !important;
+            font-size: 1.12rem !important;
+            line-height: 1.25 !important;
+            margin: 0 0 0.45rem 0 !important;
+            padding: 0 0 0.4rem 0 !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.45) !important;
+            color: #f8fafc !important;
+            white-space: normal !important;
+        }}
+"""
+_DESKTOP_HIDE_GENERIC_TIP_TITLE_CSS = """
+@media (min-width: 1367px) {
+    .scoop-tip-title {
+        display: none !important;
+    }
+}
+"""
 _NAME_VALUE_LABELS = ("Company", "Name", "Commodity")
 _NAME_VALUE_TIP_SELECTOR = (
     ".full-results-wrap .full-results-table tbody "
@@ -792,9 +812,9 @@ _MOBILE_FIXED_GENERIC_TIP_TEXT = f"""
             bottom: auto !important;
             transform: none !important;
             top: var(--scoop-mobile-tip-top, -10000px) !important;
-            width: min(26rem, calc(100vw - 1.25rem)) !important;
+            width: 50vw !important;
             min-width: 0 !important;
-            max-width: min(26rem, calc(100vw - 1.25rem)) !important;
+            max-width: 50vw !important;
             margin: 0 !important;
             z-index: 100002 !important;
             background: #1e1e2f !important;
@@ -891,9 +911,9 @@ _TABLET_BESIDE_GENERIC_TIP_TEXT = f"""
             right: auto !important;
             bottom: auto !important;
             transform: none !important;
-            width: var(--scoop-tablet-tip-width, min(32rem, 78vw)) !important;
+            width: var(--scoop-tablet-tip-width, 50vw) !important;
             min-width: 0 !important;
-            max-width: min(36rem, calc(100vw - 1.5rem)) !important;
+            max-width: 50vw !important;
             margin: 0 !important;
             z-index: 100002 !important;
             background: #1e1e2f !important;
@@ -923,6 +943,7 @@ RESPONSIVE_NAME_VALUE_TOOLTIP_OVERRIDE_CSS = f"""
 @media (max-width: 743px) {{
 {_MOBILE_FIXED_GENERIC_TIP_TEXT}
 {_MOBILE_GENERIC_TIP_OPEN_CLOSE_CSS}
+{_MOBILE_TABLET_GENERIC_TIP_TITLE_CSS}
         {_RESPONSIVE_TIP_SCOPE} .tip-wrap:not(.headlines-tip) .tip-text::before,
         {_RESPONSIVE_TIP_SCOPE} .tip-wrap:not(.headlines-tip) .tip-text::after {{
             content: none !important;
@@ -948,6 +969,7 @@ RESPONSIVE_NAME_VALUE_TOOLTIP_OVERRIDE_CSS = f"""
 {_TABLET_BESIDE_GENERIC_TIP_TEXT}
 {_MOBILE_GENERIC_TIP_OPEN_CLOSE_CSS}
 {_TABLET_GENERIC_TIP_RELIABILITY_CSS}
+{_MOBILE_TABLET_GENERIC_TIP_TITLE_CSS}
         {_RESPONSIVE_TIP_SCOPE} .tip-wrap:not(.headlines-tip) .tip-text::before,
         {_RESPONSIVE_TIP_SCOPE} .tip-wrap:not(.headlines-tip) .tip-text::after {{
             content: none !important;
@@ -966,7 +988,7 @@ RESPONSIVE_NAME_VALUE_TOOLTIP_OVERRIDE_CSS = f"""
             display: block !important;
         }}
 }}
-""" + DARK_RESPONSIVE_NAME_VALUE_TIP_UNDERLINE_CSS
+""" + DARK_RESPONSIVE_NAME_VALUE_TIP_UNDERLINE_CSS + _DESKTOP_HIDE_GENERIC_TIP_TITLE_CSS
 
 # Injected last (st.html): phone generics stay viewport-centered (page CSS uses absolute/right:0).
 # Headlines tips are excluded.
@@ -1000,10 +1022,11 @@ PHONE_GENERIC_TIP_FINAL_CSS = f"""
             transform: none !important;
             margin: 0 !important;
             z-index: 100002 !important;
-            width: min(26rem, calc(100vw - 1.25rem)) !important;
-            max-width: min(26rem, calc(100vw - 1.25rem)) !important;
+            width: 50vw !important;
+            max-width: 50vw !important;
             overflow-x: hidden !important;
         }}
+{_MOBILE_TABLET_GENERIC_TIP_TITLE_CSS}
 {_MOBILE_TABLET_TIP_THEME_BORDER_RULES}
 {_MOBILE_TABLET_NAME_VALUE_TIP_UNDERLINE_RULES}
 }}
@@ -1033,7 +1056,7 @@ TABLET_GENERIC_TIP_FINAL_CSS = f"""
             transform: none !important;
             margin: 0 !important;
             z-index: 100002 !important;
-            max-width: min(36rem, calc(100vw - 1.5rem)) !important;
+            max-width: 50vw !important;
             overflow-x: hidden !important;
         }}
         /* Company/name values: never pin to the cell's right edge in tablet. */
@@ -1042,6 +1065,7 @@ TABLET_GENERIC_TIP_FINAL_CSS = f"""
             right: auto !important;
             left: var(--scoop-tablet-tip-left, -10000px) !important;
         }}
+{_MOBILE_TABLET_GENERIC_TIP_TITLE_CSS}
 {_MOBILE_TABLET_TIP_THEME_BORDER_RULES}
 {_MOBILE_TABLET_NAME_VALUE_TIP_UNDERLINE_RULES}
 }}
@@ -3192,8 +3216,26 @@ _DESKTOP_ANALYZE_TOP_COMPACT_RULES = """
         border: none !important;
         height: 0 !important;
     }
-    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) {
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed),
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         align-items: stretch !important;
+        width: 100% !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div,
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div {
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:first-child,
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div:first-child {
+        flex: 2 1 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:last-child,
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div:last-child {
+        flex: 1 1 0 !important;
     }
     html[data-scoop-analyze-active="1"] .mood-column,
     html[data-scoop-analyze-active="1"] .scoop-mood-summary {
@@ -3203,8 +3245,15 @@ _DESKTOP_ANALYZE_TOP_COMPACT_RULES = """
         overflow-x: hidden !important;
         overflow-y: auto !important;
         margin-bottom: 0 !important;
+        min-width: 0 !important;
         min-height: 320px !important;
+        max-width: 100% !important;
         box-sizing: border-box !important;
+    }
+    html[data-scoop-analyze-active="1"] .mood-feed table {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
     }
 """
 

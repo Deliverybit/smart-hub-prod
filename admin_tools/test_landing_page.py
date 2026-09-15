@@ -42,20 +42,22 @@ def test_resolve_home_waits_for_js() -> None:
     assert landing_page.resolve_home_entry() is None
 
 
-def test_index_banner_omitted_on_mobile_tablet() -> None:
+def test_index_banner_rendered_on_mobile_tablet() -> None:
     _patch_js("1")
     calls: list[str] = []
     fake_st = type("ST", (), {"markdown": staticmethod(lambda html, **kwargs: calls.append(html))})()
-    landing_page.render_desktop_index_banner(fake_st, '<div class="scoop-index-card">NYSE</div>')
-    assert calls == []
+    html = '<div class="scoop-banner-desktop"><div class="scoop-index-card">NYSE</div></div>'
+    landing_page.render_desktop_index_banner(fake_st, html)
+    assert calls == [html]
 
 
-def test_index_banner_omitted_while_viewport_unknown() -> None:
+def test_index_banner_rendered_while_viewport_unknown() -> None:
     _patch_js(None)
     calls: list[str] = []
     fake_st = type("ST", (), {"markdown": staticmethod(lambda html, **kwargs: calls.append(html))})()
-    landing_page.render_desktop_index_banner(fake_st, '<div class="scoop-index-card">NYSE</div>')
-    assert calls == []
+    html = '<div class="scoop-banner-desktop"><div class="scoop-index-card">NYSE</div></div>'
+    landing_page.render_desktop_index_banner(fake_st, html)
+    assert calls == [html]
 
 
 def test_index_banner_rendered_on_desktop() -> None:
@@ -77,7 +79,7 @@ def test_top_picks_kept_on_desktop() -> None:
     assert landing_page.should_render_desktop_top_picks() is True
 
 
-def test_screener_pages_use_desktop_only_index_banner() -> None:
+def test_screener_pages_use_index_banner_helper() -> None:
     pages = [
         "pages/1_NYSE_Top_10.py",
         "pages/2_NASDAQ_Top_10.py",
@@ -97,10 +99,10 @@ def main() -> int:
         test_resolve_home_mobile_tablet,
         test_resolve_home_desktop,
         test_resolve_home_waits_for_js,
-        test_index_banner_omitted_on_mobile_tablet,
-        test_index_banner_omitted_while_viewport_unknown,
+        test_index_banner_rendered_on_mobile_tablet,
+        test_index_banner_rendered_while_viewport_unknown,
         test_index_banner_rendered_on_desktop,
-        test_screener_pages_use_desktop_only_index_banner,
+        test_screener_pages_use_index_banner_helper,
         test_top_picks_omitted_on_mobile_tablet,
         test_top_picks_kept_on_desktop,
     ]

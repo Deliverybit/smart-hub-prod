@@ -30,6 +30,9 @@ def test_tablet_terms_main_view_css_scoped() -> None:
     assert "@media (min-width: 1367px)" not in css
     assert '[data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label' in css
     assert "pointer-events: none !important;" in css
+    assert "label > span" in css
+    assert "touch-action: manipulation" in css
+    assert '[data-baseweb="checkbox"]' not in css
     restore = (ROOT / "admin_tools" / "tablet_mobile_layout_css.py").read_text(encoding="utf-8")
     assert "_GATED_MOBILE_TAB_MAIN" in restore
     assert 'html[data-scoop-screener-gated="1"] html[data-scoop-tab-nav="1"]' not in restore
@@ -39,7 +42,9 @@ def test_tooltip_scroll_holds_terms_on_tablet() -> None:
     source = (ROOT / "tooltip_scroll.py").read_text(encoding="utf-8")
     assert "__scoopShouldHoldTermsMainView" in source
     assert "__scoopViewportWidth() <= 1366" in source
-    assert "PAGE_NAV_BIND_VERSION = 12" in source
+    assert "PAGE_NAV_BIND_VERSION = 13" in source
+    assert "Only the Terms <a> itself" in source
+    assert 'el.closest(\'[data-testid="stCheckbox"]\')' in source
     assert "appWin.__scoopTermsNavLock" in source
     assert "resolveGatingTermsLink" in source
     assert (
@@ -51,7 +56,9 @@ def test_tooltip_scroll_holds_terms_on_tablet() -> None:
 
 def test_consent_bridge_marks_tablet_tab_nav() -> None:
     source = (ROOT / "legal_consent_logger.py").read_text(encoding="utf-8")
-    assert "__scoopMobileConsentTermsNavVersion !== 7" in source
+    assert "__scoopMobileConsentTermsNavVersion !== 8" in source
+    assert 'el.closest(\'a[href*="Terms_of_Service"]\')' in source
+    assert "const pad = 8;" not in source
     assert 'doc.addEventListener("pointerdown"' in source
     assert "scoop-terms-force-responsive" in source
     assert 'setAttribute("data-scoop-tab-nav", "1")' in source

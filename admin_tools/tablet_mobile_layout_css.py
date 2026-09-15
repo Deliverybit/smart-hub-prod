@@ -792,9 +792,9 @@ _MOBILE_FIXED_GENERIC_TIP_TEXT = f"""
             bottom: auto !important;
             transform: none !important;
             top: var(--scoop-mobile-tip-top, -10000px) !important;
-            width: min(18rem, calc(100vw - 2rem)) !important;
+            width: min(26rem, calc(100vw - 1.25rem)) !important;
             min-width: 0 !important;
-            max-width: min(18rem, calc(100vw - 2rem)) !important;
+            max-width: min(26rem, calc(100vw - 1.25rem)) !important;
             margin: 0 !important;
             z-index: 100002 !important;
             background: #1e1e2f !important;
@@ -802,14 +802,14 @@ _MOBILE_FIXED_GENERIC_TIP_TEXT = f"""
             color: #e2e8f0 !important;
             border: 1px solid #555 !important;
             border-radius: 8px !important;
-            padding: 16px 20px !important;
-            font-size: 0.95rem !important;
-            line-height: 1.5 !important;
+            padding: 14px 18px !important;
+            font-size: 1.08rem !important;
+            line-height: 1.42 !important;
             font-weight: 400 !important;
             white-space: normal !important;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
             pointer-events: none !important;
-            max-height: min(50vh, 22rem) !important;
+            max-height: min(42vh, 18rem) !important;
             overflow-x: hidden !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
@@ -891,9 +891,9 @@ _TABLET_BESIDE_GENERIC_TIP_TEXT = f"""
             right: auto !important;
             bottom: auto !important;
             transform: none !important;
-            width: var(--scoop-tablet-tip-width, min(20rem, 42vw)) !important;
+            width: var(--scoop-tablet-tip-width, min(32rem, 78vw)) !important;
             min-width: 0 !important;
-            max-width: min(22rem, calc(100vw - 1.5rem)) !important;
+            max-width: min(36rem, calc(100vw - 1.5rem)) !important;
             margin: 0 !important;
             z-index: 100002 !important;
             background: #1e1e2f !important;
@@ -901,14 +901,14 @@ _TABLET_BESIDE_GENERIC_TIP_TEXT = f"""
             color: #e2e8f0 !important;
             border: 1px solid #555 !important;
             border-radius: 8px !important;
-            padding: 16px 20px !important;
-            font-size: 0.95rem !important;
-            line-height: 1.5 !important;
+            padding: 14px 18px !important;
+            font-size: 1.08rem !important;
+            line-height: 1.42 !important;
             font-weight: 400 !important;
             white-space: normal !important;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
             pointer-events: none !important;
-            max-height: min(50vh, 22rem) !important;
+            max-height: min(42vh, 18rem) !important;
             overflow-x: hidden !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
@@ -1000,8 +1000,8 @@ PHONE_GENERIC_TIP_FINAL_CSS = f"""
             transform: none !important;
             margin: 0 !important;
             z-index: 100002 !important;
-            width: min(18rem, calc(100vw - 2rem)) !important;
-            max-width: min(18rem, calc(100vw - 2rem)) !important;
+            width: min(26rem, calc(100vw - 1.25rem)) !important;
+            max-width: min(26rem, calc(100vw - 1.25rem)) !important;
             overflow-x: hidden !important;
         }}
 {_MOBILE_TABLET_TIP_THEME_BORDER_RULES}
@@ -1033,7 +1033,7 @@ TABLET_GENERIC_TIP_FINAL_CSS = f"""
             transform: none !important;
             margin: 0 !important;
             z-index: 100002 !important;
-            max-width: min(22rem, calc(100vw - 1.5rem)) !important;
+            max-width: min(36rem, calc(100vw - 1.5rem)) !important;
             overflow-x: hidden !important;
         }}
         /* Company/name values: never pin to the cell's right edge in tablet. */
@@ -3706,24 +3706,12 @@ _RESPONSIVE_SCREENER_TOP_COMPACT_RULES = """
         margin-bottom: 0 !important;
         padding-bottom: 0 !important;
     }
-    /* Market pages: index banner cards fill the viewport (desktop keeps inline 50%). */
-    html[data-scoop-screener-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"],
-    html[data-scoop-screener-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"] > div,
-    html[data-scoop-screener-active="1"] .scoop-banner-compact,
-    html[data-scoop-screener-active="1"] .scoop-banner-desktop,
-    html[data-scoop-screener-active="1"] [data-testid="stMarkdownContainer"] div[style*="display:flex"][style*="flex-wrap"][style*="margin-bottom"] {
+    /* Market pages: markdown fills the column; index cards are sized in the
+       phone/tablet banner rules below (do not force 100% flex-basis here). */
+    html[data-scoop-screener-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"]:not(:has(.scoop-banner-desktop)):not(:has(.scoop-banner-compact)),
+    html[data-scoop-screener-active="1"] [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"]:not(:has(.scoop-banner-desktop)):not(:has(.scoop-banner-compact)) > div {
         width: 100% !important;
         max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    html[data-scoop-screener-active="1"] [data-testid="stMarkdownContainer"] div[style*="max-width:50%"],
-    html[data-scoop-screener-active="1"] [data-testid="stMarkdownContainer"] div[style*="max-width: 50%"],
-    html[data-scoop-screener-active="1"] .scoop-banner-compact > div,
-    html[data-scoop-screener-active="1"] .scoop-banner-desktop > div {
-        flex: 1 1 100% !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
         box-sizing: border-box !important;
     }
 """
@@ -3760,18 +3748,22 @@ _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE = f"""
         width: 14px !important;
         height: 14px !important;
     }}
-    /* Streamlit wraps the markdown Terms link in <label>, so mobile/tablet taps
-       toggle the box instead of opening Disclaimer & Terms. */
+    /* Streamlit wraps the markdown Terms link in <label>, and that label is
+       also [data-baseweb="checkbox"]. Disable the label, then restore only
+       the painted square, the input, and the Terms <a>. */
     {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
         pointer-events: none !important;
     }}
-    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) [data-baseweb="checkbox"],
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label > span,
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label > span *,
+    {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label > input,
     {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) input,
     {_GATED_MOBILE_TAB_MAIN} [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) a[href*="Terms_of_Service"] {{
         pointer-events: auto !important;
         position: relative !important;
         z-index: 7 !important;
         cursor: pointer !important;
+        touch-action: manipulation !important;
     }}
 }}
 """
@@ -3919,23 +3911,17 @@ _MOBILE_TABLET_DARK_MODE_UNBOX_ALWAYS = f"""
 }}
 """
 
-# Phone/tablet: hide the top index banner cards. Desktop 1367px+ is unchanged.
+# Phone/tablet: index cards on the market page only (not the terms gate).
+# Stretch the row across the full viewport. Desktop 1367px+ is unchanged.
 _MOBILE_TABLET_BANNER_COMPACT_ONLY = """
 @media (max-width: 1366px) {
-    html body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
-    html body .stApp [data-testid="element-container"]:has(.scoop-banner-compact),
-    html body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
-    html body .stApp [data-testid="element-container"]:has(.scoop-banner-desktop),
-    html body .stApp .scoop-banner-desktop,
-    html body .stApp .scoop-banner-compact,
-    html[data-scoop-screener-active="1"] .scoop-banner-desktop,
-    html[data-scoop-screener-gated="1"] .scoop-banner-desktop,
-    html[data-scoop-desktop-layout="1"] .scoop-banner-desktop,
-    html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"] .scoop-banner-desktop,
-    html[data-scoop-desktop-layout="1"][data-scoop-screener-active="1"] .scoop-banner-desktop,
-    html[data-scoop-screener-active="1"] .scoop-banner-compact,
-    html[data-scoop-screener-gated="1"] .scoop-banner-compact,
-    html[data-scoop-desktop-layout="1"] .scoop-banner-compact {
+    html[data-scoop-screener-gated="1"] body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html[data-scoop-screener-gated="1"] body .stApp [data-testid="element-container"]:has(.scoop-banner-compact),
+    html[data-scoop-screener-gated="1"] body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html[data-scoop-screener-gated="1"] body .stApp [data-testid="element-container"]:has(.scoop-banner-desktop),
+    html[data-scoop-screener-gated="1"] body .stApp .scoop-banner-desktop,
+    html[data-scoop-screener-gated="1"] body .stApp .scoop-banner-compact,
+    html[data-scoop-screener-gated="1"] .scoop-index-card {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -3944,19 +3930,95 @@ _MOBILE_TABLET_BANNER_COMPACT_ONLY = """
         padding: 0 !important;
         overflow: hidden !important;
         pointer-events: none !important;
+    }
+    html:not([data-scoop-screener-gated="1"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html:not([data-scoop-screener-gated="1"]) body .stApp [data-testid="element-container"]:has(.scoop-banner-compact),
+    html:not([data-scoop-screener-gated="1"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]) body .stApp [data-testid="element-container"]:has(.scoop-banner-desktop) {
+        display: block !important;
+        visibility: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        pointer-events: auto !important;
+        width: calc(100% + (2 * var(--scoop-tablet-gutter, 1.125rem))) !important;
+        max-width: none !important;
+        margin: 0 0 0.75rem 0 !important;
+        margin-left: calc(-1 * var(--scoop-tablet-gutter, 1.125rem)) !important;
+        margin-right: calc(-1 * var(--scoop-tablet-gutter, 1.125rem)) !important;
+        padding: 0 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-banner-desktop,
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-banner-compact,
+    html[data-scoop-screener-active="1"]:not([data-scoop-screener-gated="1"]) .scoop-banner-desktop,
+    html[data-scoop-screener-active="1"]:not([data-scoop-screener-gated="1"]) .scoop-banner-compact {
+        display: flex !important;
+        visibility: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        pointer-events: auto !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch !important;
+        gap: 0.45rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-banner-desktop > div,
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-banner-compact > div,
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-index-card,
+    html[data-scoop-screener-active="1"]:not([data-scoop-screener-gated="1"]) .scoop-banner-desktop > div,
+    html[data-scoop-screener-active="1"]:not([data-scoop-screener-gated="1"]) [data-testid="stMarkdownContainer"] div[style*="max-width:50%"],
+    html[data-scoop-screener-active="1"]:not([data-scoop-screener-gated="1"]) [data-testid="stMarkdownContainer"] div[style*="max-width: 50%"] {
+        display: flex !important;
+        visibility: visible !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0.5rem 0.55rem !important;
+        gap: 0.3rem !important;
+        overflow: hidden !important;
+        pointer-events: auto !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-index-card span {
+        line-height: 1.3 !important;
+    }
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
+        font-size: 1.18rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    html:not([data-scoop-screener-gated="1"]) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
+        font-size: 1.85rem !important;
+        white-space: nowrap !important;
     }
 }
 """
 
-# Phone: do not re-show index banner cards after the tablet/mobile hide rule.
+# Phone: after consent, stack cards at full viewport width.
+# Tablet: after consent, one row spanning the full viewport.
+# Gating page (terms checkbox present or gated flag): hide.
 _MOBILE_INDEX_BANNER_FULL_WIDTH = """
-@media (max-width: 768px) {
-    .scoop-banner-compact,
-    .scoop-banner-desktop,
-    .scoop-banner-compact .scoop-index-card,
-    .scoop-banner-desktop .scoop-index-card,
-    [data-testid="stMarkdownContainer"] div.scoop-banner-compact:has(> .scoop-index-card),
-    [data-testid="stMarkdownContainer"] div:has(> .scoop-index-card) {
+@media (max-width: 1366px) {
+    html[data-scoop-screener-gated="1"] body .stApp .scoop-banner-desktop,
+    html[data-scoop-screener-gated="1"] body .stApp .scoop-banner-compact,
+    html[data-scoop-screener-gated="1"] body .stApp .scoop-index-card,
+    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp .scoop-banner-desktop,
+    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp .scoop-banner-compact,
+    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp .scoop-index-card,
+    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"]) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact) {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -3967,14 +4029,147 @@ _MOBILE_INDEX_BANNER_FULL_WIDTH = """
         pointer-events: none !important;
     }
 }
+@media (max-width: 743px) {
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-compact) {
+        display: block !important;
+        visibility: visible !important;
+        width: calc(100% + (2 * var(--scoop-tablet-gutter, 1.125rem))) !important;
+        max-width: none !important;
+        margin-left: calc(-1 * var(--scoop-tablet-gutter, 1.125rem)) !important;
+        margin-right: calc(-1 * var(--scoop-tablet-gutter, 1.125rem)) !important;
+        padding: 0 0.75rem !important;
+        box-sizing: border-box !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop,
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="max-width:50%"],
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="min-width:220px"] {
+        display: flex !important;
+        visibility: visible !important;
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+@media (min-width: 744px) and (max-width: 1366px) {
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp [data-testid="stMarkdownContainer"]:has(.scoop-banner-desktop) {
+        display: block !important;
+        visibility: visible !important;
+        width: calc(100% + (2 * var(--scoop-tablet-gutter, 1.125rem))) !important;
+        max-width: none !important;
+        margin-left: calc(-1 * var(--scoop-tablet-gutter, 1.125rem)) !important;
+        margin-right: calc(-1 * var(--scoop-tablet-gutter, 1.125rem)) !important;
+        padding: 0 0.75rem !important;
+        box-sizing: border-box !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop,
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-desktop .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-banner-compact .scoop-index-card,
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="max-width:50%"],
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card[style*="min-width:220px"] {
+        display: flex !important;
+        visibility: visible !important;
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
+        font-size: 1.18rem !important;
+        line-height: 1.3 !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
+        font-size: 1.85rem !important;
+        line-height: 1.2 !important;
+    }
+}
+@media (max-width: 743px) {
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:1.4rem"] {
+        font-size: 1.28rem !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }
+    html:not([data-scoop-screener-gated="1"]):not(:has([data-testid="stCheckbox"] a[href*="Terms_of_Service"])) body .stApp .scoop-index-card span[style*="font-size:2.2rem"] {
+        font-size: 2.05rem !important;
+    }
+}
 """
+
+# Beat page-level `[data-testid="stMarkdownContainer"] span` clamps (mobile/tablet only).
+_MOBILE_TABLET_INDEX_BANNER_TYPE = """
+@media (max-width: 743px) {
+    html body .stApp [data-testid="stMarkdownContainer"] .scoop-index-card > span,
+    html body .stApp .scoop-index-card > span {
+        font-size: 1.28rem !important;
+        line-height: 1.3 !important;
+    }
+    html body .stApp [data-testid="stMarkdownContainer"] .scoop-index-card > span:nth-child(2),
+    html body .stApp .scoop-index-card > span:nth-child(2) {
+        font-size: 2.05rem !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+    }
+}
+@media (min-width: 744px) and (max-width: 1366px) {
+    html body .stApp [data-testid="stMarkdownContainer"] .scoop-index-card > span,
+    html body .stApp .scoop-index-card > span {
+        font-size: 1.18rem !important;
+        line-height: 1.3 !important;
+    }
+    html body .stApp [data-testid="stMarkdownContainer"] .scoop-index-card > span:nth-child(2),
+    html body .stApp .scoop-index-card > span:nth-child(2) {
+        font-size: 1.85rem !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+    }
+}
+"""
+
+# Dedicated parent-document inject. Streamlit drops oversized co-bundled <style> tags.
+MOBILE_TABLET_INDEX_BANNER_CSS = (
+    _MOBILE_TABLET_BANNER_COMPACT_ONLY
+    + _MOBILE_INDEX_BANNER_FULL_WIDTH
+    + _MOBILE_TABLET_INDEX_BANNER_TYPE
+)
 
 RESPONSIVE_SCREENER_TOP_COMPACT = f"""
 @media (max-width: 1366px) {{
 {_RESPONSIVE_SCREENER_TOP_COMPACT_RULES}
 {_MOBILE_SCREENER_TOGGLE_BANNER_GAP_FINAL}
 }}
-""" + _MOBILE_TABLET_BANNER_COMPACT_ONLY + _MOBILE_INDEX_BANNER_FULL_WIDTH + _MARKET_MOBILE_TABLET_TOGGLE_BOXED + _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE + _MOBILE_TABLET_DARK_MODE_PILL_LAYOUT_FINAL + _MOBILE_TABLET_CONSENT_DISCLAIMER_GAP_FINAL + _MOBILE_TABLET_DARK_MODE_UNBOX_ALWAYS
+""" + _MOBILE_TABLET_BANNER_COMPACT_ONLY + _MOBILE_INDEX_BANNER_FULL_WIDTH + _MOBILE_TABLET_INDEX_BANNER_TYPE + _MARKET_MOBILE_TABLET_TOGGLE_BOXED + _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE + _MOBILE_TABLET_DARK_MODE_PILL_LAYOUT_FINAL + _MOBILE_TABLET_CONSENT_DISCLAIMER_GAP_FINAL + _MOBILE_TABLET_DARK_MODE_UNBOX_ALWAYS
 
 # Desktop Terms page: collapse bootstrap gaps above the title (no large white band).
 _DESKTOP_TERMS_TOP_COMPACT_RULES = """
@@ -4184,13 +4379,16 @@ MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS = f"""
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
         pointer-events: none !important;
     }}
-    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) [data-baseweb="checkbox"],
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label > span,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label > span *,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label > input,
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) input,
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) a[href*="Terms_of_Service"] {{
         pointer-events: auto !important;
         position: relative !important;
         z-index: 7 !important;
         cursor: pointer !important;
+        touch-action: manipulation !important;
     }}
 }}
 """

@@ -21,9 +21,11 @@ def test_phone_final_css_beats_page_right_edge() -> None:
     assert "right: auto !important" in css
     assert "position: fixed !important" in css
     assert ".tip-wrap:not(.headlines-tip).scoop-mobile-tip-open > .tip-text" in css
-    assert ".tip-wrap.headlines-tip" not in css
+    # Theme-border rules may mention headlines-tip; layout/width is generic-only.
     # Must retarget fr-val so page right:0 cannot park tips off-screen.
     assert ".fr-val .tip-wrap:not(.headlines-tip).scoop-mobile-tip-open > .tip-text" in css
+    assert "min(26rem, calc(100vw - 1.25rem))" in css
+    assert "font-size: 1.08rem" in css
 
 
 def test_phone_positioner_in_tooltip_scroll() -> None:
@@ -35,7 +37,7 @@ def test_phone_positioner_in_tooltip_scroll() -> None:
     assert "scoop-phone-generic-tip-runtime-css" in source
     assert "scoop-phone-generic-tip-standalone" in source
     assert "_PHONE_GENERIC_TIP_STANDALONE_JS" in source
-    assert "__scoopPhoneGenericTipStandalone = 4" in source
+    assert "__scoopPhoneGenericTipStandalone = 5" in source
     assert "_MOBILE_TABLET_TIP_EXCLUSIVE_JS" in source
     assert "closeResponsiveHeadlinesPopups" in source
     assert "--scoop-mobile-tip-left" in source

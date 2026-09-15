@@ -9,6 +9,7 @@ from admin_tools.tablet_mobile_layout_css import (
     DESKTOP_SCREENER_TOP_COMPACT,
     DESKTOP_SCREENER_GATING_LAYOUT,
     RESPONSIVE_SCREENER_TOP_COMPACT,
+    MOBILE_TABLET_INDEX_BANNER_CSS,
     RESPONSIVE_TERMS_TOP_COMPACT,
     DESKTOP_TERMS_TOP_COMPACT,
     DESKTOP_SIDEBAR_LAYOUT,
@@ -1736,7 +1737,7 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
 
     const TERMS_NAV_COLLAPSE_KEY = "scoop-terms-nav-collapse";
     const TERMS_NAV_SUPPRESS_MS = 15000;
-    const PAGE_NAV_BIND_VERSION = 12;
+    const PAGE_NAV_BIND_VERSION = 13;
 
     const enforceMobileTermsMainView = () => {
         if (!__scoopShouldHoldTermsMainView()) {
@@ -1800,29 +1801,8 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         if (!node || typeof node.closest !== "function") {
             return null;
         }
-        const direct = node.closest('a[href*="Terms_of_Service"]');
-        if (direct) {
-            return direct;
-        }
-        const box = node.closest('[data-testid="stCheckbox"]');
-        if (!box) {
-            return null;
-        }
-        const termsLink = box.querySelector('a[href*="Terms_of_Service"]');
-        if (!termsLink) {
-            return null;
-        }
-        const x = event && event.clientX;
-        const y = event && event.clientY;
-        if (!Number.isFinite(x) || !Number.isFinite(y)) {
-            return null;
-        }
-        const r = termsLink.getBoundingClientRect();
-        const pad = 8;
-        if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) {
-            return termsLink;
-        }
-        return null;
+        // Only the Terms <a> itself — never the consent checkbox chrome.
+        return node.closest('a[href*="Terms_of_Service"]');
     };
 
     const handleMobileTermsNavPointer = (event) => {
@@ -1835,6 +1815,12 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         // Analyze "Back to <market>" uses href*="Top_10" — let its own onclick
         // mark return flags; do not hijack that navigation.
         if (el.closest("a.scoop-analyze-back")) {
+            return;
+        }
+        if (
+            el.closest('[data-testid="stCheckbox"]') &&
+            !el.closest('a[href*="Terms_of_Service"]')
+        ) {
             return;
         }
         const gatingTerms = resolveGatingTermsLink(el, event);
@@ -3576,7 +3562,7 @@ _TOOLTIP_SCROLL_JS = """
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
         tip.style.setProperty("transform", "none", "important");
-        tip.style.setProperty("width", "min(18rem, calc(100vw - 2rem))", "important");
+        tip.style.setProperty("width", "min(26rem, calc(100vw - 1.25rem))", "important");
         const ipadW = tip.getBoundingClientRect().width || tip.offsetWidth;
         const ipadLeft = Math.max(pad, (window.innerWidth - ipadW) / 2);
         tip.style.setProperty("left", `${ipadLeft}px`, "important");
@@ -3896,7 +3882,7 @@ _TOOLTIP_SCROLL_JS = """
             tip.style.setProperty("position", "fixed", "important");
             tip.style.setProperty("left", "-9999px", "important");
             tip.style.setProperty("top", "0", "important");
-            tip.style.setProperty("width", "min(18rem, calc(100vw - 2rem))", "important");
+            tip.style.setProperty("width", "min(26rem, calc(100vw - 1.25rem))", "important");
         }
         const height = tip.offsetHeight;
         tip.style.removeProperty("visibility");
@@ -3915,7 +3901,7 @@ _TOOLTIP_SCROLL_JS = """
         }
         const pad = 8;
         const maxWidth = Math.max(120, window.innerWidth - pad * 2);
-        const tipWidth = Math.round(Math.min(18 * 16, maxWidth));
+        const tipWidth = Math.round(Math.min(26 * 16, maxWidth));
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
         tip.style.setProperty("bottom", "auto", "important");
@@ -3979,7 +3965,7 @@ _TOOLTIP_SCROLL_JS = """
             wrapRect.left > (cardLeft + cardRight) / 2;
 
         let tipWidth = Math.round(
-            Math.min(320, Math.max(180, Math.min(window.innerWidth * 0.42, cardInnerW * 0.55)))
+            Math.min(520, Math.max(220, Math.min(window.innerWidth * 0.72, cardInnerW * 0.82)))
         );
         if (preferLeft) {
             const maxLeftW = Math.max(140, Math.floor(wrapRect.left - gap - cardLeft));
@@ -4155,9 +4141,11 @@ _TOOLTIP_SCROLL_JS = """
     bottom: auto !important;
     transform: none !important;
     margin: 0 !important;
-    width: var(--scoop-tablet-tip-width, min(20rem, 42vw)) !important;
+    width: var(--scoop-tablet-tip-width, min(32rem, 78vw)) !important;
     min-width: 0 !important;
-    max-width: min(22rem, calc(100vw - 1.5rem)) !important;
+    max-width: min(36rem, calc(100vw - 1.5rem)) !important;
+    font-size: 1.08rem !important;
+    line-height: 1.42 !important;
     z-index: 100002 !important;
   }
   html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip).scoop-mobile-tip-open > .tip-text,
@@ -4192,8 +4180,10 @@ _TOOLTIP_SCROLL_JS = """
     left: var(--scoop-mobile-tip-left, -10000px) !important;
     top: var(--scoop-mobile-tip-top, -10000px) !important;
     right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important;
-    width: min(18rem, calc(100vw - 2rem)) !important;
-    max-width: min(18rem, calc(100vw - 2rem)) !important;
+    width: min(26rem, calc(100vw - 1.25rem)) !important;
+    max-width: min(26rem, calc(100vw - 1.25rem)) !important;
+    font-size: 1.08rem !important;
+    line-height: 1.42 !important;
     z-index: 100002 !important;
   }
   html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip).scoop-mobile-tip-open > .tip-text,
@@ -4872,7 +4862,7 @@ def _inject_responsive_bootstrap_css() -> str:
 BOOTSTRAP_INSTALLED_KEY = "_scoop_responsive_bootstrap_installed"
 BOOTSTRAP_SCRIPT_VERSION = 10
 TOOLTIP_INSTALLED_KEY = "_scoop_tooltip_scroll_installed"
-TOOLTIP_SCRIPT_VERSION = 73
+TOOLTIP_SCRIPT_VERSION = 74
 SIDEBAR_HANDLER_INSTALLED_KEY = "_scoop_responsive_sidebar_handler_v3"
 
 
@@ -4989,9 +4979,9 @@ def inject_desktop_sidebar_nav_market() -> None:
     st.html(
         f"<style id='scoop-desktop-sidebar-nav-market-css'>{DESKTOP_SIDEBAR_NAV_MARKET}</style>"
         f"<style id='scoop-desktop-screener-gating-layout-css'>{DESKTOP_SCREENER_GATING_LAYOUT}</style>"
-        f"<style id='scoop-responsive-screener-top-compact-css'>{RESPONSIVE_SCREENER_TOP_COMPACT}</style>"
+        f"<style id='scoop-responsive-screener-top-compact-css-v3'>{RESPONSIVE_SCREENER_TOP_COMPACT}</style>"
         f"<style id='scoop-responsive-terms-top-compact-css'>{RESPONSIVE_TERMS_TOP_COMPACT}</style>"
-        f"<style id='scoop-mobile-consent-terms-main-view-css'>{MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS}</style>"
+        f"<style id='scoop-mobile-consent-terms-main-view-css-v2'>{MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS}</style>"
         f"<style id='scoop-desktop-terms-top-compact-css'>{DESKTOP_TERMS_TOP_COMPACT}</style>"
         f"<style id='scoop-responsive-sidebar-brand-toggle-buffer-css'>{RESPONSIVE_SIDEBAR_BRAND_TOGGLE_BUFFER}</style>"
         f"<style id='scoop-desktop-sidebar-brand-toggle-buffer-css'>{DESKTOP_SIDEBAR_BRAND_TOGGLE_BUFFER}</style>"
@@ -5009,6 +4999,31 @@ def inject_desktop_sidebar_nav_market() -> None:
         "    doc.documentElement.setAttribute('data-scoop-screener-active','1');"
         "  }"
         "} catch (e) {} })();</script>",
+        unsafe_allow_javascript=True,
+    )
+    _inject_mobile_tablet_index_banner_parent_css()
+
+
+def _inject_mobile_tablet_index_banner_parent_css() -> None:
+    """Put index-banner CSS on the parent document so phone/tablet layout actually applies."""
+    css_json = json.dumps(MOBILE_TABLET_INDEX_BANNER_CSS)
+    st.html(
+        f"""<script>
+(function() {{
+  try {{
+    const css = {css_json};
+    const doc = (window.parent && window.parent.document) ? window.parent.document : document;
+    const id = "scoop-mobile-tablet-index-banner-parent-css";
+    let el = doc.getElementById(id);
+    if (!el) {{
+      el = doc.createElement("style");
+      el.id = id;
+      (doc.head || doc.documentElement).appendChild(el);
+    }}
+    if (el.textContent !== css) el.textContent = css;
+  }} catch (e) {{}}
+}})();
+</script>""",
         unsafe_allow_javascript=True,
     )
 
@@ -5209,8 +5224,10 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
     left: var(--scoop-mobile-tip-left, -10000px) !important;
     top: var(--scoop-mobile-tip-top, -10000px) !important;
     right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important;
-    width: min(18rem, calc(100vw - 2rem)) !important;
-    max-width: min(18rem, calc(100vw - 2rem)) !important;
+    width: min(26rem, calc(100vw - 1.25rem)) !important;
+    max-width: min(26rem, calc(100vw - 1.25rem)) !important;
+    font-size: 1.08rem !important;
+    line-height: 1.42 !important;
     z-index: 100002 !important;
   }
   html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .tip-wrap:not(.headlines-tip).scoop-mobile-tip-open > .tip-text,
@@ -5238,7 +5255,7 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         if (!isPhone() || !isGeneric(wrap) || !wrap.classList.contains("scoop-mobile-tip-open")) return;
         const tip = wrap.querySelector(":scope > .tip-text");
         if (!tip) return;
-        const tipWidth = Math.round(Math.min(18 * 16, Math.max(120, window.innerWidth - PAD * 2)));
+        const tipWidth = Math.round(Math.min(26 * 16, Math.max(120, window.innerWidth - PAD * 2)));
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
         tip.style.setProperty("bottom", "auto", "important");
@@ -5364,7 +5381,7 @@ _PHONE_GENERIC_TIP_STANDALONE_JS = r"""
         setInterval(ensureCss, 1500);
         window.addEventListener("resize", ensureCss, { passive: true });
     }
-    window.__scoopPhoneGenericTipStandalone = 4;
+    window.__scoopPhoneGenericTipStandalone = 5;
 })();
 """
 
@@ -5421,8 +5438,9 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
     left: var(--scoop-tablet-tip-left, -10000px) !important;
     top: var(--scoop-tablet-tip-top, -10000px) !important;
     right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important;
-    width: var(--scoop-tablet-tip-width, min(18rem, 46vw)) !important;
-    min-width: 0 !important; max-width: min(20rem, calc(100vw - 1.5rem)) !important;
+    width: var(--scoop-tablet-tip-width, min(32rem, 78vw)) !important;
+    min-width: 0 !important; max-width: min(36rem, calc(100vw - 1.5rem)) !important;
+    font-size: 1.08rem !important; line-height: 1.42 !important;
     white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;
     box-sizing: border-box !important; text-align: left !important;
     overflow-x: hidden !important; overflow-y: auto !important;
@@ -5500,8 +5518,8 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
             laneLeft = Math.min(laneRight - 140, wrapRect.right + GAP);
         }
         const laneW = Math.max(140, laneRight - laneLeft);
-        let tipWidth = Math.round(Math.min(300, laneW * 0.92, window.innerWidth * 0.4));
-        tipWidth = Math.max(160, Math.min(tipWidth, laneW, viewRight - viewLeft));
+        let tipWidth = Math.round(Math.min(520, laneW * 0.98, window.innerWidth * 0.72));
+        tipWidth = Math.max(220, Math.min(tipWidth, viewRight - viewLeft));
 
         tip.style.setProperty("position", "fixed", "important");
         tip.style.setProperty("right", "auto", "important");
@@ -5593,7 +5611,7 @@ _TABLET_GENERIC_TIP_STANDALONE_JS = r"""
         window.addEventListener("resize", ensureCss, { passive: true });
     }
     window.__scoopTabletGenericTipBindVersion = 13;
-    window.__scoopTabletGenericTipStandalone = 7;
+    window.__scoopTabletGenericTipStandalone = 8;
 })();
 """
 
@@ -6533,7 +6551,7 @@ def install_tooltip_scroll_handler() -> None:
         unsafe_allow_javascript=True,
     )
     # Chunked: a single giant <script> is dropped by Streamlit; tablet tips never bind.
-    _inject_js_source(_COMBINED_PAGE_JS, key="combined-page-v73")
+    _inject_js_source(_COMBINED_PAGE_JS, key="combined-page-v74")
     inject_desktop_sidebar_nav_market()
     inject_desktop_tablet_disclaimer_flow()
     st.session_state[TOOLTIP_INSTALLED_KEY] = TOOLTIP_SCRIPT_VERSION

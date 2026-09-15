@@ -131,10 +131,9 @@ def is_desktop_viewport(*, page: str | None = None) -> bool | None:
 
 
 def render_desktop_index_banner(st_module, html: str, *, page: str | None = None) -> None:
-    """Render market index cards on desktop only. Phone/tablet omit the markup."""
+    """Render market index cards on every market page (desktop, tablet, and phone)."""
+    _ = page
     if not html or not str(html).strip():
-        return
-    if is_desktop_viewport(page=page) is not True:
         return
     st_module.markdown(html, unsafe_allow_html=True)
 

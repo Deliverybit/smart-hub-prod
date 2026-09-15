@@ -5008,7 +5008,7 @@ MOBILE_BACK_HOME_BAR = """
         padding-top: calc(0.35rem + env(safe-area-inset-top, 0px)) !important;
         background: #f59e0b !important;
         color: #1e293b !important;
-        font-size: clamp(0.68rem, 2.1vw, 0.82rem) !important;
+        font-size: clamp(16px, 3.6vw, 20px) !important;
         font-weight: 600 !important;
         line-height: 1.35 !important;
         text-align: center !important;
@@ -5017,6 +5017,10 @@ MOBILE_BACK_HOME_BAR = """
         height: auto !important;
         min-height: 0 !important;
         word-break: break-word !important;
+    }
+    html:not([data-scoop-home-page="1"]) .scoop-env-banner span {
+        font-size: inherit !important;
+        font-weight: 500 !important;
     }
     /* Space under Back/Dark mode before market index cards.
        Spacer lives in the same markdown as the bar — do not zero this margin

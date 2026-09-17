@@ -6,19 +6,31 @@ import streamlit as st
 
 _JS = r"""
 (() => {
-    const VERSION = 3;
+    const VERSION = 4;
     const DESKTOP_MIN = 1367;
-    let appDoc = document;
+    const scoopDocs = () => {
+        const docs = [document];
+        try {
+            if (window.parent && window.parent.document && window.parent.document !== document) {
+                docs.push(window.parent.document);
+            }
+        } catch (e) {}
+        return docs;
+    };
+    const tableDoc = () => scoopDocs().find((d) => d.querySelector(".full-results-wrap")) || document;
+    let appDoc = tableDoc();
     let appWin = window;
     try {
-        if (window.parent && window.parent !== window && window.parent.document) {
-            appDoc = window.parent.document;
-            appWin = window.parent;
-        }
+        if (appDoc.defaultView) appWin = appDoc.defaultView;
+        else if (window.parent && window.parent !== window) appWin = window.parent;
     } catch (e) {}
     appWin.__scoopDesktopHlDismissV = VERSION;
 
-    const isDesktop = () => (appWin.innerWidth || 0) >= DESKTOP_MIN;
+    const isDesktop = () => {
+        let w = window.innerWidth || 0;
+        try { if (window.parent && window.parent.innerWidth) w = Math.max(w, window.parent.innerWidth); } catch (e) {}
+        return w >= DESKTOP_MIN;
+    };
 
     const closeAll = () => {
         if (!isDesktop()) return;
@@ -89,12 +101,16 @@ _JS = r"""
     ].filter(Boolean);
 
     if (appWin.__scoopDesktopHlDismissPtr) {
-        appDoc.removeEventListener("pointerdown", appWin.__scoopDesktopHlDismissPtr, true);
-        appDoc.removeEventListener("mousedown", appWin.__scoopDesktopHlDismissPtr, true);
+        scoopDocs().forEach((d) => {
+            d.removeEventListener("pointerdown", appWin.__scoopDesktopHlDismissPtr, true);
+            d.removeEventListener("mousedown", appWin.__scoopDesktopHlDismissPtr, true);
+        });
     }
     appWin.__scoopDesktopHlDismissPtr = onPointer;
-    appDoc.addEventListener("pointerdown", onPointer, true);
-    appDoc.addEventListener("mousedown", onPointer, true);
+    scoopDocs().forEach((d) => {
+        d.addEventListener("pointerdown", onPointer, true);
+        d.addEventListener("mousedown", onPointer, true);
+    });
     scrollTargets().forEach(bindScroller);
     if (!appWin.__scoopDesktopHlDismissWatch) {
         appWin.__scoopDesktopHlDismissWatch = true;

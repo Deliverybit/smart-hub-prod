@@ -47,24 +47,36 @@ _CSS = """
 
 _JS = r"""
 (() => {
-    const VERSION = 7;
+    const VERSION = 8;
     const DESKTOP_MIN = 1367;
     const OPEN_CLASS = "scoop-desktop-name-tip-open";
     const PAD = 12;
     const RIGHT_GAP = 12;
     const ABOVE_HEADING = 30;
     const NARROW_W = 264;
-    let appDoc = document;
+    const scoopDocs = () => {
+        const docs = [document];
+        try {
+            if (window.parent && window.parent.document && window.parent.document !== document) {
+                docs.push(window.parent.document);
+            }
+        } catch (e) {}
+        return docs;
+    };
+    const tableDoc = () => scoopDocs().find((d) => d.querySelector(".full-results-wrap")) || document;
+    let appDoc = tableDoc();
     let appWin = window;
     try {
-        if (window.parent && window.parent !== window && window.parent.document) {
-            appDoc = window.parent.document;
-            appWin = window.parent;
-        }
+        if (appDoc.defaultView) appWin = appDoc.defaultView;
+        else if (window.parent && window.parent !== window) appWin = window.parent;
     } catch (e) {}
     appWin.__scoopDesktopScreenerTipsV = VERSION;
 
-    const isDesktop = () => (appWin.innerWidth || 0) >= DESKTOP_MIN;
+    const isDesktop = () => {
+        let w = window.innerWidth || 0;
+        try { if (window.parent && window.parent.innerWidth) w = Math.max(w, window.parent.innerWidth); } catch (e) {}
+        return w >= DESKTOP_MIN;
+    };
 
     const isNameTip = (wrap) => {
         if (!wrap || !wrap.classList || wrap.classList.contains("headlines-tip")) return false;
@@ -314,17 +326,23 @@ _JS = r"""
     };
 
     if (appWin.__scoopDesktopScreenerTipsOver) {
-        appDoc.removeEventListener("mouseover", appWin.__scoopDesktopScreenerTipsOver, true);
-        appDoc.removeEventListener("mouseout", appWin.__scoopDesktopScreenerTipsOut, true);
-        appDoc.removeEventListener("click", appWin.__scoopDesktopScreenerTipsClick, true);
-        appDoc.removeEventListener("change", appWin.__scoopDesktopScreenerTipsChange, true);
+        scoopDocs().forEach((d) => {
+            d.removeEventListener("mouseover", appWin.__scoopDesktopScreenerTipsOver, true);
+            d.removeEventListener("mouseout", appWin.__scoopDesktopScreenerTipsOut, true);
+            d.removeEventListener("click", appWin.__scoopDesktopScreenerTipsClick, true);
+            d.removeEventListener("change", appWin.__scoopDesktopScreenerTipsChange, true);
+        });
     }
     appWin.__scoopDesktopScreenerTipsOver = onNameOver;
     appWin.__scoopDesktopScreenerTipsOut = onNameOut;
-    appWin.__scoopDesktopScreenerTipsClick = null;
-    appWin.__scoopDesktopScreenerTipsChange = null;
-    appDoc.addEventListener("mouseover", onNameOver, true);
-    appDoc.addEventListener("mouseout", onNameOut, true);
+    appWin.__scoopDesktopScreenerTipsClick = onHlClick;
+    appWin.__scoopDesktopScreenerTipsChange = onHlChange;
+    scoopDocs().forEach((d) => {
+        d.addEventListener("mouseover", onNameOver, true);
+        d.addEventListener("mouseout", onNameOut, true);
+        d.addEventListener("click", onHlClick, true);
+        d.addEventListener("change", onHlChange, true);
+    });
 })();
 """
 

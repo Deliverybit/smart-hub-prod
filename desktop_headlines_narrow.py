@@ -91,20 +91,32 @@ _CSS = """
 
 _JS = r"""
 (() => {
-    const VERSION = 6;
+    const VERSION = 7;
     const DESKTOP_MIN = 1367;
     const M = 12;
-    let appDoc = document;
+    const scoopDocs = () => {
+        const docs = [document];
+        try {
+            if (window.parent && window.parent.document && window.parent.document !== document) {
+                docs.push(window.parent.document);
+            }
+        } catch (e) {}
+        return docs;
+    };
+    const tableDoc = () => scoopDocs().find((d) => d.querySelector(".full-results-wrap")) || document;
+    let appDoc = tableDoc();
     let appWin = window;
     try {
-        if (window.parent && window.parent !== window && window.parent.document) {
-            appDoc = window.parent.document;
-            appWin = window.parent;
-        }
+        if (appDoc.defaultView) appWin = appDoc.defaultView;
+        else if (window.parent && window.parent !== window) appWin = window.parent;
     } catch (e) {}
     appWin.__scoopDesktopHlNarrowV = VERSION;
 
-    const isDesktop = () => (appWin.innerWidth || 0) >= DESKTOP_MIN;
+    const isDesktop = () => {
+        let w = window.innerWidth || 0;
+        try { if (window.parent && window.parent.innerWidth) w = Math.max(w, window.parent.innerWidth); } catch (e) {}
+        return w >= DESKTOP_MIN;
+    };
     const inView = (r) => {
         const vh = appWin.innerHeight || 800;
         const vw = appWin.innerWidth || 1600;
@@ -247,13 +259,17 @@ _JS = r"""
     };
 
     if (appWin.__scoopHlNarrowClick) {
-        appDoc.removeEventListener("click", appWin.__scoopHlNarrowClick, true);
-        appDoc.removeEventListener("change", appWin.__scoopHlNarrowChange, true);
+        scoopDocs().forEach((d) => {
+            d.removeEventListener("click", appWin.__scoopHlNarrowClick, true);
+            d.removeEventListener("change", appWin.__scoopHlNarrowChange, true);
+        });
     }
     appWin.__scoopHlNarrowClick = onClick;
     appWin.__scoopHlNarrowChange = onChange;
-    appDoc.addEventListener("click", onClick, true);
-    appDoc.addEventListener("change", onChange, true);
+    scoopDocs().forEach((d) => {
+        d.addEventListener("click", onClick, true);
+        d.addEventListener("change", onChange, true);
+    });
 })();
 """
 

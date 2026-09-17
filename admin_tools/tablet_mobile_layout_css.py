@@ -3569,15 +3569,21 @@ def _desktop_screener_top_compact_for(flag_attr: str) -> str:
     {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
     {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[src*="streamlit_js_eval"]),
     {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[data-testid="stCustomComponentV1"]),
-    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]),
-    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]),
-    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stHtml"]) {{
+    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]) {{
         display: none !important;
         height: 0 !important;
         min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
+        border: none !important;
+    }}
+    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]),
+    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stHtml"]) {{
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
         border: none !important;
     }}
     /* Style-only injectors: trim margins only. Never height:0 - market blocks
@@ -3669,8 +3675,10 @@ def _desktop_screener_top_compact_for(flag_attr: str) -> str:
     {root} [data-testid="stAppViewContainer"] > section.main {{
         padding-bottom: 0.25rem !important;
     }}
-    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"],
-    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"] {{
+    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
+    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"]:has(iframe[src*="streamlit_js_eval"]),
+    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"]:has(iframe[data-testid="stCustomComponentV1"]),
+    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]) {{
         display: none !important;
         height: 0 !important;
         min-height: 0 !important;
@@ -3723,9 +3731,7 @@ DESKTOP_SCREENER_TOP_COMPACT = f"""
     html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
     html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[src*="streamlit_js_eval"]),
     html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[data-testid="stCustomComponentV1"]),
-    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]),
-    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]),
-    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stHtml"]) {{
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]) {{
         display: none !important;
         height: 0 !important;
         min-height: 0 !important;
@@ -3734,8 +3740,8 @@ DESKTOP_SCREENER_TOP_COMPACT = f"""
         overflow: hidden !important;
         border: none !important;
     }}
-    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"],
-    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"] {{
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"]:has(iframe[src*="streamlit_js_eval"]) {{
         display: none !important;
         height: 0 !important;
         min-height: 0 !important;
@@ -3819,7 +3825,7 @@ _DESKTOP_SCREENER_POP_CSS = """
         border-radius: 16px !important;
         box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08) !important;
         padding: 0.35rem !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
     html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) .full-results-wrap {
         background: #0f172a !important;
@@ -3845,10 +3851,19 @@ _DESKTOP_SCREENER_POP_CSS = """
     html:not([data-scoop-home-page="1"]) .full-results-table a:hover {
         text-decoration: underline !important;
     }
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table,
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody,
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table td,
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .tip-wrap {
+        overflow: visible !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .tip-wrap .tip-text {
+        z-index: 2147483000 !important;
+    }
     html:not([data-scoop-home-page="1"]) [data-testid="stMarkdownContainer"] table {
         border-collapse: separate !important;
         border-spacing: 0 !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         border-radius: 12px !important;
         box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06) !important;
     }

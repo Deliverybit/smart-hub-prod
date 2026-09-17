@@ -24,7 +24,10 @@ def test_home_landing_attract_css_is_mobile_tablet_only() -> None:
     css = _HOME_LANDING_ATTRACT_CSS
     assert "@media (max-width: 1366px)" in css
     assert "@media (min-width: 1367px)" not in css
-    assert "linear-gradient(180deg, #e8eef8" in css
+    assert "radial-gradient(ellipse 90% 42% at 50% -8%" in css
+    assert "border-left: 4px solid #0ea5e9" in css
+    assert "html[data-scoop-theme=\"dark\"][data-scoop-tab-nav=\"1\"][data-scoop-home-page=\"1\"]" in css
+    assert "linear-gradient(180deg, #243449 0%, #152033 100%)" in css
     assert '[data-testid="stHeader"]' in css
     assert "scoop-home-landing" in css
     assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP

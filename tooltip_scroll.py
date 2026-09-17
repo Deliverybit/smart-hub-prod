@@ -5048,7 +5048,7 @@ def inject_desktop_tablet_disclaimer_flow() -> None:
 
 
 def inject_desktop_analyze_top_compact() -> None:
-    """Tighten Analyze deep-dive top spacing on desktop (padding, js_eval gaps, hr lines)."""
+    """Tighten Analyze deep-dive top spacing on desktop (padding, js_eval gaps, hr lines, card polish)."""
     from analyze_page import analyze_screener_snapshot_key, is_crypto_analyze_context, query_param_ticker
 
     source = "".join(ch for ch in str(analyze_screener_snapshot_key() or "") if ch.isalnum())

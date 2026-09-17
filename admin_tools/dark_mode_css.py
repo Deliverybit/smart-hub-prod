@@ -331,11 +331,18 @@ html[data-scoop-theme="dark"] div[data-testid="stCheckbox"] label p {
 
 html[data-scoop-theme="dark"] .disclaimer-footer,
 html[data-scoop-theme="dark"] .disclaimer-footer p,
-html[data-scoop-theme="dark"] .disclaimer-footer strong,
-html[data-scoop-theme="dark"] .disclaimer-footer a {
+html[data-scoop-theme="dark"] .disclaimer-footer strong {
     background-color: #0f172a !important;
     color: #cbd5e1 !important;
     border-color: #334155 !important;
+}
+
+html[data-scoop-theme="dark"] .disclaimer-footer a {
+    background-color: #0f172a !important;
+    color: #93c5fd !important;
+    border-color: #334155 !important;
+    text-decoration: underline !important;
+    text-underline-offset: 0.14em !important;
 }
 
 html[data-scoop-theme="dark"] .scoop-selected-asset-card {

@@ -106,6 +106,8 @@ def test_desktop_analyze_keeps_mood_column_right() -> None:
     assert 'is_desktop_viewport(page="pages/_Analyze.py") is False' in analyze_src
     assert "[data-testid=\"stHorizontalBlock\"]:has(.mood-feed)" in analyze_src
     assert "@media (min-width: 1367px)" in analyze_src
+    assert "max-height: 46rem !important" in css
+    assert ".scoop-analyze-direction-banner" in css
 
 
 def test_mobile_page_nav_skips_analyze_back_link() -> None:

@@ -5786,6 +5786,62 @@ _HOME_LANDING_ATTRACT_CSS = f"""
 }}
 """
 
+# Phone/tablet gating screen only: trim extra gaps (keep some breathing room).
+_GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS = """
+@media (max-width: 1366px) {
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stElementContainer"]:has(.scoop-mobile-back-home-bar),
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="element-container"]:has(.scoop-mobile-back-home-bar) {
+        margin-bottom: 4px !important;
+        padding-bottom: 0 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-mobile-inner-top-toggle),
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-mobile-inner-top-toggle) {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-mobile-inner-top-toggle) + [data-testid="stElementContainer"],
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-mobile-inner-top-toggle) + [data-testid="element-container"] {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] h1 {
+        margin-top: 0.15rem !important;
+        margin-bottom: 0.3rem !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] .scoop-landing-summary {
+        margin-bottom: 0.3rem !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] .scoop-landing-divider {
+        margin: 0.2rem 0 0.35rem 0 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] .scoop-landing-info {
+        margin-bottom: 0.45rem !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stElementContainer"]:has(.scoop-banner-compact),
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="element-container"]:has(.scoop-banner-compact),
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stElementContainer"]:has(.scoop-banner-desktop),
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="element-container"]:has(.scoop-banner-desktop) {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p,
+    html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+    html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+    html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p {
+        color: #1e3a8a !important;
+        text-decoration: underline !important;
+        text-underline-offset: 0.14em !important;
+        font-weight: 600 !important;
+    }
+}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -5806,4 +5862,5 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _MOBILE_TABLET_KILL_SLIDEOUT_FINAL
     + _HOME_LANDING_ATTRACT_CSS
     + LOGO_TM_CSS
+    + _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS
 )

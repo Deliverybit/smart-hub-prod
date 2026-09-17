@@ -15,6 +15,33 @@ if str(ROOT) not in sys.path:
 import landing_page  # noqa: E402
 
 
+def test_home_landing_attract_css_is_mobile_tablet_only() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        _HOME_LANDING_ATTRACT_CSS,
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+    )
+
+    css = _HOME_LANDING_ATTRACT_CSS
+    assert "@media (max-width: 1366px)" in css
+    assert "@media (min-width: 1367px)" not in css
+    assert "linear-gradient(180deg, #e8eef8" in css
+    assert '[data-testid="stHeader"]' in css
+    assert "scoop-home-landing" in css
+    assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
+
+
+def test_logo_tm_css_on_brand_images() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        DESKTOP_SIDEBAR_LOGO_RULES,
+        LOGO_TM_CSS,
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+    )
+
+    assert 'content: "TM"' in LOGO_TM_CSS
+    assert LOGO_TM_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
+    assert LOGO_TM_CSS in DESKTOP_SIDEBAR_LOGO_RULES
+
+
 def test_home_marks_seen_and_keeps_vertical_market_list() -> None:
     text = Path(landing_page.__file__).read_text(encoding="utf-8")
     assert "mark_mobile_home_seen()" in text
@@ -137,6 +164,8 @@ def test_enforce_waits_when_storage_probe_pending() -> None:
 
 def main() -> int:
     tests = [
+        test_home_landing_attract_css_is_mobile_tablet_only,
+        test_logo_tm_css_on_brand_images,
         test_home_marks_seen_and_keeps_vertical_market_list,
         test_enforce_skips_desktop_and_non_screeners,
         test_enforce_redirects_mobile_screener_without_home,

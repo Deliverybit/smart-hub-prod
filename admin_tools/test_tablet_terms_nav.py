@@ -28,6 +28,9 @@ def test_tablet_terms_main_view_css_scoped() -> None:
     assert "data-scoop-desktop-layout" in css
     # Desktop split must not be forced by this block.
     assert "@media (min-width: 1367px)" not in css
+    assert '[data-testid="stCheckbox"] a[href*="Terms_of_Service"]' in css
+    assert '[data-testid="stPageLink"] a[href*="Terms_of_Service"]' in css
+    assert "text-decoration: none !important;" in css
     assert '[data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label' in css
     assert "pointer-events: none !important;" in css
     assert "label > span" in css

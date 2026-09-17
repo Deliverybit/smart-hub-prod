@@ -2709,8 +2709,66 @@ _HOME_LOGO_TOP_CLEARANCE_FINAL = f"""
 }}
 """
 
+# Small TM badge on brand logo images (sidebar, mobile/tablet home, tab-nav header).
+LOGO_TM_CSS = """
+[data-testid="stSidebar"] [data-testid="stImage"],
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stImage"],
+html[data-scoop-tab-nav="1"] .scoop-mobile-nav-shell [data-testid="stImage"] {
+    position: relative !important;
+    overflow: visible !important;
+}
+[data-testid="stSidebar"] [data-testid="stImage"]::after,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stImage"]::after,
+html[data-scoop-tab-nav="1"] .scoop-mobile-nav-shell [data-testid="stImage"]::after {
+    content: "TM";
+    position: absolute;
+    top: auto;
+    left: auto;
+    bottom: 15%;
+    right: 15%;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.95rem;
+    height: 0.95rem;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 1.25px solid #334155;
+    background: #ffffff;
+    font-size: 0.32rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: #1e293b;
+    pointer-events: none;
+    font-family: inherit;
+}
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stImage"]::after {
+    bottom: 22%;
+    right: 22%;
+    width: 0.95rem;
+    height: 0.95rem;
+    font-size: 0.32rem;
+}
+html[data-scoop-tab-nav="1"] .scoop-mobile-nav-shell [data-testid="stImage"]::after {
+    bottom: 8%;
+    right: 8%;
+    width: 0.7rem;
+    height: 0.7rem;
+    font-size: 0.26rem;
+    border-width: 1px;
+}
+html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stImage"]::after,
+html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] .scoop-mobile-nav-shell [data-testid="stImage"]::after {
+    border-color: #cbd5e1;
+    background: #0f172a;
+    color: #f8fafc;
+}
+"""
+
 # Desktop sidebar: no logo box, use full sidebar width.
-DESKTOP_SIDEBAR_LOGO_RULES = """
+DESKTOP_SIDEBAR_LOGO_RULES = LOGO_TM_CSS + """
 @media (min-width: 1367px) {
     [data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
     [data-testid="stSidebar"] [data-testid="element-container"]:has([data-testid="stImage"]) {
@@ -2796,6 +2854,19 @@ html[data-scoop-desktop-layout="1"] [data-testid="stFullScreenFrame"]:has([data-
 html[data-scoop-desktop-layout="1"] [data-testid="stFullScreenFrame"]:has([data-testid="stImage"]) button[aria-label="Close fullscreen"] {
     display: none !important;
 }
+@media (min-width: 1367px) {
+    [data-testid="stSidebar"] [data-testid="stImage"]::after,
+    html[data-scoop-desktop-layout="1"] [data-testid="stSidebar"] [data-testid="stImage"]::after {
+        left: 50%;
+        right: auto;
+        bottom: 16%;
+        transform: translate(6.15rem, 0.35rem);
+        width: 1.2rem;
+        height: 1.2rem;
+        font-size: 0.42rem;
+        border-width: 1.5px;
+    }
+}
 """
 
 # Desktop + tablet: flow disclaimer below content (no fixed black bar overlay).
@@ -2829,7 +2900,9 @@ _HOME_MARKET_NAV_DARK_RULES = _mirror_sidebar_nav_css_for_home(_DESKTOP_MARKET_N
 # 12px space between market nav buttons — final cascade wins over margin resets.
 _HOME_MARKET_NAV_GAP_SPACER_RULES = f"""
     html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"] a[href*="Top_10"]),
-    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"] a[href*="Top_10"]) {{
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"] a[href*="Top_10"]),
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"] a[href*="Terms_of_Service"]),
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"] a[href*="Terms_of_Service"]) {{
         margin-top: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
@@ -2837,7 +2910,8 @@ _HOME_MARKET_NAV_GAP_SPACER_RULES = f"""
         padding-top: 0 !important;
         padding-bottom: 0 !important;
     }}
-    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]) {{
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]),
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
         margin-top: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
@@ -4418,12 +4492,18 @@ _CONSENT_TERMS_MAIN_VIEW_RULES = """
 MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS = f"""
 @media (max-width: 1366px) {{
 {_CONSENT_TERMS_MAIN_VIEW_RULES}
-    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] a[href*="Terms_of_Service"] {{
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"] a[href*="Terms_of_Service"] {{
         pointer-events: auto !important;
         position: relative !important;
         z-index: 6 !important;
         text-decoration: underline !important;
         cursor: pointer !important;
+    }}
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a[href*="Terms_of_Service"],
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p {{
+        text-decoration: none !important;
     }}
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(a[href*="Terms_of_Service"]) label {{
         pointer-events: none !important;
@@ -5331,43 +5411,18 @@ RESPONSIVE_HOME_LANDING = (
     + _HOME_MARKET_NAV_LIGHT_RULES
     + _HOME_MARKET_NAV_DARK_RULES
     + """
-    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]) {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin-top: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]),
     html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {
         display: block !important;
         width: 100% !important;
+        max-width: 100% !important;
         margin-top: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
-        margin-bottom: 0 !important;
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
     }
-    html:not([data-scoop-theme="dark"])[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {
-        display: inline-flex !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0.25rem 0 !important;
-        font-size: clamp(1rem, 4.2vw, 1.5rem) !important;
-        font-weight: 400 !important;
-        text-align: left !important;
-        color: #0f172a !important;
-        box-sizing: border-box !important;
-    }
+    html:not([data-scoop-theme="dark"])[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {
-        color: #93c5fd !important;
-        font-size: clamp(1rem, 4.2vw, 1.5rem) !important;
-        font-weight: 400 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
+        text-decoration: none !important;
     }
 """
     + _HOME_MARKET_NAV_GAP_SPACER_RULES
@@ -5384,6 +5439,7 @@ RESPONSIVE_HOME_LANDING = (
 _MOBILE_TABLET_BUTTON_HOVER_SHADER = """
 @media (max-width: 1366px) {
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]),
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]),
     html[data-scoop-tab-nav="1"] .scoop-mobile-tab-row [data-testid="stPageLink"] {
         transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
     }
@@ -5555,6 +5611,181 @@ html body .stApp [data-testid="stSidebarNav"] {
 
 EARLY_STREAMLIT_CHROME_HIDE = _DESKTOP_KILL_DEFAULT_CHROME + _MOBILE_TABLET_KILL_SLIDEOUT_FINAL
 
+# Mobile/tablet home only — last-wins polish. Desktop sidebar landing is unchanged.
+_HOME_LANDING_ATTRACT_CSS = f"""
+@media (max-width: 1366px) {{
+    html[data-scoop-home-page="1"] [data-testid="stHeader"],
+    html[data-scoop-home-page="1"] [data-testid="stToolbar"],
+    html[data-scoop-home-page="1"] [data-testid="stDecoration"],
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stHeader"],
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stToolbar"],
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stDecoration"] {{
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }}
+    html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"],
+    html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp .stMainBlockContainer {{
+        padding-top: 0.9rem !important;
+    }}
+    html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
+    html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stImage"]) {{
+        padding-top: 0 !important;
+        background: transparent !important;
+        background-color: transparent !important;
+    }}
+    html[data-scoop-home-page="1"] body,
+    html[data-scoop-home-page="1"] .stApp,
+    html[data-scoop-home-page="1"] [data-testid="stAppViewContainer"],
+    html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] {{
+        background: linear-gradient(180deg, #e8eef8 0%, #f5f7fb 42%, #eef2f8 100%) !important;
+    }}
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] body,
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] .stApp,
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stAppViewContainer"],
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] {{
+        background: linear-gradient(180deg, #0b1220 0%, #111827 48%, #0f172a 100%) !important;
+    }}
+    {_HOME_MAIN_SCOPE} {{
+        padding-top: 1.15rem !important;
+        padding-bottom: 2rem !important;
+    }}
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stImage"]),
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"]:has([data-testid="stImage"]) {{
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto 0.2rem auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }}
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {{
+        width: min(100%, 18.5rem) !important;
+        max-width: min(100%, 18.5rem) !important;
+        margin: 0.85rem auto 0 auto !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 1.35rem !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(148, 163, 184, 0.28) !important;
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12) !important;
+        box-sizing: border-box !important;
+    }}
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {{
+        background: #ffffff !important;
+        border-color: rgba(226, 232, 240, 0.22) !important;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.38) !important;
+    }}
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {{
+        width: auto !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 0 auto !important;
+    }}
+    {_HOME_MAIN_SCOPE} .sidebar-brand {{
+        text-align: center !important;
+        margin: 0.2rem 0 0.15rem 0 !important;
+        padding: 0.35rem 0 0.55rem 0 !important;
+        background: transparent !important;
+    }}
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] {_HOME_MAIN_SCOPE} .sidebar-brand {{
+        background: transparent !important;
+    }}
+    {_HOME_MAIN_SCOPE} .sidebar-brand-row {{
+        justify-content: center !important;
+    }}
+    {_HOME_MAIN_SCOPE} .sidebar-brand-text,
+    {_HOME_MAIN_SCOPE} #scoop-title {{
+        font-weight: 700 !important;
+        letter-spacing: -0.03em !important;
+        text-decoration-thickness: 3px !important;
+        text-underline-offset: 7px !important;
+    }}
+    {_HOME_MAIN_SCOPE} hr {{
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+    }}
+    {_HOME_MAIN_SCOPE} [data-testid="element-container"]:has(hr),
+    {_HOME_MAIN_SCOPE} [data-testid="stElementContainer"]:has(hr) {{
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }}
+    html[data-scoop-home-page="1"] .scoop-home-landing {{
+        margin: 0.35rem 0 1rem 0 !important;
+        padding: 0.95rem 1.05rem !important;
+        border-radius: 1rem !important;
+        background: rgba(255, 255, 255, 0.78) !important;
+        border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07) !important;
+        backdrop-filter: blur(8px) !important;
+    }}
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] .scoop-home-landing {{
+        background: rgba(15, 23, 42, 0.72) !important;
+        border-color: rgba(148, 163, 184, 0.28) !important;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28) !important;
+    }}
+    html[data-scoop-home-page="1"] .scoop-home-landing p {{
+        font-size: clamp(0.95rem, 3.3vw, 1.12rem) !important;
+        line-height: 1.55 !important;
+        color: #334155 !important;
+        font-weight: 400 !important;
+    }}
+    html[data-scoop-theme="dark"][data-scoop-home-page="1"] .scoop-home-landing p {{
+        color: #cbd5e1 !important;
+    }}
+    {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]),
+    {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
+        border-radius: 1rem !important;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+        margin-top: 0 !important;
+    }}
+    html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]),
+    html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        border: 1.5px solid rgba(15, 23, 42, 0.16) !important;
+    }}
+    html[data-scoop-theme="dark"] {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]),
+    html[data-scoop-theme="dark"] {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+        border: 1.5px solid rgba(226, 232, 240, 0.28) !important;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28) !important;
+    }}
+    {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]) a,
+    {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {{
+        font-weight: 600 !important;
+        padding: 0.62rem 0.8rem !important;
+        text-decoration: none !important;
+    }}
+}}
+@media (min-width: 769px) and (max-width: 1366px) {{
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {{
+        width: min(100%, 22rem) !important;
+        max-width: min(100%, 22rem) !important;
+        padding: 1.05rem 1.2rem !important;
+    }}
+    html[data-scoop-home-page="1"] .scoop-home-landing {{
+        padding: 1.15rem 1.35rem !important;
+    }}
+}}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -5573,4 +5804,6 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _MOBILE_TABLET_DARK_MODE_LABEL_WHITE
     + _MOBILE_TABLET_ANALYZE_LINK_FINAL
     + _MOBILE_TABLET_KILL_SLIDEOUT_FINAL
+    + _HOME_LANDING_ATTRACT_CSS
+    + LOGO_TM_CSS
 )

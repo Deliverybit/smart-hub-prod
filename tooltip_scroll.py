@@ -5015,7 +5015,7 @@ def inject_desktop_sidebar_nav_market() -> None:
         f"<style id='scoop-desktop-screener-gating-layout-css'>{DESKTOP_SCREENER_GATING_LAYOUT}</style>"
         f"<style id='scoop-responsive-screener-top-compact-css-v3'>{RESPONSIVE_SCREENER_TOP_COMPACT}</style>"
         f"<style id='scoop-responsive-terms-top-compact-css'>{RESPONSIVE_TERMS_TOP_COMPACT}</style>"
-        f"<style id='scoop-mobile-consent-terms-main-view-css-v2'>{MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS}</style>"
+        f"<style id='scoop-mobile-consent-terms-main-view-css-v3'>{MOBILE_CONSENT_TERMS_MAIN_VIEW_CSS}</style>"
         f"<style id='scoop-desktop-terms-top-compact-css'>{DESKTOP_TERMS_TOP_COMPACT}</style>"
         f"<style id='scoop-responsive-sidebar-brand-toggle-buffer-css'>{RESPONSIVE_SIDEBAR_BRAND_TOGGLE_BUFFER}</style>"
         f"<style id='scoop-desktop-sidebar-brand-toggle-buffer-css'>{DESKTOP_SIDEBAR_BRAND_TOGGLE_BUFFER}</style>"

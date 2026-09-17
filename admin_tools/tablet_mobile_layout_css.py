@@ -5922,6 +5922,69 @@ _MOBILE_TABLET_ENV_BANNER_CONTRAST = """
 }
 """
 
+# Cloud Streamlit uses a React Aria switch (no [data-baseweb="switch"]).
+# Force readable Dark mode label + track on phone/tablet only.
+_MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
+@media (max-width: 1366px) {
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.45rem !important;
+        width: auto !important;
+        max-width: 100% !important;
+    }
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        border-radius: 999px !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
+        background: #64748b !important;
+    }
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
+        background: #38bdf8 !important;
+    }
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+        border-radius: 999px !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.35) !important;
+    }
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"],
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"] p,
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"] span,
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label p {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stTooltipIcon"],
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stTooltipIcon"] button,
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stTooltipIcon"] svg {
+        color: #0f172a !important;
+        stroke: #0f172a !important;
+        opacity: 1 !important;
+    }
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"],
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"] p,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label p {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        opacity: 1 !important;
+    }
+}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -5944,4 +6007,5 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + LOGO_TM_CSS
     + _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS
     + _MOBILE_TABLET_ENV_BANNER_CONTRAST
+    + _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS
 )

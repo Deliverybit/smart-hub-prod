@@ -4817,68 +4817,10 @@ def _inject_responsive_bootstrap_css() -> str:
                     if ((appWin.innerWidth || 0) < 1367) {{
                         return;
                     }}
-                    const raw = event.target;
-                    const el = raw && raw.nodeType === 1 ? raw : (raw && raw.parentElement);
-                    if (!el || typeof el.closest !== "function") {{
-                        return;
-                    }}
-                    const analyzeCell = el.closest('td[data-label="Analyze"]');
-                    const link =
-                        el.closest("a.fr-analyze-link") ||
-                        (analyzeCell && analyzeCell.querySelector("a.fr-analyze-link"));
-                    if (!link) {{
-                        return;
-                    }}
-                    const ticker = (link.getAttribute("data-ticker") || "").trim();
-                    if (!ticker) {{
-                        return;
-                    }}
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    let theme = "light";
-                    try {{
-                        localStorage.removeItem("scoop-theme");
-                        const stored = sessionStorage.getItem("scoop-theme");
-                        if (stored === "dark") {{
-                            theme = "dark";
-                        }}
-                    }} catch (e) {{}}
-                    try {{
-                        appWin.__scoopAnalyzeSidebarUserOpened = false;
-                        appWin.__scoopSuppressSidebarExpand = Date.now() + 15000;
-                        if (typeof appWin.__scoopClearResponsiveExpandTimers === "function") {{
-                            appWin.__scoopClearResponsiveExpandTimers();
-                        }}
-                        const sidebar = appDoc.querySelector('section[data-testid="stSidebar"]');
-                        if (sidebar) {{
-                            __scoopApplySidebarExpandedState(false);
-                        }}
-                        appWin.__scoopLayout?.syncSidebarLayout?.();
-                        appWin.__scoopLayout?.collapseSidebar?.();
-                    }} catch (e) {{}}
-                    const dest = new URL("Analyze", appWin.location.href);
-                    dest.searchParams.set("ticker", ticker);
-                    dest.searchParams.set("theme", theme);
-                    const knownFrom = [
-                        "NYSE_Top_10",
-                        "NASDAQ_Top_10",
-                        "Crypto_Top_10",
-                        "CME_Top_10",
-                        "ICE_Top_10",
-                    ];
-                    const pathNow = String(appWin.location.pathname || "");
-                    let fromPath = "/NYSE_Top_10";
-                    for (const slug of knownFrom) {{
-                        if (pathNow.indexOf(slug) !== -1) {{
-                            fromPath = "/" + slug;
-                            break;
-                        }}
-                    }}
-                    dest.searchParams.set("from", fromPath);
-                    try {{
-                        appWin.sessionStorage.setItem("scoop-analyze-from", fromPath);
-                    }} catch (e) {{}}
-                    appWin.location.href = dest.toString();
+                    // Desktop Cloud: do not hijack Analyze here. st.html often
+                    // runs in a srcdoc frame; preventDefault + location.assign
+                    // swallows the click. desktop_screener_tips owns desktop nav.
+                    return;
                 }} catch (e) {{}}
             }},
             true
@@ -4894,7 +4836,7 @@ def _inject_responsive_bootstrap_css() -> str:
 
 
 BOOTSTRAP_INSTALLED_KEY = "_scoop_responsive_bootstrap_installed"
-BOOTSTRAP_SCRIPT_VERSION = 10
+BOOTSTRAP_SCRIPT_VERSION = 12
 TOOLTIP_INSTALLED_KEY = "_scoop_tooltip_scroll_installed"
 TOOLTIP_SCRIPT_VERSION = 75
 SIDEBAR_HANDLER_INSTALLED_KEY = "_scoop_responsive_sidebar_handler_v3"

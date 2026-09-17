@@ -47,7 +47,7 @@ _CSS = """
 
 _JS = r"""
 (() => {
-    const VERSION = 8;
+    const VERSION = 9;
     const DESKTOP_MIN = 1367;
     const OPEN_CLASS = "scoop-desktop-name-tip-open";
     const PAD = 12;
@@ -304,8 +304,81 @@ _JS = r"""
         clearNameTip(wrap);
     };
 
+    const httpWin = () => {
+        const cands = [window];
+        try { if (window.parent) cands.push(window.parent); } catch (e) {}
+        try { if (window.top) cands.push(window.top); } catch (e) {}
+        for (let i = cands.length - 1; i >= 0; i -= 1) {
+            const w = cands[i];
+            try {
+                const href = w.location && w.location.href;
+                if (href && /^https?:/i.test(href)) return w;
+            } catch (e) {}
+        }
+        return window;
+    };
+
+    const goAnalyze = (link) => {
+        const ticker = (link.getAttribute("data-ticker") || "").trim();
+        if (!ticker) return false;
+        const w = httpWin();
+        let origin = "";
+        let path = "/";
+        try {
+            origin = w.location.origin || "";
+            path = w.location.pathname || "/";
+        } catch (e) {
+            return false;
+        }
+        if (!origin) return false;
+        const knownFrom = ["NYSE_Top_10", "NASDAQ_Top_10", "Crypto_Top_10", "CME_Top_10", "ICE_Top_10"];
+        let fromPath = "/NYSE_Top_10";
+        for (const slug of knownFrom) {
+            if (path.indexOf(slug) !== -1) {
+                fromPath = "/" + slug;
+                break;
+            }
+        }
+        let theme = "light";
+        try {
+            if ((w.sessionStorage && w.sessionStorage.getItem("scoop-theme")) === "dark") theme = "dark";
+        } catch (e) {}
+        try {
+            w.sessionStorage.setItem("scoop-analyze-from", fromPath);
+        } catch (e) {}
+        const prefix = String(path).replace(/[^/]*$/, "");
+        const dest = origin + prefix + "Analyze?ticker=" + encodeURIComponent(ticker)
+            + "&from=" + encodeURIComponent(fromPath)
+            + "&theme=" + encodeURIComponent(theme);
+        try {
+            w.location.assign(dest);
+            return true;
+        } catch (e) {
+            try {
+                w.location.href = dest;
+                return true;
+            } catch (e2) {
+                return false;
+            }
+        }
+    };
+
+    const onAnalyzeNav = (event) => {
+        if (!isDesktop() || !event || !event.target || !event.target.closest) return;
+        const el = event.target.nodeType === 1 ? event.target : event.target.parentElement;
+        if (!el || !el.closest) return;
+        const analyzeCell = el.closest('td[data-label="Analyze"]');
+        const link = el.closest("a.fr-analyze-link") || (analyzeCell && analyzeCell.querySelector("a.fr-analyze-link"));
+        if (!link) return;
+        if (goAnalyze(link)) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+        }
+    };
+
     const onHlClick = (event) => {
         if (!isDesktop() || !event || !event.target || !event.target.closest) return;
+        if (event.target.closest("a.fr-analyze-link, td[data-label='Analyze']")) return;
         const label = event.target.closest(".hl-tip-count");
         if (!label) return;
         const wrap = label.closest(".tip-wrap.headlines-tip");
@@ -331,17 +404,22 @@ _JS = r"""
             d.removeEventListener("mouseout", appWin.__scoopDesktopScreenerTipsOut, true);
             d.removeEventListener("click", appWin.__scoopDesktopScreenerTipsClick, true);
             d.removeEventListener("change", appWin.__scoopDesktopScreenerTipsChange, true);
+            d.removeEventListener("click", appWin.__scoopDesktopAnalyzeNav, true);
+            d.removeEventListener("pointerdown", appWin.__scoopDesktopAnalyzeNav, true);
         });
     }
     appWin.__scoopDesktopScreenerTipsOver = onNameOver;
     appWin.__scoopDesktopScreenerTipsOut = onNameOut;
     appWin.__scoopDesktopScreenerTipsClick = onHlClick;
     appWin.__scoopDesktopScreenerTipsChange = onHlChange;
+    appWin.__scoopDesktopAnalyzeNav = onAnalyzeNav;
     scoopDocs().forEach((d) => {
         d.addEventListener("mouseover", onNameOver, true);
         d.addEventListener("mouseout", onNameOut, true);
         d.addEventListener("click", onHlClick, true);
         d.addEventListener("change", onHlChange, true);
+        d.addEventListener("click", onAnalyzeNav, true);
+        d.addEventListener("pointerdown", onAnalyzeNav, true);
     });
 })();
 """

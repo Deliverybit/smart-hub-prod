@@ -69,12 +69,12 @@ def test_analyze_click_js_handles_mobile_targets() -> None:
     from tooltip_scroll import _inject_responsive_bootstrap_css
 
     js = _inject_responsive_bootstrap_css()
-    assert "nodeType" in js
-    assert 'td[data-label="Analyze"]' in js
-    assert 'new URL("Analyze"' in js
-    assert "appDoc.querySelector" in js
-    assert "scoop-analyze-from" in js
-    assert "NASDAQ_Top_10" in js
+    assert "desktop_screener_tips owns desktop nav" in js
+    assert "if ((appWin.innerWidth || 0) < 1367)" in js
+    tips = (ROOT / "desktop_screener_tips.py").read_text(encoding="utf-8")
+    assert "goAnalyze" in tips
+    assert 'prefix + "Analyze?ticker="' in tips
+    assert "fr-analyze-link" in tips
 
 
 def test_crypto_analyze_stacks_only_on_responsive() -> None:

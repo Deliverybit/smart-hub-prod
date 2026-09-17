@@ -3860,6 +3860,17 @@ _DESKTOP_SCREENER_POP_CSS = """
     html:not([data-scoop-home-page="1"]) .full-results-wrap .tip-wrap .tip-text {
         z-index: 2147483000 !important;
     }
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .tip-wrap:not(.hl-tip-desktop-open):not(:has(.hl-tip-cb:checked)) > .tip-text {
+        pointer-events: none !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody td[data-label="Analyze"],
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody td[data-label="Analyze"] .fr-val,
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody td[data-label="Analyze"] .fr-analyze-cell,
+    html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody td[data-label="Analyze"] a.fr-analyze-link {
+        position: relative !important;
+        z-index: 2147483646 !important;
+        pointer-events: auto !important;
+    }
     html:not([data-scoop-home-page="1"]) [data-testid="stMarkdownContainer"] table {
         border-collapse: separate !important;
         border-spacing: 0 !important;

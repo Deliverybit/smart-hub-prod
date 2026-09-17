@@ -5086,8 +5086,8 @@ MOBILE_BACK_HOME_BAR = """
         padding-left: calc(0.65rem + env(safe-area-inset-left, 0px)) !important;
         padding-right: calc(0.65rem + env(safe-area-inset-right, 0px)) !important;
         padding-top: calc(0.35rem + env(safe-area-inset-top, 0px)) !important;
-        background: #f59e0b !important;
-        color: #1e293b !important;
+        background: #9a3412 !important;
+        color: #fffbeb !important;
         font-size: clamp(16px, 3.6vw, 20px) !important;
         font-weight: 600 !important;
         line-height: 1.35 !important;
@@ -5101,6 +5101,9 @@ MOBILE_BACK_HOME_BAR = """
     html:not([data-scoop-home-page="1"]) .scoop-env-banner span {
         font-size: inherit !important;
         font-weight: 500 !important;
+        color: #fffbeb !important;
+        background: transparent !important;
+        opacity: 0.95 !important;
     }
     /* Space under Back/Dark mode before market index cards.
        Spacer lives in the same markdown as the bar — do not zero this margin
@@ -5899,6 +5902,26 @@ _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS = """
 }
 """
 
+# Phone/tablet only: darker staging banner so Cloud text has enough contrast.
+_MOBILE_TABLET_ENV_BANNER_CONTRAST = """
+@media (max-width: 1366px) {
+    html[data-scoop-tab-nav="1"] .scoop-env-banner,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] .scoop-env-banner,
+    html[data-scoop-tab-nav="1"] [data-testid="stMarkdownContainer"] .scoop-env-banner {
+        background: #9a3412 !important;
+        color: #fffbeb !important;
+    }
+    html[data-scoop-tab-nav="1"] .scoop-env-banner span,
+    html[data-scoop-tab-nav="1"] .scoop-env-banner *,
+    html[data-scoop-tab-nav="1"] [data-testid="stMarkdownContainer"] .scoop-env-banner span,
+    html[data-scoop-tab-nav="1"] [data-testid="stMarkdownContainer"] .scoop-env-banner * {
+        background: transparent !important;
+        color: #fffbeb !important;
+        opacity: 0.95 !important;
+    }
+}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -5920,4 +5943,5 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _HOME_LANDING_ATTRACT_CSS
     + LOGO_TM_CSS
     + _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS
+    + _MOBILE_TABLET_ENV_BANNER_CONTRAST
 )

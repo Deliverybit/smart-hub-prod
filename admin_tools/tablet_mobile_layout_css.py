@@ -3363,8 +3363,8 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"],
     html[data-scoop-analyze-active="1"] body,
     html[data-scoop-analyze-active="1"] [class*="css"] {
-        font-size: 18px !important;
-        line-height: 1.5 !important;
+        font-size: 30px !important;
+        line-height: 1.7 !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stHeader"],
     html[data-scoop-analyze-active="1"] [data-testid="stToolbar"],
@@ -3380,7 +3380,8 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] {
         padding-left: 1.35rem !important;
         padding-right: 1.35rem !important;
-        max-width: 92rem !important;
+        width: 100% !important;
+        max-width: none !important;
     }
     html[data-scoop-analyze-active="1"] a.scoop-analyze-back {
         display: inline-flex !important;
@@ -3388,7 +3389,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
         gap: 0.35rem !important;
         color: #0369a1 !important;
         font-weight: 700 !important;
-        font-size: 0.98rem !important;
         text-decoration: none !important;
         padding: 0.35rem 0.15rem !important;
         margin-bottom: 0.65rem !important;
@@ -3399,7 +3399,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
         text-underline-offset: 0.14em !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] h1 {
-        font-size: 2.15rem !important;
         font-weight: 800 !important;
         letter-spacing: -0.03em !important;
         line-height: 1.2 !important;
@@ -3427,18 +3426,9 @@ _DESKTOP_ANALYZE_POP_RULES = """
         box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28) !important;
     }
     html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted {
-        font-size: 0.78rem !important;
         letter-spacing: 0.06em !important;
     }
-    html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text {
-        font-size: 1.55rem !important;
-        line-height: 1.25 !important;
-    }
-    html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-subtitle-text {
-        font-size: 0.98rem !important;
-    }
     html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
-        font-size: 0.92rem !important;
         color: #64748b !important;
         margin: 0 0 0.85rem 0 !important;
     }
@@ -3451,15 +3441,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div {
         gap: 0.85rem !important;
     }
-    html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner span:nth-child(1) {
-        font-size: 1.85rem !important;
-    }
-    html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner span:nth-child(2) {
-        font-size: 1.7rem !important;
-    }
-    html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner span:nth-child(3) {
-        font-size: 1.05rem !important;
-    }
     html[data-scoop-analyze-active="1"] [data-testid="stMetric"] {
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
         border: 1px solid rgba(14, 165, 233, 0.24) !important;
@@ -3471,20 +3452,9 @@ _DESKTOP_ANALYZE_POP_RULES = """
         background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
         border-color: rgba(56, 189, 248, 0.28) !important;
     }
-    html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] > div {
-        font-size: 1.85rem !important;
-    }
-    html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] p,
-    html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] label {
-        font-size: 0.92rem !important;
-    }
-    html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] > div {
-        font-size: 0.92rem !important;
-    }
     html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"] h3,
     html[data-scoop-analyze-active="1"] h3.search-52week-range-heading,
     html[data-scoop-analyze-active="1"] h3.search-price-chart-heading {
-        font-size: 1.28rem !important;
         font-weight: 800 !important;
         margin: 0.85rem 0 0.55rem 0 !important;
         letter-spacing: -0.02em !important;
@@ -3504,12 +3474,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-mood-summary {
         background: #0f172a !important;
         border-color: rgba(56, 189, 248, 0.22) !important;
-    }
-    html[data-scoop-analyze-active="1"] .scoop-mood-summary .scoop-mood-label {
-        font-size: 1.02rem !important;
-    }
-    html[data-scoop-analyze-active="1"] .scoop-mood-summary .scoop-mood-detail {
-        font-size: 0.95rem !important;
     }
     html[data-scoop-analyze-active="1"] .mood-feed {
         background: #ffffff !important;
@@ -3533,7 +3497,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"] .mood-feed thead th {
         background: #0f172a !important;
         color: #f8fafc !important;
-        font-size: 0.82rem !important;
         font-weight: 700 !important;
         letter-spacing: 0.03em !important;
         padding: 0.7rem 0.75rem !important;
@@ -3546,7 +3509,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
         border-radius: 0 10px 0 0 !important;
     }
     html[data-scoop-analyze-active="1"] .mood-feed tbody td {
-        font-size: 0.9rem !important;
         line-height: 1.4 !important;
         padding: 0.65rem 0.75rem !important;
         border-bottom: 1px solid #e2e8f0 !important;
@@ -3582,10 +3544,6 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"] [data-testid="stSlider"] {
         margin-top: 0.35rem !important;
         margin-bottom: 0.35rem !important;
-    }
-    html[data-scoop-analyze-active="1"] [data-testid="stSlider"] label,
-    html[data-scoop-analyze-active="1"] [data-testid="stSlider"] p {
-        font-size: 0.95rem !important;
     }
 """
 
@@ -3655,11 +3613,51 @@ _RESPONSIVE_ANALYZE_TOP_COMPACT_RULES = """
         margin-top: 0.5rem !important;
         margin-bottom: 0.35rem !important;
     }
+    html[data-scoop-analyze-active="1"] h3.search-price-chart-heading {
+        margin-top: 0.35rem !important;
+        margin-bottom: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(.search-price-chart-heading),
+    html[data-scoop-analyze-active="1"] [data-testid="element-container"]:has(.search-price-chart-heading) {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        min-height: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has([data-testid="stPlotlyChart"]),
+    html[data-scoop-analyze-active="1"] [data-testid="element-container"]:has([data-testid="stPlotlyChart"]),
+    html[data-scoop-analyze-active="1"] [data-testid="stPlotlyChart"] {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stSlider"] {
+        margin-bottom: 0.15rem !important;
+    }
 """
 
 RESPONSIVE_ANALYZE_TOP_COMPACT = f"""
 @media (max-width: 1366px) {{
 {_RESPONSIVE_ANALYZE_TOP_COMPACT_RULES}
+}}
+@media (max-width: 1366px) {{
+    html:not([data-scoop-desktop-layout="1"]) h3.search-price-chart-heading {{
+        margin-top: 0.35rem !important;
+        margin-bottom: 0 !important;
+    }}
+    html:not([data-scoop-desktop-layout="1"]) [data-testid="stElementContainer"]:has(.search-price-chart-heading),
+    html:not([data-scoop-desktop-layout="1"]) [data-testid="element-container"]:has(.search-price-chart-heading) {{
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        min-height: 0 !important;
+    }}
+    html:not([data-scoop-desktop-layout="1"]) [data-testid="stElementContainer"]:has([data-testid="stPlotlyChart"]),
+    html:not([data-scoop-desktop-layout="1"]) [data-testid="element-container"]:has([data-testid="stPlotlyChart"]),
+    html:not([data-scoop-desktop-layout="1"]) [data-testid="stPlotlyChart"] {{
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }}
+    html:not([data-scoop-desktop-layout="1"]) [data-testid="stSlider"] {{
+        margin-bottom: 0.15rem !important;
+    }}
 }}
 """
 

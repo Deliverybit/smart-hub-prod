@@ -77,11 +77,14 @@ def _search_price_chart_axis_px() -> tuple[int, int]:
 
 
 def _search_price_chart_margin_top(has_compare: bool) -> int:
-    """Plotly layout margin top: keep desktop padding; trim unused space on mobile (single chart had t=140 with no top legend)."""
+    """Plotly top margin: keep desktop padding; trim empty legend space on phone/tablet."""
+    compact = 88 if has_compare else 24
+    if is_desktop_viewport(page="pages/_Analyze.py") is False:
+        return compact
     w = st.session_state.get("search_viewport_inner_w")
-    if w is None or w > 768:
-        return 140
-    return 88 if has_compare else 28
+    if w is not None and w <= 1366:
+        return compact
+    return 140
 
 
 def _format_search_price(value) -> str:
@@ -1588,10 +1591,7 @@ def _render_search_dashboard(ticker: str) -> None:
         unsafe_allow_html=True,
     )
 
-    st.caption(
-        f"Headlines and sentiment reuse the same cached data as the Top 10 screeners (refreshed at most every "
-        f"{_SEARCH_ANALYSIS_TTL_SEC // 60} minutes). Changing the price range only updates the chart."
-    )
+    st.caption(f"Data updated every {_SEARCH_ANALYSIS_TTL_SEC // 60} minutes")
 
     st.markdown(
         f"""
@@ -1691,7 +1691,12 @@ def _render_search_dashboard(ticker: str) -> None:
             margin_top=margin_top,
         )
 
-        st.plotly_chart(fig, width="stretch")
+        _plotly_cfg = (
+            {"displayModeBar": False}
+            if is_desktop_viewport(page="pages/_Analyze.py") is False
+            else {}
+        )
+        st.plotly_chart(fig, width="stretch", config=_plotly_cfg)
 
     with col_mood:
         st.markdown("<div class='mood-column'>", unsafe_allow_html=True)

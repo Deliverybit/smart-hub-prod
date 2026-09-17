@@ -47,6 +47,32 @@ def test_cloud_dark_toggle_css_is_mobile_tablet_only() -> None:
     assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
 
 
+def test_results_divider_gap_css_is_mobile_tablet_only() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        _MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS,
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+    )
+
+    css = _MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS
+    assert "@media (max-width: 1366px)" in css
+    assert "@media (min-width: 1367px)" not in css
+    assert "full-results-wrap" in css
+    assert "stDivider" in css
+    assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
+
+
+def test_desktop_screener_deadspace_css_is_desktop_only() -> None:
+    from admin_tools.tablet_mobile_layout_css import DESKTOP_SCREENER_TOP_COMPACT
+
+    css = DESKTOP_SCREENER_TOP_COMPACT
+    assert "@media (min-width: 1367px)" in css
+    assert "disclaimer-footer" in css
+    assert "padding-top: 0.15rem !important;" in css
+    source = (ROOT / "tooltip_scroll.py").read_text(encoding="utf-8")
+    assert "scoop-desktop-screener-top-compact-css" in source
+    assert "applyCss(window.parent.document)" in source
+
+
 def test_logo_tm_css_on_brand_images() -> None:
     from admin_tools.tablet_mobile_layout_css import (
         DESKTOP_SIDEBAR_LOGO_RULES,
@@ -183,6 +209,8 @@ def main() -> int:
     tests = [
         test_home_landing_attract_css_is_mobile_tablet_only,
         test_cloud_dark_toggle_css_is_mobile_tablet_only,
+        test_results_divider_gap_css_is_mobile_tablet_only,
+        test_desktop_screener_deadspace_css_is_desktop_only,
         test_logo_tm_css_on_brand_images,
         test_home_marks_seen_and_keeps_vertical_market_list,
         test_enforce_skips_desktop_and_non_screeners,

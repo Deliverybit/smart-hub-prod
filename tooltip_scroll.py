@@ -5023,16 +5023,40 @@ def inject_desktop_sidebar_nav_market() -> None:
         unsafe_allow_javascript=True,
     )
     # Separate inject so Streamlit cannot drop this block when co-bundled.
+    # Cloud: copy CSS onto the parent doc and mark both html roots.
+    _desktop_screener_css_json = json.dumps(DESKTOP_SCREENER_TOP_COMPACT)
     st.html(
         f"<style id='scoop-desktop-screener-top-compact-css'>{DESKTOP_SCREENER_TOP_COMPACT}</style>"
-        "<script>(() => { try {"
-        "  const doc = (window.parent && window.parent !== window && window.parent.document)"
-        "    ? window.parent.document : document;"
-        "  const win = doc.defaultView || window;"
-        "  if (/_Top_10/i.test((win.location && win.location.pathname) || '')) {"
-        "    doc.documentElement.setAttribute('data-scoop-screener-active','1');"
-        "  }"
-        "} catch (e) {} })();</script>",
+        f"""<script>(() => {{ try {{
+  const css = {_desktop_screener_css_json};
+  const id = "scoop-desktop-screener-top-compact-css";
+  function applyCss(doc) {{
+    if (!doc || !doc.documentElement) return;
+    let el = doc.getElementById(id);
+    if (!el) {{
+      el = doc.createElement("style");
+      el.id = id;
+      (doc.head || doc.documentElement).appendChild(el);
+    }}
+    if (el.textContent !== css) el.textContent = css;
+  }}
+  function mark(doc) {{
+    if (!doc || !doc.documentElement) return;
+    const win = doc.defaultView || window;
+    const path = ((win.location && win.location.pathname) || "") + ((window.location && window.location.pathname) || "");
+    if (/_Top_10/i.test(path)) {{
+      doc.documentElement.setAttribute("data-scoop-screener-active", "1");
+    }}
+  }}
+  applyCss(document);
+  mark(document);
+  try {{
+    if (window.parent && window.parent.document) {{
+      applyCss(window.parent.document);
+      mark(window.parent.document);
+    }}
+  }} catch (e) {{}}
+}} catch (e) {{}} }})();</script>""",
         unsafe_allow_javascript=True,
     )
     _inject_mobile_tablet_index_banner_parent_css()

@@ -3561,7 +3561,7 @@ def _desktop_screener_top_compact_for(flag_attr: str) -> str:
     {root} [data-testid="stMainBlockContainer"],
     {root} section.main > div,
     {root} [data-testid="stAppViewContainer"] > section.main {{
-        padding-top: 0.65rem !important;
+        padding-top: 0.15rem !important;
     }}
     {root} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {{
         gap: 0 !important;
@@ -3654,6 +3654,36 @@ def _desktop_screener_top_compact_for(flag_attr: str) -> str:
         margin-bottom: 0 !important;
         padding-bottom: 0 !important;
     }}
+    {root} [data-testid="stHeader"],
+    {root} [data-testid="stToolbar"],
+    {root} [data-testid="stDecoration"] {{
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }}
+    {root} [data-testid="stMainBlockContainer"],
+    {root} section.main > div,
+    {root} [data-testid="stAppViewContainer"] > section.main {{
+        padding-bottom: 0.25rem !important;
+    }}
+    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"],
+    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"] {{
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }}
+    {root} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer),
+    {root} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) {{
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }}
 """
 
 
@@ -3669,6 +3699,55 @@ DESKTOP_SCREENER_TOP_COMPACT = f"""
 /* Zoomed desktop: do not nest full html selectors inside another html rule
    (CSS nesting would re-target incorrectly). Repeat with desktop-layout flag. */
 {_DESKTOP_SCREENER_TOP_COMPACT_RULES.replace('html[data-scoop-screener-active="1"]', 'html[data-scoop-desktop-layout="1"][data-scoop-screener-active="1"]').replace('html[data-scoop-screener-gated="1"]', 'html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"]')}
+@media (min-width: 1367px) {{
+    html:not([data-scoop-home-page="1"]) [data-testid="stHeader"],
+    html:not([data-scoop-home-page="1"]) [data-testid="stToolbar"],
+    html:not([data-scoop-home-page="1"]) [data-testid="stDecoration"] {{
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        background: transparent !important;
+    }}
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"],
+    html:not([data-scoop-home-page="1"]) section.main > div,
+    html:not([data-scoop-home-page="1"]) [data-testid="stAppViewContainer"] > section.main {{
+        padding-top: 0.15rem !important;
+        padding-bottom: 0.25rem !important;
+    }}
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {{
+        gap: 0 !important;
+    }}
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[src*="streamlit_js_eval"]),
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[src*="streamlit_js_eval"]),
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(iframe[data-testid="stCustomComponentV1"]),
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[data-testid="stCustomComponentV1"]),
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stHtml"]),
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stHtml"]) {{
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }}
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer) ~ [data-testid="stElementContainer"],
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) ~ [data-testid="element-container"] {{
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }}
+    html:not([data-scoop-home-page="1"]) .disclaimer-footer {{
+        margin-bottom: 0 !important;
+    }}
+}}
 """
 
 # Desktop screener gating view (terms not yet accepted): full-width banners + intro.
@@ -5985,6 +6064,39 @@ _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
 }
 """
 
+# Phone/tablet Cloud: collapse the huge Streamlit divider gap under results.
+_MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS = """
+@media (max-width: 1366px) {
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) .full-results-wrap {
+        margin-bottom: 0.2rem !important;
+        padding-bottom: 0 !important;
+    }
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.full-results-wrap) ~ [data-testid="stElementContainer"]:has(hr),
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.full-results-wrap) ~ [data-testid="element-container"]:has(hr),
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.full-results-wrap) ~ [data-testid="stElementContainer"]:has([data-testid="stDivider"]),
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.full-results-wrap) ~ [data-testid="element-container"]:has([data-testid="stDivider"]) {
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stDivider"],
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] hr,
+    html[data-scoop-tab-nav="1"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"] hr {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+    }
+}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -6008,4 +6120,5 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS
     + _MOBILE_TABLET_ENV_BANNER_CONTRAST
     + _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS
+    + _MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS
 )

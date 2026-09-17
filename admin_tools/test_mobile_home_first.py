@@ -68,6 +68,8 @@ def test_desktop_screener_deadspace_css_is_desktop_only() -> None:
     assert "@media (min-width: 1367px)" in css
     assert "disclaimer-footer" in css
     assert "padding-top: 0.15rem !important;" in css
+    assert "scoop-index-card" in css
+    assert "radial-gradient(ellipse 80% 36% at 12% -8%" in css
     source = (ROOT / "tooltip_scroll.py").read_text(encoding="utf-8")
     assert "scoop-desktop-screener-top-compact-css" in source
     assert "applyCss(window.parent.document)" in source

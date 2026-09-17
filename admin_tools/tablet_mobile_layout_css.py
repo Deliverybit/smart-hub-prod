@@ -3750,6 +3750,113 @@ DESKTOP_SCREENER_TOP_COMPACT = f"""
 }}
 """
 
+# Desktop screener only: brand depth on cards, table, and intro. Phone/tablet unchanged.
+_DESKTOP_SCREENER_POP_CSS = """
+@media (min-width: 1367px) {
+    html:not([data-scoop-home-page="1"]) body,
+    html:not([data-scoop-home-page="1"]) .stApp,
+    html:not([data-scoop-home-page="1"]) [data-testid="stAppViewContainer"],
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] {
+        background:
+            radial-gradient(ellipse 80% 36% at 12% -8%, rgba(14, 165, 233, 0.16), transparent 58%),
+            radial-gradient(ellipse 50% 28% at 92% 0%, rgba(249, 115, 22, 0.10), transparent 52%),
+            linear-gradient(180deg, #eef4fb 0%, #f7f9fc 42%, #eef2f7 100%) !important;
+    }
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) body,
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) .stApp,
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) [data-testid="stAppViewContainer"],
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] {
+        background:
+            radial-gradient(ellipse 80% 36% at 12% -8%, rgba(56, 189, 248, 0.16), transparent 58%),
+            radial-gradient(ellipse 50% 28% at 92% 0%, rgba(249, 115, 22, 0.10), transparent 52%),
+            linear-gradient(180deg, #07111d 0%, #0f172a 48%, #0b1220 100%) !important;
+    }
+    html:not([data-scoop-home-page="1"]) .scoop-index-card {
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(56, 189, 248, 0.18) !important;
+        border-radius: 16px !important;
+    }
+    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 {
+        letter-spacing: -0.03em !important;
+        text-decoration: underline !important;
+        text-decoration-color: #ea580c !important;
+        text-decoration-thickness: 4px !important;
+        text-underline-offset: 10px !important;
+    }
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 {
+        text-decoration-color: #38bdf8 !important;
+    }
+    html:not([data-scoop-home-page="1"]) .scoop-landing-info {
+        background: rgba(255, 255, 255, 0.92) !important;
+        border: 1px solid rgba(14, 165, 233, 0.28) !important;
+        border-left: 4px solid #0ea5e9 !important;
+        border-radius: 14px !important;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08) !important;
+    }
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) .scoop-landing-info {
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.88)) !important;
+        border-color: rgba(56, 189, 248, 0.32) !important;
+        border-left-color: #38bdf8 !important;
+    }
+    html:not([data-scoop-home-page="1"]) [data-testid="stAlert"] {
+        border-radius: 14px !important;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.07) !important;
+    }
+    html:not([data-scoop-home-page="1"]) [data-testid="stMetric"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+        border: 1px solid rgba(14, 165, 233, 0.24) !important;
+        border-radius: 16px !important;
+        padding: 0.85rem 1rem !important;
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
+    }
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) [data-testid="stMetric"] {
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+        border-color: rgba(56, 189, 248, 0.28) !important;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28) !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-wrap {
+        background: #ffffff !important;
+        border: 1px solid rgba(148, 163, 184, 0.32) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08) !important;
+        padding: 0.35rem !important;
+        overflow: hidden !important;
+    }
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) .full-results-wrap {
+        background: #0f172a !important;
+        border-color: rgba(56, 189, 248, 0.22) !important;
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32) !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-table thead th {
+        background: #0f172a !important;
+        color: #f8fafc !important;
+        font-weight: 700 !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-table tbody tr:hover td {
+        background: #f0f9ff !important;
+    }
+    html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) .full-results-table tbody tr:hover td {
+        background: rgba(14, 165, 233, 0.12) !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-table a {
+        color: #0284c7 !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+    }
+    html:not([data-scoop-home-page="1"]) .full-results-table a:hover {
+        text-decoration: underline !important;
+    }
+    html:not([data-scoop-home-page="1"]) [data-testid="stMarkdownContainer"] table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        overflow: hidden !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06) !important;
+    }
+}
+"""
+
+DESKTOP_SCREENER_TOP_COMPACT = DESKTOP_SCREENER_TOP_COMPACT + _DESKTOP_SCREENER_POP_CSS
+
 # Desktop screener gating view (terms not yet accepted): full-width banners + intro.
 _DESKTOP_SCREENER_GATING_LAYOUT_RULES = """
     html[data-scoop-screener-gated="1"] [data-testid="stAppViewContainer"] > div:not([data-testid="stSidebar"]),

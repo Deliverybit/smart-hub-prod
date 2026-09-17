@@ -3784,7 +3784,7 @@ _DESKTOP_SCREENER_POP_CSS = """
     html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 {
         letter-spacing: -0.03em !important;
         text-decoration: underline !important;
-        text-decoration-color: #ea580c !important;
+        text-decoration-color: #0284c7 !important;
         text-decoration-thickness: 4px !important;
         text-underline-offset: 10px !important;
     }
@@ -5937,7 +5937,7 @@ _HOME_LANDING_ATTRACT_CSS = f"""
         font-weight: 800 !important;
         letter-spacing: -0.04em !important;
         color: #0b1b33 !important;
-        text-decoration-color: #ea580c !important;
+        text-decoration-color: #0284c7 !important;
         text-decoration-thickness: 3.5px !important;
         text-underline-offset: 8px !important;
         text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) !important;
@@ -6050,6 +6050,45 @@ _HOME_LANDING_ATTRACT_CSS = f"""
 }}
 """
 
+# Gating "Disclaimer & Terms" page_link: same blue as footer Terms of Service.
+_GATING_DISCLAIMER_MATCH_FOOTER_LINK_CSS = """
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p,
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:link,
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:visited,
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:hover,
+html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:active {
+    color: #2563eb !important;
+}
+html[data-scoop-theme="dark"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+html[data-scoop-theme="dark"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+html[data-scoop-theme="dark"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p,
+html[data-scoop-theme="dark"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:visited,
+html[data-scoop-theme="dark"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:hover,
+html[data-scoop-theme="dark"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:active {
+    color: #93c5fd !important;
+}
+@media (min-width: 1367px) {
+    html[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+    html[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+    html[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p {
+        text-decoration: underline !important;
+        text-underline-offset: 0.14em !important;
+        text-decoration-thickness: from-font !important;
+    }
+}
+html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
+html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p {
+    text-decoration: underline !important;
+    text-underline-offset: 0.14em !important;
+    text-decoration-thickness: from-font !important;
+}
+"""
+
+DESKTOP_SCREENER_GATING_LAYOUT = DESKTOP_SCREENER_GATING_LAYOUT + _GATING_DISCLAIMER_MATCH_FOOTER_LINK_CSS
+
 # Phone/tablet gating screen only: trim extra gaps (keep some breathing room).
 _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS = """
 @media (max-width: 1366px) {
@@ -6095,7 +6134,7 @@ _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS = """
     html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
     html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) span,
     html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) p {
-        color: #1e3a8a !important;
+        color: #2563eb !important;
         text-decoration: underline !important;
         text-underline-offset: 0.14em !important;
         font-weight: 600 !important;
@@ -6106,7 +6145,7 @@ _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS = """
     html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:visited,
     html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:hover,
     html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a:active {
-        color: #ffffff !important;
+        color: #93c5fd !important;
         text-decoration: underline !important;
         text-underline-offset: 0.14em !important;
         font-weight: 600 !important;
@@ -6251,6 +6290,7 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _HOME_LANDING_ATTRACT_CSS
     + LOGO_TM_CSS
     + _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS
+    + _GATING_DISCLAIMER_MATCH_FOOTER_LINK_CSS
     + _MOBILE_TABLET_ENV_BANNER_CONTRAST
     + _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS
     + _MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS

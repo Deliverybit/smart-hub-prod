@@ -3006,6 +3006,24 @@ COMPANY_NAMES = {
     "AFRM": "Affirm Holdings",
     "SOFI": "SoFi Technologies",
     "UPST": "Upstart Holdings",
+    # Networking / Industrial / Additional large-cap
+    "CSCO": "Cisco Systems Inc.",
+    "ADP": "Automatic Data Processing",
+    "ADI": "Analog Devices Inc.",
+    "NXPI": "NXP Semiconductors",
+    "ASML": "ASML Holding",
+    "ARM": "Arm Holdings",
+    "SMCI": "Super Micro Computer",
+    "PLTR": "Palantir Technologies",
+    "SHOP": "Shopify Inc.",
+    "APP": "AppLovin Corp.",
+    "MAR": "Marriott International",
+    "LULU": "Lululemon Athletica",
+    "ORLY": "O'Reilly Automotive",
+    "ROST": "Ross Stores Inc.",
+    "CSX": "CSX Corporation",
+    "EBAY": "eBay Inc.",
+    "DKNG": "DraftKings Inc.",
 }
 
 NASDAQ_UNIVERSE = list(COMPANY_NAMES.keys())
@@ -3094,6 +3112,23 @@ COMPANY_SUMMARIES = {
     "AFRM": "Buy-now-pay-later fintech offering installment payment plans at checkout.",
     "SOFI": "Digital personal finance company offering loans, investing, and banking.",
     "UPST": "AI-powered lending platform that partners with banks for personal loans.",
+    "CSCO": "Networking hardware and enterprise software company serving global IT infrastructure.",
+    "ADP": "Payroll, HR, and workforce-management software and services provider.",
+    "ADI": "Analog and mixed-signal semiconductor company for industrial and auto markets.",
+    "NXPI": "Semiconductor company focused on automotive, industrial, and IoT chips.",
+    "ASML": "Sole high-volume supplier of EUV lithography systems for advanced chipmaking.",
+    "ARM": "Designs energy-efficient CPU architectures licensed to chipmakers worldwide.",
+    "SMCI": "Builds high-performance servers and storage systems for AI and data centers.",
+    "PLTR": "Software company providing data analytics platforms for government and enterprises.",
+    "SHOP": "E-commerce platform that lets merchants build online and in-store storefronts.",
+    "APP": "Mobile advertising and app-growth platform for publishers and advertisers.",
+    "MAR": "Global hotel operator spanning Marriott, Sheraton, Westin, and other brands.",
+    "LULU": "Athletic apparel retailer known for yoga wear and technical sportswear.",
+    "ORLY": "Retailer of automotive aftermarket parts, tools, and accessories.",
+    "ROST": "Off-price apparel and home-goods retailer operating Ross Dress for Less.",
+    "CSX": "Class I railroad moving freight across the eastern United States.",
+    "EBAY": "Online marketplace connecting buyers and sellers of new and used goods.",
+    "DKNG": "Sports betting and iGaming company operating DraftKings sportsbooks.",
 }
 
 # Keywords that disqualify a stock

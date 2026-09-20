@@ -14,6 +14,7 @@ class MarketData:
         self.session = requests.Session()
         self._daily_cache: dict[tuple[str, str], pd.DataFrame] = {}
         self._news_cache: dict[tuple[str, bool], list] = {}
+        self._screener_quote_cache: dict[str, dict] = {}
 
     _CRYPTO_SYMBOLS = {
         "BTC", "ETH", "DOGE", "SOL", "ADA", "SHIB", "XRP", "BNB", "AVAX",
@@ -24,6 +25,11 @@ class MarketData:
         "JUP", "SUI", "TIA", "PYTH", "JTO", "SEI", "TAO", "ETHFI", "ONDO",
         "TRUMP", "PENGU", "POPCAT", "PNUT", "MOODENG", "ME", "MOVE", "DRIFT",
         "IO", "REZ", "ZK", "ZRO", "BLUR", "TURBO", "PRIME", "AXL",
+        "TON", "WLD", "ENA", "STRK", "PENDLE", "GALA", "FLOW", "CHZ",
+        "QNT", "STX", "RUNE", "VET", "THETA", "EOS", "XTZ", "MINA",
+        "AR", "KSM", "LPT", "YFI", "ZRX", "SKL", "ANKR", "STORJ",
+        "RPL", "FLOKI", "CAKE", "CFX", "W", "ALGO", "ICP", "HBAR",
+        "AAVE", "GRT", "MKR", "CRV", "LDO", "FET", "RENDER", "DASH",
     }
 
     # Alpha Vantage crypto symbols often omit CoinMarketCap numeric suffixes.
@@ -44,6 +50,21 @@ class MarketData:
         "PRIME23711": "PRIME",
         "PORTAL29555": "PORTAL",
         "MEME28301": "MEME",
+    }
+
+    # Yahoo Finance quote symbols when they differ from the AV/CMC id.
+    _YAHOO_CRYPTO_ALIASES = {
+        "RENDER": "RNDR",
+    }
+
+    _YAHOO_QUOTE_URL = "https://query1.finance.yahoo.com/v7/finance/quote"
+    _YAHOO_QUOTE_CHUNK = 50
+    _YAHOO_HEADERS = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json",
     }
 
     _INDEX_SYMBOLS = {
@@ -94,6 +115,73 @@ class MarketData:
         "SB=F": "CANE",
         "OJ=F": "DBA",
         "DX=F": "UUP",
+        "KE=F": "WEAT",
+        "LBS=F": "WOOD",
+        "LBR=F": "WOOD",
+        "BTC=F": "BITO",
+        "ETH=F": "ETHA",
+        "MBT=F": "BITO",
+        "MET=F": "ETHA",
+        "MES=F": "SPY",
+        "MNQ=F": "QQQ",
+        "MYM=F": "DIA",
+        "M2K=F": "IWM",
+        "EMD=F": "MDY",
+        "NKD=F": "EWJ",
+        "NIY=F": "EWJ",
+        "MME=F": "EEM",
+        "SP=F": "SPY",
+        "ND=F": "QQQ",
+        "MGC=F": "GLD",
+        "SIL=F": "SLV",
+        "MHG=F": "CPER",
+        "MCL=F": "USO",
+        "QM=F": "USO",
+        "QG=F": "UNG",
+        "HH=F": "UNG",
+        "NN=F": "UNG",
+        "6S=F": "FXF",
+        "6N=F": "ENZL",
+        "6M=F": "EWW",
+        "6L=F": "EWZ",
+        "6Z=F": "EZA",
+        "6I=F": "INDA",
+        "6H=F": "EPOL",
+        "E7=F": "FXE",
+        "J7=F": "FXY",
+        "M6E=F": "FXE",
+        "M6A=F": "FXA",
+        "M6B=F": "FXB",
+        "M6J=F": "FXY",
+        "M6C=F": "FXC",
+        "M6S=F": "FXF",
+        "TN=F": "IEF",
+        "UB=F": "TLT",
+        "Z3N=F": "IEI",
+        "SR3=F": "BIL",
+        "SR1=F": "BIL",
+        "ZQ=F": "BIL",
+        "GE=F": "BIL",
+        "FF=F": "BIL",
+        "GNF=F": "DBA",
+        "CSC=F": "DBA",
+        "CB=F": "DBA",
+        "GD=F": "DBA",
+        "DL=F": "DBA",
+        "XC=F": "CORN",
+        "XK=F": "SOYB",
+        "XW=F": "WEAT",
+        "ALI=F": "DBB",
+        "HRC=F": "SLX",
+        "TIO=F": "PICK",
+        "YG=F": "GLD",
+        "YI=F": "SLV",
+        "QO=F": "GLD",
+        "QI=F": "SLV",
+        "QC=F": "CPER",
+        "SEK=F": "FXS",
+        "NOK=F": "NORW",
+        "PLN=F": "EPOL",
     }
 
     def _format_ticker(self, ticker):
@@ -253,6 +341,11 @@ class MarketData:
 
     def get_daily_change(self, ticker):
         """Return latest price and daily percentage change."""
+        if self._is_crypto(ticker) or str(ticker).upper().endswith("=F"):
+            batched = self.get_screener_snapshots([ticker], av_fallback=False)
+            row = batched.get(ticker)
+            if row and row.get("daily_change_pct") is not None:
+                return row["current_price"], row["daily_change_pct"]
         history = self.get_price_history(ticker, days=5)
         if len(history) < 2:
             return None, None
@@ -318,8 +411,122 @@ class MarketData:
             "high_date": high_date,
         }
 
+    def _yahoo_crypto_symbol(self, ticker: str) -> str:
+        base = self._format_ticker(ticker)
+        yahoo_base = self._YAHOO_CRYPTO_ALIASES.get(base, base)
+        return f"{yahoo_base}-USD"
+
+    def _yahoo_screener_symbol(self, ticker: str) -> str:
+        raw = (ticker or "").strip().upper()
+        if self._is_crypto(raw):
+            return self._yahoo_crypto_symbol(raw)
+        return raw
+
+    def _parse_yahoo_crypto_quote(self, item: dict) -> dict | None:
+        price = self._to_float(item.get("regularMarketPrice"))
+        year_low = self._to_float(item.get("fiftyTwoWeekLow"))
+        year_high = self._to_float(item.get("fiftyTwoWeekHigh"))
+        if price is None or year_low is None or year_high is None or year_low <= 0:
+            return None
+        change_pct = self._to_float(item.get("regularMarketChangePercent"))
+        return {
+            "current_price": price,
+            "year_low": year_low,
+            "year_high": year_high,
+            "daily_change_pct": change_pct,
+            "source": "yahoo_quote",
+        }
+
+    def _fetch_yahoo_quotes(self, yahoo_symbols: list[str]) -> dict[str, dict]:
+        """A few HTTP calls for many 52-week quotes."""
+        found: dict[str, dict] = {}
+        if not yahoo_symbols:
+            return found
+        chunk = max(1, self._YAHOO_QUOTE_CHUNK)
+        for start in range(0, len(yahoo_symbols), chunk):
+            batch = yahoo_symbols[start : start + chunk]
+            try:
+                response = self.session.get(
+                    self._YAHOO_QUOTE_URL,
+                    params={"symbols": ",".join(batch), "formatted": "false"},
+                    headers=self._YAHOO_HEADERS,
+                    timeout=20,
+                )
+                response.raise_for_status()
+                payload = response.json()
+            except (requests.RequestException, ValueError):
+                continue
+            results = (payload.get("quoteResponse") or {}).get("result") or []
+            for item in results:
+                symbol = str(item.get("symbol") or "").upper()
+                parsed = self._parse_yahoo_crypto_quote(item)
+                if symbol and parsed:
+                    found[symbol] = parsed
+        return found
+
+    def _fetch_yahoo_crypto_quotes(self, yahoo_symbols: list[str]) -> dict[str, dict]:
+        return self._fetch_yahoo_quotes(yahoo_symbols)
+
+    def get_screener_snapshots(
+        self,
+        tickers: list[str],
+        *,
+        av_fallback: bool = True,
+    ) -> dict[str, dict]:
+        """Batch 52-week quotes; fall back to Alpha Vantage per miss."""
+        snapshots: dict[str, dict] = {}
+        pending: list[str] = []
+        yahoo_needed: list[str] = []
+
+        for ticker in tickers:
+            cached = self._screener_quote_cache.get(ticker)
+            if cached:
+                snapshots[ticker] = dict(cached)
+                continue
+            pending.append(ticker)
+            yahoo_symbol = self._yahoo_screener_symbol(ticker)
+            if yahoo_symbol not in yahoo_needed:
+                yahoo_needed.append(yahoo_symbol)
+
+        yahoo_found = self._fetch_yahoo_quotes(yahoo_needed)
+        still_missing: list[str] = []
+        for ticker in pending:
+            yahoo_symbol = self._yahoo_screener_symbol(ticker)
+            parsed = yahoo_found.get(yahoo_symbol)
+            if parsed:
+                self._screener_quote_cache[ticker] = dict(parsed)
+                snapshots[ticker] = dict(parsed)
+            else:
+                still_missing.append(ticker)
+
+        if av_fallback:
+            for ticker in still_missing:
+                av_row = self.get_market_snapshot(ticker)
+                if av_row:
+                    wrapped = {**av_row, "source": "alpha_vantage", "daily_change_pct": None}
+                    self._screener_quote_cache[ticker] = dict(wrapped)
+                    snapshots[ticker] = dict(wrapped)
+
+        return snapshots
+
+    def get_crypto_screener_snapshots(
+        self,
+        tickers: list[str],
+        *,
+        av_fallback: bool = True,
+    ) -> dict[str, dict]:
+        """Batch 52-week crypto quotes; fall back to Alpha Vantage per miss."""
+        return self.get_screener_snapshots(tickers, av_fallback=av_fallback)
+
     def get_market_snapshot(self, ticker):
         """Return current price plus 52-week low/high values for screeners."""
+        cached = self._screener_quote_cache.get(ticker)
+        if cached:
+            return {
+                "current_price": cached["current_price"],
+                "year_low": cached["year_low"],
+                "year_high": cached["year_high"],
+            }
         df = self._daily_history_frame(ticker, outputsize="full").tail(365)
         if df.empty:
             return None

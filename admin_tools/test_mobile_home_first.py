@@ -28,8 +28,86 @@ def test_home_landing_attract_css_is_mobile_tablet_only() -> None:
     assert "border-left: 4px solid #0ea5e9" in css
     assert "html[data-scoop-theme=\"dark\"][data-scoop-tab-nav=\"1\"][data-scoop-home-page=\"1\"]" in css
     assert "linear-gradient(180deg, #243449 0%, #152033 100%)" in css
+    assert "border: 3px solid #38bdf8" in css
+    assert "scoop-home-nav-anchor" not in css
     assert '[data-testid="stHeader"]' in css
     assert "scoop-home-landing" in css
+    assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
+
+
+def test_home_ipad13_surface_pro10_css_is_scoped() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+        _HOME_IPAD13_SURFACE_PRO10_CSS,
+    )
+    from landing_page import _home_mini_type_flag_script, _responsive_viewport_js
+
+    css = _HOME_IPAD13_SURFACE_PRO10_CSS
+    assert 'html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"]' in css
+    assert "min(100%, 28rem)" in css
+    assert "padding: 1.05rem 1.12rem 1.05rem 1.18rem !important;" in css
+    assert "margin-bottom: 12px !important;" in css
+    assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
+    js = _responsive_viewport_js()
+    assert "ipadMini" in js
+    assert "ipad13" in js
+    assert "surfacePro10" in js
+    assert "data-scoop-home-ipad-mini" in _home_mini_type_flag_script()
+    assert "data-scoop-home-mini-type" in _home_mini_type_flag_script()
+    assert "data-scoop-home-surface-pro10" in _home_mini_type_flag_script()
+    assert "scoop_home_device_family" in js
+    assert "ipadMini || ipad13 || surfacePro10" in js
+    assert "orientationchange" in _home_mini_type_flag_script()
+
+
+def test_home_surface_pro10_nav_fill_is_scoped() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+        _HOME_SURFACE_PRO10_NAV_FILL_CSS,
+    )
+
+    css = _HOME_SURFACE_PRO10_NAV_FILL_CSS
+    assert 'html[data-scoop-home-surface-pro10="1"][data-scoop-home-page="1"]' in css
+    assert "clamp(21px, 2.35vw, 24px)" in css
+    assert "clamp(1.2rem, 2.6vw, 1.45rem)" in css
+    assert "clamp(1.15rem, 2.5vw, 1.38rem)" in css
+    assert "@media (max-width: 1366px)" in css
+    assert "@media (min-width: 1367px)" in css
+    assert "font-size: 30px !important;" in css
+    assert "font-size: 1.6rem !important;" in css
+    assert "margin-bottom: 12px !important;" in css
+    assert 'html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"]' in css
+    assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
+
+
+def test_home_ipad_mini_market_type_is_scoped() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+        _HOME_IPAD_MINI_MARKET_TYPE_CSS,
+    )
+
+    css = _HOME_IPAD_MINI_MARKET_TYPE_CSS
+    assert 'html[data-scoop-home-ipad-mini="1"][data-scoop-home-page="1"]' in css
+    assert "font-size: 18px !important;" in css
+    assert "clamp(1.85rem, 6.3vw, 2.55rem)" in css
+    assert "clamp(1.08rem, 3.75vw, 1.28rem)" in css
+    assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
+
+
+def test_home_landing_stable_type_uses_market_breakpoints() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+        _HOME_LANDING_STABLE_TYPE_CSS,
+    )
+
+    css = _HOME_LANDING_STABLE_TYPE_CSS
+    assert 'html[data-scoop-home-page="1"]' in css
+    assert "@media (max-width: 768px)" in css
+    assert "@media (min-width: 769px) and (max-width: 1366px)" in css
+    assert "@media (min-width: 1367px)" in css
+    assert "font-size: 18px !important;" in css
+    assert "clamp(21px, 2.35vw, 24px)" in css
+    assert "font-size: 30px !important;" in css
     assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
 
 
@@ -210,6 +288,10 @@ def test_enforce_waits_when_storage_probe_pending() -> None:
 def main() -> int:
     tests = [
         test_home_landing_attract_css_is_mobile_tablet_only,
+        test_home_ipad13_surface_pro10_css_is_scoped,
+        test_home_surface_pro10_nav_fill_is_scoped,
+        test_home_ipad_mini_market_type_is_scoped,
+        test_home_landing_stable_type_uses_market_breakpoints,
         test_cloud_dark_toggle_css_is_mobile_tablet_only,
         test_results_divider_gap_css_is_mobile_tablet_only,
         test_desktop_screener_deadspace_css_is_desktop_only,

@@ -49,12 +49,67 @@ SCOOP_52_DESCRIPTION = (
 HOME_MARKET_CARDS = HOME_NAV_MARKETS + ((TERMS_PAGE, "📜 Terms of Service"),)
 
 
+def _large_tablet_home_detect_js() -> str:
+    """iPad Mini, iPad 13 / Pro 12.9–13, and Surface Pro 10 (incl. Chrome presets)."""
+    return (
+        "(() => {"
+        "  const win = (window.parent && window.parent !== window) ? window.parent : window;"
+        "  const store = (() => { try { return win.sessionStorage || sessionStorage; } catch (e) { return null; } })();"
+        "  const KEY = 'scoop_home_device_family';"
+        "  const w = win.innerWidth || 0;"
+        "  const h = win.innerHeight || 0;"
+        "  const shortSide = Math.min(w, h);"
+        "  const longSide = Math.max(w, h);"
+        "  let ipadMini = shortSide >= 700 && shortSide <= 820 && longSide >= 980 && longSide <= 1200;"
+        "  let ipad13 = shortSide >= 980 && shortSide <= 1060 && longSide >= 1160 && longSide <= 1420;"
+        "  let surfacePro10 = "
+        "(shortSide >= 880 && shortSide <= 1000 && longSide >= 1260 && longSide <= 1500) || "
+        "(shortSide >= 1240 && shortSide <= 1320 && longSide >= 1760 && longSide <= 2000);"
+        "  let family = ipadMini ? 'mini' : (ipad13 ? 'ipad13' : (surfacePro10 ? 'surface' : ''));"
+        "  try {"
+        "    const stored = store ? (store.getItem(KEY) || '') : '';"
+        "    if (!family && stored) family = stored;"
+        "    if (family && store) store.setItem(KEY, family);"
+        "  } catch (e) {}"
+        "  ipadMini = family === 'mini';"
+        "  ipad13 = family === 'ipad13';"
+        "  surfacePro10 = family === 'surface';"
+        "  return {w, h, ipadMini, ipad13, surfacePro10, match: !!(ipadMini || ipad13 || surfacePro10)};"
+        "})()"
+    )
+
+
 def _responsive_viewport_js() -> str:
     return (
         "(() => {"
-        "  const w = (window.parent && window.parent.innerWidth) || window.innerWidth || 0;"
-        f"  return w <= {RESPONSIVE_MAX_WIDTH} ? '1' : '0';"
+        f"  const info = {_large_tablet_home_detect_js()};"
+        f"  return ((info.w || 0) <= {RESPONSIVE_MAX_WIDTH} || info.match) ? '1' : '0';"
         "})()"
+    )
+
+
+def _home_mini_type_flag_script() -> str:
+    return (
+        "<script>(function(){"
+        "  const apply = function() {"
+        f"    const info = {_large_tablet_home_detect_js()};"
+        "    const roots = [document.documentElement];"
+        "    try { if (window.parent && window.parent.document) roots.push(window.parent.document.documentElement); } catch (e) {}"
+        "    roots.forEach((root) => {"
+        "      if (!root) return;"
+        "      if (info.ipadMini) root.setAttribute('data-scoop-home-ipad-mini','1');"
+        "      if (info.ipad13) root.setAttribute('data-scoop-home-mini-type','1');"
+        "      if (info.surfacePro10) root.setAttribute('data-scoop-home-surface-pro10','1');"
+        "    });"
+        "  };"
+        "  apply();"
+        "  const win = (window.parent && window.parent !== window) ? window.parent : window;"
+        "  if (!win.__scoopHomeDeviceFlagsBound) {"
+        "    win.__scoopHomeDeviceFlagsBound = true;"
+        "    win.addEventListener('resize', apply, {passive:true});"
+        "    win.addEventListener('orientationchange', apply, {passive:true});"
+        "  }"
+        "})();</script>"
     )
 
 
@@ -518,7 +573,8 @@ def prepare_mobile_home_landing() -> None:
         '<script>'
         'document.documentElement.setAttribute("data-scoop-tab-nav","1");'
         'document.documentElement.setAttribute("data-scoop-home-page","1");'
-        '</script>',
+        '</script>'
+        + _home_mini_type_flag_script(),
         unsafe_allow_javascript=True,
     )
 

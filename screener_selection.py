@@ -189,41 +189,58 @@ def _landing_markdown_html(text: str) -> str:
 
 _SCREENER_LANDING_SUMMARY_FULL: dict[str, str] = {
     "NYSE": (
-        "Screens **{n}** major NYSE-listed stocks for those trading **at or near "
-        "their 52-week low** using Alpha Vantage daily market data. "
+        "Screens a curated watchlist of **{n}** well-known U.S. stocks—mostly "
+        "financials, healthcare, industrials, energy, and consumer names—for those trading "
+        "**at or near their 52-week low** using Alpha Vantage daily market data. "
+        "This is a selected sample, not the Dow Jones Industrial Average, not every NYSE listing, "
+        "and not a large-cap or official exchange universe. "
         "Headline sentiment is fetched for the final displayed rows."
     ),
     "NASDAQ": (
-        "Screens **{n}** major NASDAQ-listed stocks for those trading **at or near "
+        "Screens a curated watchlist of **{n}** well-known U.S. stocks—mostly "
+        "technology, consumer, biotech, and growth names—for those trading **at or near "
         "their 52-week low** using Alpha Vantage daily market data. "
+        "This is a selected sample, not the Nasdaq-100, not every Nasdaq listing, "
+        "and not a large-cap or official exchange universe. "
         "Headline sentiment is fetched for the final displayed rows."
     ),
     "CRYPTO": (
-        "Screens **{n}** major cryptocurrencies from **tier-1 exchanges** "
-        "(Coinbase, Binance, Kraken, KuCoin, Gemini) for "
-        "those trading **closest to their 52-week low** using Alpha Vantage daily market data. "
+        "Screens a curated watchlist of **{n}** well-known cryptocurrencies "
+        "for those trading **closest to their 52-week low**. "
+        "This is a selected sample, not every listed coin and not an official "
+        "exchange or market-cap ranking. "
+        "Proximity uses a batched market quote (last price and 52-week range); "
+        "Alpha Vantage remains available on Analyze. "
+        "Many names trade on large venues (Coinbase, Binance, Kraken, KuCoin, Gemini), "
+        "but listing coverage varies. "
         "Headline sentiment is fetched for the final displayed rows."
     ),
     "CME": (
-        "Screens **{n}** major CME Group futures (COMEX, NYMEX, CBOT, CME) for "
-        "those trading **closest to their 52-week low** using Alpha Vantage-compatible "
-        "daily market data and ETF proxies where needed. Detailed headline sentiment "
-        "remains available — click **Analyze** on any row for a deeper dive."
+        "Screens a curated watchlist of **{n}** well-known CME Group futures "
+        "(CME, CBOT, NYMEX, COMEX) for those trading **closest to their 52-week low**. "
+        "This is a selected sample, not every listed contract and not an official "
+        "CME product universe. "
+        "Proximity uses a batched market quote (last price and 52-week range); "
+        "Alpha Vantage and ETF proxies remain available on Analyze. "
+        "Headline sentiment is fetched for the final displayed rows."
     ),
     "ICE": (
-        "Screens **{n}** ICE-traded commodity futures and commodity ETFs for "
-        "those trading **closest to their 52-week low** using Alpha Vantage-compatible "
-        "daily market data and ETF proxies where needed. Detailed headline sentiment "
-        "remains available — click **Analyze** on any row for a deeper dive."
+        "Screens a curated watchlist of **{n}** well-known ICE-linked commodity "
+        "futures and commodity ETFs for those trading **closest to their 52-week low**. "
+        "This is a selected sample, not every ICE listing and not an official "
+        "exchange or index universe. "
+        "Proximity uses a batched market quote (last price and 52-week range); "
+        "Alpha Vantage remains available on Analyze. "
+        "Headline sentiment is fetched for the final displayed rows."
     ),
 }
 
 _SCREENER_LANDING_SUMMARY_COMPACT: dict[str, str] = {
-    "NYSE": "**{n}** NYSE stocks near **52-week lows**. Headline sentiment on shown rows.",
-    "NASDAQ": "**{n}** NASDAQ stocks near **52-week lows**. Headline sentiment on shown rows.",
-    "CRYPTO": "**{n}** tier-1 crypto pairs near **52-week lows**. Headline sentiment on shown rows.",
-    "CME": "**{n}** CME futures near **52-week lows**. Tap **Analyze** for deeper sentiment.",
-    "ICE": "**{n}** ICE futures and ETFs near **52-week lows**. Tap **Analyze** for deeper sentiment.",
+    "NYSE": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official NYSE universe). Headline sentiment on shown rows.",
+    "NASDAQ": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official Nasdaq universe). Headline sentiment on shown rows.",
+    "CRYPTO": "**{n}** well-known cryptocurrencies near **52-week lows** (selected sample, not an official market universe). Headline sentiment on shown rows.",
+    "CME": "**{n}** well-known CME Group futures near **52-week lows** (selected sample, not an official CME universe). Tap **Analyze** for deeper sentiment.",
+    "ICE": "**{n}** well-known ICE-linked futures and commodity ETFs near **52-week lows** (selected sample, not an official ICE universe). Tap **Analyze** for deeper sentiment.",
 }
 
 _SCREENER_LANDING_INTRO_CSS = """

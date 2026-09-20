@@ -143,9 +143,13 @@ def screen_ticker(
     *,
     defn: ScreenerDefinition,
     env: dict[str, object],
+    snapshot: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     try:
-        snapshot = market_data.get_market_snapshot(ticker)
+        if snapshot is None and defn.kind in {"crypto", "commodity"}:
+            return None
+        if snapshot is None:
+            snapshot = market_data.get_market_snapshot(ticker)
         if not snapshot:
             return None
 
@@ -247,8 +251,16 @@ def run_screener_scan(
     md = market_data or MarketData()
 
     results: list[dict[str, Any]] = []
+    batched = defn.kind in {"crypto", "commodity"}
+    preloaded = md.get_screener_snapshots(scan_universe) if batched else {}
     for ticker in scan_universe:
-        row = screen_ticker(md, ticker, defn=defn, env=env)
+        row = screen_ticker(
+            md,
+            ticker,
+            defn=defn,
+            env=env,
+            snapshot=preloaded.get(ticker) if batched else None,
+        )
         if row is not None:
             results.append(row)
     return results, len(scan_universe), len(universe)

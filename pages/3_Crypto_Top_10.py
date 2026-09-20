@@ -2919,9 +2919,9 @@ if agreed:
     log_terms_acceptance(st, consent_key="agree_terms_crypto_top10")
 
 # ── Constants ─────────────────────────────────────────────────────────
-# Major / established cryptocurrencies available on Coinbase.
-# Crypto pairs use the -USD suffix in the UI and are normalized for Alpha Vantage.
-# (name, exchanges) — Tier-1 exchanges: Coinbase, Binance, Kraken, KuCoin, Gemini
+# Curated watchlist of 100 well-known cryptocurrencies (not an official ranking).
+# Crypto pairs use the -USD suffix in the UI and are normalized for quotes.
+# (name, venues) — coverage varies; many trade on Coinbase, Binance, Kraken, KuCoin, Gemini.
 CRYPTO_DATA = {
     "BTC-USD":   ("Bitcoin",                 "Coinbase, Binance, Kraken, KuCoin, Gemini"),
     "ETH-USD":   ("Ethereum",                "Coinbase, Binance, Kraken, KuCoin, Gemini"),
@@ -2973,6 +2973,56 @@ CRYPTO_DATA = {
     "PEPE24478-USD": ("Pepe",                 "Coinbase, Binance, Kraken, KuCoin"),
     "BONK-USD":  ("Bonk",                    "Coinbase, Binance, KuCoin"),
     "WIF-USD":   ("dogwifhat",               "Coinbase, Binance, KuCoin"),
+    "BNB-USD":   ("BNB",                     "Binance, Kraken, KuCoin"),
+    "TRX-USD":   ("TRON",                    "Binance, Kraken, KuCoin"),
+    "TON-USD":   ("Toncoin",                 "Binance, KuCoin"),
+    "JUP-USD":   ("Jupiter",                 "Coinbase, Binance, KuCoin"),
+    "TIA-USD":   ("Celestia",                "Coinbase, Binance, Kraken, KuCoin"),
+    "PYTH-USD":  ("Pyth Network",            "Coinbase, Binance, Kraken, KuCoin"),
+    "JTO-USD":   ("Jito",                    "Coinbase, Binance, KuCoin"),
+    "ONDO-USD":  ("Ondo",                    "Coinbase, Binance, Kraken, KuCoin"),
+    "TAO-USD":   ("Bittensor",               "Coinbase, Binance, Kraken, KuCoin"),
+    "WLD-USD":   ("Worldcoin",               "Coinbase, Binance, Kraken, KuCoin"),
+    "ENA-USD":   ("Ethena",                  "Coinbase, Binance, KuCoin"),
+    "AERO-USD":  ("Aerodrome Finance",       "Coinbase, Binance, KuCoin"),
+    "EIGEN-USD": ("EigenLayer",              "Coinbase, Binance, KuCoin"),
+    "BLUR-USD":  ("Blur",                    "Coinbase, Binance, Kraken, KuCoin"),
+    "STRK-USD":  ("Starknet",                "Coinbase, Binance, Kraken, KuCoin"),
+    "ZRO-USD":   ("LayerZero",               "Coinbase, Binance, Kraken, KuCoin"),
+    "PENDLE-USD": ("Pendle",                 "Coinbase, Binance, Kraken, KuCoin"),
+    "GALA-USD":  ("Gala",                    "Coinbase, Binance, Kraken, KuCoin"),
+    "FLOW-USD":  ("Flow",                    "Coinbase, Binance, Kraken, KuCoin"),
+    "CHZ-USD":   ("Chiliz",                  "Coinbase, Binance, Kraken, KuCoin"),
+    "QNT-USD":   ("Quant",                   "Coinbase, Binance, Kraken, KuCoin"),
+    "STX-USD":   ("Stacks",                  "Coinbase, Binance, Kraken, KuCoin"),
+    "RUNE-USD":  ("THORChain",               "Binance, Kraken, KuCoin"),
+    "VET-USD":   ("VeChain",                 "Binance, KuCoin"),
+    "THETA-USD": ("Theta Network",           "Binance, Kraken, KuCoin"),
+    "EOS-USD":   ("EOS",                     "Binance, Kraken, KuCoin"),
+    "XTZ-USD":   ("Tezos",                   "Coinbase, Binance, Kraken, KuCoin"),
+    "MINA-USD":  ("Mina",                    "Coinbase, Binance, Kraken, KuCoin"),
+    "AR-USD":    ("Arweave",                 "Binance, Kraken, KuCoin"),
+    "KSM-USD":   ("Kusama",                  "Coinbase, Binance, Kraken, KuCoin"),
+    "LPT-USD":   ("Livepeer",                "Coinbase, Binance, Kraken, KuCoin"),
+    "YFI-USD":   ("yearn.finance",           "Coinbase, Binance, Kraken, KuCoin"),
+    "ZRX-USD":   ("0x",                      "Coinbase, Binance, Kraken, KuCoin"),
+    "SKL-USD":   ("SKALE",                   "Coinbase, Binance, Kraken, KuCoin"),
+    "ANKR-USD":  ("Ankr",                    "Coinbase, Binance, Kraken, KuCoin"),
+    "STORJ-USD": ("Storj",                   "Coinbase, Binance, Kraken, KuCoin"),
+    "RPL-USD":   ("Rocket Pool",             "Coinbase, Binance, Kraken, KuCoin"),
+    "FLOKI-USD": ("FLOKI",                   "Binance, KuCoin"),
+    "CAKE-USD":  ("PancakeSwap",             "Binance, KuCoin"),
+    "CFX-USD":   ("Conflux",                 "Binance, KuCoin"),
+    "W-USD":     ("Wormhole",                "Coinbase, Binance, KuCoin"),
+    "MOVE-USD":  ("Movement",                "Coinbase, Binance, KuCoin"),
+    "DRIFT-USD": ("Drift",                   "Coinbase, Binance, KuCoin"),
+    "PRIME-USD": ("Echelon Prime",           "Coinbase, Binance, KuCoin"),
+    "AXL-USD":   ("Axelar",                  "Coinbase, Binance, Kraken, KuCoin"),
+    "SAFE-USD":  ("Safe",                    "Coinbase, Binance, KuCoin"),
+    "ETHFI-USD": ("ether.fi",                "Binance, KuCoin"),
+    "PENGU-USD": ("Pudgy Penguins",          "Coinbase, Binance, KuCoin"),
+    "TURBO-USD": ("Turbo",                   "Binance, KuCoin"),
+    "IO-USD":    ("io.net",                  "Binance, KuCoin"),
 }
 
 CRYPTO_NAMES = {k: v[0] for k, v in CRYPTO_DATA.items()}
@@ -3041,6 +3091,56 @@ CRYPTO_SUMMARIES = {
     "PEPE": "Frog-themed meme token on Ethereum with viral community momentum.",
     "BONK": "Solana-based meme coin with community airdrops and integrations.",
     "WIF": "Dog-with-hat meme token on Solana with strong community following.",
+    "BNB": "Native token of the BNB Chain and the Binance exchange ecosystem.",
+    "TRX": "TRON network token used for transfers and smart-contract fees.",
+    "TON": "Toncoin; layer-1 token originally associated with the Telegram ecosystem.",
+    "JUP": "Governance and utility token of the Jupiter Solana DEX aggregator.",
+    "TIA": "Celestia token for a modular data-availability blockchain.",
+    "PYTH": "Oracle network token delivering real-time market data on-chain.",
+    "JTO": "Governance token for Jito, a Solana MEV and liquid-staking protocol.",
+    "ONDO": "Token tied to Ondo’s tokenized real-world asset and DeFi products.",
+    "TAO": "Bittensor token used in a decentralized machine-learning network.",
+    "WLD": "Worldcoin token associated with the World ID identity project.",
+    "ENA": "Governance token of Ethena, issuer of the USDe synthetic dollar.",
+    "AERO": "Governance token of Aerodrome, a Base-chain DEX and liquidity hub.",
+    "EIGEN": "EigenLayer token for Ethereum restaking and shared security.",
+    "BLUR": "Governance token of Blur, an NFT marketplace and trading platform.",
+    "STRK": "Starknet token for an Ethereum ZK-rollup and its developer ecosystem.",
+    "ZRO": "LayerZero token for an omnichain messaging and interoperability protocol.",
+    "PENDLE": "DeFi token for trading and wrapping future yield on crypto assets.",
+    "GALA": "Entertainment and gaming ecosystem token spanning games and media.",
+    "FLOW": "Layer-1 token for Flow, used in consumer apps and digital collectibles.",
+    "CHZ": "Chiliz fan-token and sports-blockchain utility token.",
+    "QNT": "Quant token used with Overledger enterprise interoperability software.",
+    "STX": "Stacks token for Bitcoin-anchored smart contracts and apps.",
+    "RUNE": "THORChain token used for cross-chain liquidity and native swaps.",
+    "VET": "VeChain token for enterprise supply-chain and tracking applications.",
+    "THETA": "Theta Network token for decentralized video delivery and streaming.",
+    "EOS": "Legacy layer-1 smart-contract platform token.",
+    "XTZ": "Tezos token for an on-chain-governed proof-of-stake blockchain.",
+    "MINA": "Mina Protocol token for a succinct, lightweight blockchain.",
+    "AR": "Arweave token used to pay for permanent decentralized storage.",
+    "KSM": "Kusama token, the canary network for Polkadot experiments.",
+    "LPT": "Livepeer token for a decentralized live-video transcoding network.",
+    "YFI": "yearn.finance governance token for automated DeFi yield strategies.",
+    "ZRX": "0x protocol token for decentralized exchange liquidity infrastructure.",
+    "SKL": "SKALE token for an Ethereum-compatible elastic sidechain network.",
+    "ANKR": "Ankr token for decentralized node infrastructure and staking services.",
+    "STORJ": "Storj token for a decentralized cloud object-storage network.",
+    "RPL": "Rocket Pool token for decentralized Ethereum liquid staking.",
+    "FLOKI": "Community meme token with related DeFi and metaverse products.",
+    "CAKE": "PancakeSwap token for a BNB Chain DEX and yield platform.",
+    "CFX": "Conflux token for a high-throughput layer-1 smart-contract network.",
+    "W": "Wormhole token for a cross-chain messaging and bridging protocol.",
+    "MOVE": "Movement token associated with a Move-based Ethereum layer-2.",
+    "DRIFT": "Drift token for a Solana perpetual-swap and trading protocol.",
+    "PRIME": "Echelon Prime token used in the Parallel gaming ecosystem.",
+    "AXL": "Axelar token for cross-chain communication and application routing.",
+    "SAFE": "Safe token for the smart-account and multisig wallet ecosystem.",
+    "ETHFI": "ether.fi token for a liquid restaking protocol on Ethereum.",
+    "PENGU": "Pudgy Penguins community token tied to the NFT brand.",
+    "TURBO": "Meme token with a community-driven Ethereum brand.",
+    "IO": "io.net token for a decentralized GPU compute network.",
 }
 
 DISQUALIFY_KEYWORDS = [
@@ -3055,12 +3155,12 @@ SCREENER_SYMBOL_LIMIT = get_screener_symbol_limit()
 
 
 # ── Helper functions ──────────────────────────────────────────────────
-def screen_crypto(ticker: str) -> dict | None:
+def screen_crypto(ticker: str, snapshot: dict | None = None) -> dict | None:
     """Return screening data for one crypto, or None on failure."""
     try:
         import math
-        market_data = get_market_data()
-        snapshot = market_data.get_market_snapshot(ticker)
+        if snapshot is None:
+            return None
         if not snapshot:
             return None
         current_price = snapshot["current_price"]
@@ -3189,8 +3289,9 @@ render_screener_landing_intro(
 def _run_screen(_cache_version: int = SCREENER_CACHE_VERSION):
     results = []
     scan_universe = CRYPTO_UNIVERSE[:SCREENER_SYMBOL_LIMIT]
+    snapshots = get_market_data().get_crypto_screener_snapshots(scan_universe)
     for tkr in scan_universe:
-        row = screen_crypto(tkr)
+        row = screen_crypto(tkr, snapshots.get(tkr))
         if row is not None:
             results.append(row)
     return results, datetime.now().strftime("%b %d, %Y  %I:%M %p")
@@ -3218,8 +3319,8 @@ else:
 
     if not all_results:
         st.warning(
-            "No crypto data is available right now. Alpha Vantage may be rate-limiting "
-            "requests; wait a minute and refresh."
+            "No crypto data is available right now. Market quotes may be delayed "
+            "or rate-limited; wait a minute and refresh."
         )
         if st.button("Clear cache and refresh", key="refresh_crypto"):
             st.cache_data.clear()

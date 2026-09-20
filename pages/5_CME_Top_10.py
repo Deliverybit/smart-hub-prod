@@ -2891,8 +2891,8 @@ if agreed:
     log_terms_acceptance(st, consent_key="agree_terms_cme")
 
 # ── Constants ─────────────────────────────────────────────────────────
-# Major commodity futures traded on the CME Group (CME, CBOT, NYMEX, COMEX).
-# Yahoo-style =F futures symbols are normalized to Alpha Vantage-compatible proxies.
+# Curated watchlist of 100 well-known CME Group futures (not an official contract list).
+# Yahoo-style =F symbols are used for batched quotes; Analyze may use ETF proxies.
 COMMODITY_NAMES = {
     # Precious Metals (COMEX)
     "GC=F":  "Gold",
@@ -2935,6 +2935,73 @@ COMMODITY_NAMES = {
     "ZN=F":  "10-Year T-Note",
     "ZF=F":  "5-Year T-Note",
     "ZT=F":  "2-Year T-Note",
+    "KE=F":  "KC HRW Wheat",
+    "LBS=F": "Lumber",
+    "LBR=F": "Random Length Lumber",
+    "BTC=F": "CME Bitcoin",
+    "ETH=F": "CME Ether",
+    "MBT=F": "Micro Bitcoin",
+    "MET=F": "Micro Ether",
+    "MES=F": "Micro E-mini S&P 500",
+    "MNQ=F": "Micro E-mini Nasdaq-100",
+    "MYM=F": "Micro E-mini Dow",
+    "M2K=F": "Micro E-mini Russell 2000",
+    "EMD=F": "S&P MidCap 400",
+    "NKD=F": "Nikkei 225",
+    "NIY=F": "Nikkei 225 (Yen)",
+    "MME=F": "MSCI Emerging Markets",
+    "SP=F":  "S&P 500 (full-size)",
+    "ND=F":  "Nasdaq-100 (full-size)",
+    "MGC=F": "Micro Gold",
+    "SIL=F": "Micro Silver",
+    "MHG=F": "Micro Copper",
+    "MCL=F": "Micro WTI Crude",
+    "QM=F":  "E-mini Crude Oil",
+    "QG=F":  "E-mini Natural Gas",
+    "HH=F":  "Henry Hub Natural Gas",
+    "6S=F":  "Swiss Franc",
+    "6N=F":  "New Zealand Dollar",
+    "6M=F":  "Mexican Peso",
+    "6L=F":  "Brazilian Real",
+    "6Z=F":  "South African Rand",
+    "6I=F":  "Indian Rupee",
+    "6H=F":  "Hungarian Forint",
+    "E7=F":  "E-mini Euro FX",
+    "J7=F":  "E-mini Japanese Yen",
+    "M6E=F": "Micro Euro FX",
+    "M6A=F": "Micro Australian Dollar",
+    "M6B=F": "Micro British Pound",
+    "M6J=F": "Micro Japanese Yen",
+    "M6C=F": "Micro Canadian Dollar",
+    "M6S=F": "Micro Swiss Franc",
+    "TN=F":  "Ultra 10-Year T-Note",
+    "UB=F":  "Ultra T-Bond",
+    "Z3N=F": "3-Year T-Note",
+    "SR3=F": "3-Month SOFR",
+    "SR1=F": "1-Month SOFR",
+    "ZQ=F":  "30-Day Fed Funds",
+    "GE=F":  "Eurodollar",
+    "FF=F":  "30-Day Federal Funds",
+    "GNF=F": "Nonfat Dry Milk",
+    "CSC=F": "Cash-Settled Cheese",
+    "CB=F":  "Cash-Settled Butter",
+    "GD=F":  "Class IV Milk",
+    "DL=F":  "Dry Whey",
+    "XC=F":  "Mini Corn",
+    "XK=F":  "Mini Soybeans",
+    "XW=F":  "Mini Wheat",
+    "ALI=F": "Aluminum",
+    "HRC=F": "Hot-Rolled Coil Steel",
+    "TIO=F": "Iron Ore 62%",
+    "YG=F":  "Mini Gold",
+    "YI=F":  "Mini Silver",
+    "QO=F":  "mini-Gold",
+    "QI=F":  "mini-Silver",
+    "QC=F":  "mini-Copper",
+    "SEK=F": "Swedish Krona",
+    "NOK=F": "Norwegian Krone",
+    "NN=F":  "NYMEX Last-Day Natural Gas",
+    "PLN=F": "Polish Zloty",
 }
 
 CME_UNIVERSE = list(COMMODITY_NAMES.keys())
@@ -2974,6 +3041,73 @@ COMMODITY_SUMMARIES = {
     "ZN": "Futures on 10-year U.S. Treasury notes; most-watched bond contract.",
     "ZF": "Futures on 5-year U.S. Treasury notes; tracks mid-curve interest rates.",
     "ZT": "Futures on 2-year U.S. Treasury notes; sensitive to Fed rate policy.",
+    "KE": "Kansas City hard-red winter wheat futures; a U.S. milling-wheat benchmark.",
+    "LBS": "Softwood lumber futures used in residential construction pricing.",
+    "LBR": "Random-length lumber futures tracking North American wood prices.",
+    "BTC": "CME cash-settled bitcoin futures on the CME Group.",
+    "ETH": "CME cash-settled ether futures on the CME Group.",
+    "MBT": "Micro bitcoin futures; one-tenth the standard CME bitcoin contract.",
+    "MET": "Micro ether futures; a smaller CME ether contract.",
+    "MES": "Micro E-mini S&P 500 futures; a smaller equity-index contract.",
+    "MNQ": "Micro E-mini Nasdaq-100 futures focused on large-cap growth stocks.",
+    "MYM": "Micro E-mini Dow futures on the 30-stock industrial average.",
+    "M2K": "Micro E-mini Russell 2000 futures on U.S. small-cap stocks.",
+    "EMD": "Futures on the S&P MidCap 400 index.",
+    "NKD": "Dollar-denominated Nikkei 225 futures listed with CME Group.",
+    "NIY": "Yen-denominated Nikkei 225 futures listed with CME Group.",
+    "MME": "Futures on the MSCI Emerging Markets equity index.",
+    "SP": "Full-size S&P 500 futures contract.",
+    "ND": "Full-size Nasdaq-100 futures contract.",
+    "MGC": "Micro gold futures offering smaller COMEX gold exposure.",
+    "SIL": "Micro silver futures offering smaller COMEX silver exposure.",
+    "MHG": "Micro copper futures offering smaller COMEX copper exposure.",
+    "MCL": "Micro WTI crude oil futures.",
+    "QM": "E-mini WTI crude oil futures.",
+    "QG": "E-mini natural gas futures.",
+    "HH": "Henry Hub natural gas futures used in U.S. gas pricing.",
+    "6S": "Swiss franc FX futures versus the U.S. dollar.",
+    "6N": "New Zealand dollar FX futures versus the U.S. dollar.",
+    "6M": "Mexican peso FX futures versus the U.S. dollar.",
+    "6L": "Brazilian real FX futures versus the U.S. dollar.",
+    "6Z": "South African rand FX futures versus the U.S. dollar.",
+    "6I": "Indian rupee FX futures versus the U.S. dollar.",
+    "6H": "Hungarian forint FX futures versus the U.S. dollar.",
+    "E7": "E-mini euro FX futures.",
+    "J7": "E-mini Japanese yen FX futures.",
+    "M6E": "Micro euro FX futures.",
+    "M6A": "Micro Australian dollar FX futures.",
+    "M6B": "Micro British pound FX futures.",
+    "M6J": "Micro Japanese yen FX futures.",
+    "M6C": "Micro Canadian dollar FX futures.",
+    "M6S": "Micro Swiss franc FX futures.",
+    "TN": "Ultra 10-year Treasury note futures; longer-duration note exposure.",
+    "UB": "Ultra Treasury bond futures; very long-duration U.S. rates.",
+    "Z3N": "3-year Treasury note futures.",
+    "SR3": "3-month SOFR futures; a short-term U.S. dollar rate benchmark.",
+    "SR1": "1-month SOFR futures.",
+    "ZQ": "30-day federal funds futures used to price Fed policy odds.",
+    "GE": "Legacy Eurodollar futures tied to short-term dollar rates.",
+    "FF": "30-day federal funds futures (legacy symbol).",
+    "GNF": "Nonfat dry milk futures in the CME dairy complex.",
+    "CSC": "Cash-settled cheese futures.",
+    "CB": "Cash-settled butter futures.",
+    "GD": "Class IV milk futures used in dairy hedging.",
+    "DL": "Dry whey futures in the CME dairy complex.",
+    "XC": "Mini corn futures; a smaller CBOT corn contract.",
+    "XK": "Mini soybean futures; a smaller CBOT soybean contract.",
+    "XW": "Mini wheat futures; a smaller CBOT wheat contract.",
+    "ALI": "COMEX aluminum futures.",
+    "HRC": "Hot-rolled coil steel futures.",
+    "TIO": "Iron ore 62% futures.",
+    "YG": "Mini gold futures.",
+    "YI": "Mini silver futures.",
+    "QO": "COMEX mini-gold futures.",
+    "QI": "COMEX mini-silver futures.",
+    "QC": "COMEX mini-copper futures.",
+    "SEK": "Swedish krona FX futures versus the U.S. dollar.",
+    "NOK": "Norwegian krone FX futures versus the U.S. dollar.",
+    "NN": "Last-day financially settled NYMEX natural gas futures.",
+    "PLN": "Polish zloty FX futures versus the U.S. dollar.",
 }
 
 DISQUALIFY_KEYWORDS = [
@@ -2986,12 +3120,10 @@ SCREENER_SYMBOL_LIMIT = get_screener_symbol_limit()
 
 
 # ── Helper functions ──────────────────────────────────────────────────
-def screen_commodity(ticker: str) -> dict | None:
+def screen_commodity(ticker: str, snapshot: dict | None = None) -> dict | None:
     """Return screening data for one commodity future, or None on failure."""
     try:
         import math
-        market_data = get_market_data()
-        snapshot = market_data.get_market_snapshot(ticker)
         if not snapshot:
             return None
         current_price = snapshot["current_price"]
@@ -3113,8 +3245,9 @@ render_screener_landing_intro(
 def _run_screen(_cache_version: int = SCREENER_CACHE_VERSION):
     results = []
     scan_universe = CME_UNIVERSE[:SCREENER_SYMBOL_LIMIT]
+    snapshots = get_market_data().get_screener_snapshots(scan_universe)
     for tkr in scan_universe:
-        row = screen_commodity(tkr)
+        row = screen_commodity(tkr, snapshots.get(tkr))
         if row is not None:
             results.append(row)
     return results, datetime.now().strftime("%b %d, %Y  %I:%M %p")

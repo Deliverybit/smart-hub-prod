@@ -2891,8 +2891,8 @@ if agreed:
     log_terms_acceptance(st, consent_key="agree_terms_ice")
 
 # ── Constants ─────────────────────────────────────────────────────────
-# Major commodity futures traded on ICE (Intercontinental Exchange).
-# Includes ICE Futures U.S., ICE Futures Europe, and ICE Endex.
+# Curated watchlist of 100 well-known ICE-linked futures and commodity ETFs
+# (not an official ICE product list). Venue coverage and listings vary.
 COMMODITY_NAMES = {
     # Energy (ICE Futures Europe)
     "BZ=F":  "Brent Crude Oil",
@@ -2924,6 +2924,80 @@ COMMODITY_NAMES = {
     "FTGC":  "First Trust Global Commodities (ICE)",
     "BCI":   "Aberdeen Bloomberg Commodity (ICE)",
     "COMT":  "iShares GSCI Commodity (ICE)",
+    "RS=F":  "Canola",
+    "BNO":   "United States Brent Oil Fund",
+    "UGA":   "United States Gasoline Fund",
+    "UNL":   "United States 12 Month Natural Gas",
+    "BOIL":  "ProShares Ultra Bloomberg Natural Gas",
+    "KOLD":  "ProShares UltraShort Bloomberg Natural Gas",
+    "USL":   "United States 12 Month Oil Fund",
+    "DBO":   "Invesco DB Oil Fund",
+    "SCO":   "ProShares UltraShort Bloomberg Crude Oil",
+    "UCO":   "ProShares Ultra Bloomberg Crude Oil",
+    "OILK":  "ProShares K-1 Free Crude Oil",
+    "GLL":   "ProShares UltraShort Gold",
+    "DGL":   "Invesco DB Gold Fund",
+    "UGL":   "ProShares Ultra Gold",
+    "AGQ":   "ProShares Ultra Silver",
+    "ZSL":   "ProShares UltraShort Silver",
+    "SIVR":  "abrdn Physical Silver Shares",
+    "IAU":   "iShares Gold Trust",
+    "IAUM":  "iShares Gold Trust Micro",
+    "GLDM":  "SPDR Gold MiniShares",
+    "BAR":   "GraniteShares Gold Trust",
+    "SGOL":  "abrdn Physical Gold Shares",
+    "AAAU":  "Goldman Sachs Physical Gold",
+    "OUNZ":  "VanEck Merk Gold Trust",
+    "PHYS":  "Sprott Physical Gold Trust",
+    "PSLV":  "Sprott Physical Silver Trust",
+    "GLTR":  "abrdn Physical Precious Metals Basket",
+    "DBP":   "Invesco DB Precious Metals",
+    "NIB":   "iPath Bloomberg Cocoa",
+    "JO":    "iPath Bloomberg Coffee",
+    "SGG":   "iPath Bloomberg Sugar",
+    "BAL":   "iPath Bloomberg Cotton",
+    "TAGS":  "Teucrium Agricultural",
+    "GRU":   "ELEMENTS Agriculture",
+    "RJA":   "ELEMENTS Linked to Rogers Agriculture",
+    "RJI":   "ELEMENTS Linked to Rogers Commodity",
+    "GSP":   "iPath S&P GSCI Total Return",
+    "GCC":   "WisdomTree Enhanced Commodity",
+    "COMB":  "GraniteShares Bloomberg Commodity",
+    "CMDY":  "iShares Bloomberg Roll Select Commodity",
+    "USCI":  "United States Commodity Index",
+    "FAAR":  "First Trust Alternative Absolute Return",
+    "BDRY":  "Breakwave Dry Bulk Shipping",
+    "SEA":   "U.S. Global Sea to Sky Cargo",
+    "WOOD":  "iShares Global Timber & Forestry",
+    "CUT":   "Invesco MSCI Global Timber",
+    "REMX":  "VanEck Rare Earth/Strategic Metals",
+    "PICK":  "iShares MSCI Global Metals & Mining",
+    "SLX":   "VanEck Steel",
+    "CPER":  "United States Copper Index",
+    "NIKL":  "Sprott Nickel Miners",
+    "JJC":   "iPath Bloomberg Copper",
+    "JJN":   "iPath Bloomberg Nickel",
+    "JJG":   "iPath Bloomberg Grains",
+    "JJA":   "iPath Bloomberg Agriculture",
+    "JJE":   "iPath Bloomberg Energy",
+    "KRBN":  "KraneShares Global Carbon",
+    "GRN":   "iPath Series B Carbon",
+    "KCCA":  "KraneShares California Carbon",
+    "KEUA":  "KraneShares European Carbon",
+    "MOO":   "VanEck Agribusiness",
+    "URA":   "Global X Uranium",
+    "COPX":  "Global X Copper Miners",
+    "NLR":   "VanEck Uranium and Nuclear",
+    "DJP":   "iPath Bloomberg Commodity Index",
+    "DBE":   "Invesco DB Energy",
+    "HGER":  "Harbor Commodity All-Weather Strategy",
+    "SDCI":  "USCF SummerHaven Dynamic Commodity",
+    "BCD":   "abrdn Bloomberg All Commodity Longer Dated",
+    "GNR":   "SPDR S&P Global Natural Resources",
+    "GUNR":  "FlexShares Global Upstream Natural Resources",
+    "PHO":   "Invesco Water Resources",
+    "FIW":   "First Trust Water",
+    "CGW":   "Invesco S&P Global Water",
 }
 
 ICE_UNIVERSE = list(COMMODITY_NAMES.keys())
@@ -2955,6 +3029,80 @@ COMMODITY_SUMMARIES = {
     "FTGC": "Actively managed ETF with global commodity futures exposure.",
     "BCI": "ETF tracking the Bloomberg Commodity Index Total Return.",
     "COMT": "ETF providing broad exposure to commodities via the S&P GSCI index.",
+    "RS": "ICE canola futures; a key vegetable-oilseed contract.",
+    "BNO": "ETF designed to track Brent crude oil futures prices.",
+    "UGA": "ETF designed to track gasoline futures prices.",
+    "UNL": "ETF holding a 12-month strip of natural gas futures.",
+    "BOIL": "Leveraged ETF seeking 2x daily natural gas futures returns.",
+    "KOLD": "Inverse leveraged ETF seeking -2x daily natural gas futures returns.",
+    "USL": "ETF holding a 12-month strip of WTI crude oil futures.",
+    "DBO": "Oil futures ETF in the Invesco DB commodity suite.",
+    "SCO": "Inverse leveraged ETF on Bloomberg crude oil.",
+    "UCO": "Leveraged ETF on Bloomberg crude oil.",
+    "OILK": "K-1-free ETF providing crude oil futures exposure.",
+    "GLL": "Inverse leveraged gold ETF.",
+    "DGL": "Gold futures ETF in the Invesco DB suite.",
+    "UGL": "Leveraged gold ETF.",
+    "AGQ": "Leveraged silver ETF.",
+    "ZSL": "Inverse leveraged silver ETF.",
+    "SIVR": "Physically backed silver ETF.",
+    "IAU": "Physically backed gold trust from iShares.",
+    "IAUM": "Micro-share physically backed gold trust.",
+    "GLDM": "Lower-fee physically backed gold mini-shares.",
+    "BAR": "Physically backed gold trust.",
+    "SGOL": "Physically backed gold shares.",
+    "AAAU": "Physically backed gold ETF.",
+    "OUNZ": "Physically backed gold trust that allows metal delivery.",
+    "PHYS": "Closed-end physical gold trust.",
+    "PSLV": "Closed-end physical silver trust.",
+    "GLTR": "Physically backed basket of gold, silver, platinum, and palladium.",
+    "DBP": "Precious-metals futures ETF.",
+    "NIB": "ETN linked to cocoa futures.",
+    "JO": "ETN linked to coffee futures.",
+    "SGG": "ETN linked to sugar futures.",
+    "BAL": "ETN linked to cotton futures.",
+    "TAGS": "ETF holding a mix of agricultural futures.",
+    "GRU": "ETN linked to an agriculture commodity index.",
+    "RJA": "ETN linked to the Rogers agriculture index.",
+    "RJI": "ETN linked to the Rogers international commodity index.",
+    "GSP": "ETN linked to the S&P GSCI total return.",
+    "GCC": "Enhanced commodity strategy ETF.",
+    "COMB": "Broad Bloomberg commodity strategy ETF.",
+    "CMDY": "Bloomberg roll-select commodity ETF.",
+    "USCI": "Broad commodity index fund using a seasonal contract mix.",
+    "FAAR": "Actively managed alternative/commodity return ETF.",
+    "BDRY": "ETF linked to dry-bulk shipping freight rates.",
+    "SEA": "ETF focused on sea-cargo and shipping companies.",
+    "WOOD": "ETF of global timber and forestry companies.",
+    "CUT": "ETF of global timber producers.",
+    "REMX": "ETF of rare-earth and strategic-metals miners.",
+    "PICK": "ETF of global metals and mining companies.",
+    "SLX": "ETF of steel producers.",
+    "CPER": "ETF designed to track copper futures.",
+    "NIKL": "ETF of nickel mining companies.",
+    "JJC": "ETN linked to copper futures.",
+    "JJN": "ETN linked to nickel futures.",
+    "JJG": "ETN linked to grain futures.",
+    "JJA": "ETN linked to agriculture futures.",
+    "JJE": "ETN linked to energy futures.",
+    "KRBN": "ETF of global carbon allowance futures.",
+    "GRN": "ETN linked to carbon credit futures.",
+    "KCCA": "ETF of California carbon allowance futures.",
+    "KEUA": "ETF of European carbon allowance futures.",
+    "MOO": "ETF of agribusiness companies.",
+    "URA": "ETF of uranium miners and nuclear-fuel names.",
+    "COPX": "ETF of copper mining companies.",
+    "NLR": "ETF of uranium and nuclear-energy companies.",
+    "DJP": "ETN linked to the Bloomberg Commodity Index.",
+    "DBE": "Energy futures ETF in the Invesco DB suite.",
+    "HGER": "Actively managed all-weather commodity ETF.",
+    "SDCI": "Dynamic commodity futures ETF.",
+    "BCD": "Longer-dated Bloomberg commodity ETF.",
+    "GNR": "ETF of global natural-resource companies.",
+    "GUNR": "ETF of upstream natural-resource companies.",
+    "PHO": "ETF of water-resources companies.",
+    "FIW": "ETF of water infrastructure and resources companies.",
+    "CGW": "ETF of global water utilities and infrastructure.",
 }
 
 DISQUALIFY_KEYWORDS = [
@@ -2967,12 +3115,10 @@ SCREENER_SYMBOL_LIMIT = get_screener_symbol_limit()
 
 
 # ── Helper functions ──────────────────────────────────────────────────
-def screen_commodity(ticker: str) -> dict | None:
+def screen_commodity(ticker: str, snapshot: dict | None = None) -> dict | None:
     """Return screening data for one commodity / ETF, or None on failure."""
     try:
         import math
-        market_data = get_market_data()
-        snapshot = market_data.get_market_snapshot(ticker)
         if not snapshot:
             return None
         current_price = snapshot["current_price"]
@@ -3094,8 +3240,9 @@ render_screener_landing_intro(
 def _run_screen(_cache_version: int = SCREENER_CACHE_VERSION):
     results = []
     scan_universe = ICE_UNIVERSE[:SCREENER_SYMBOL_LIMIT]
+    snapshots = get_market_data().get_screener_snapshots(scan_universe)
     for tkr in scan_universe:
-        row = screen_commodity(tkr)
+        row = screen_commodity(tkr, snapshots.get(tkr))
         if row is not None:
             results.append(row)
     return results, datetime.now().strftime("%b %d, %Y  %I:%M %p")

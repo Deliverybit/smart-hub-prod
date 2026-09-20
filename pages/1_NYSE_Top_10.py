@@ -1,6 +1,6 @@
 """
 NYSE
-Screens major NYSE-listed stocks for those trading at or near their
+Screens large-cap NYSE stocks for those trading at or near their
 52-week / all-time low **and** whose recent headlines do NOT contain
 signals of fraud, illegality, or imminent bankruptcy.
 """
@@ -2896,7 +2896,7 @@ if agreed:
     log_terms_acceptance(st, consent_key="agree_terms_nyse")
 
 # ── Constants ─────────────────────────────────────────────────────────
-# A broad universe of well-known NYSE-listed stocks across sectors.
+# A curated watchlist of 100 well-known U.S. stocks across sectors (NYSE-themed).
 # We screen this list live each time the user clicks "Scan".
 COMPANY_NAMES = {
     # Technology
@@ -2908,6 +2908,10 @@ COMPANY_NAMES = {
     "SNOW": "Snowflake",
     "PATH": "UiPath",
     "ESTC": "Elastic N.V.",
+    "CRM": "Salesforce, Inc.",
+    "ACN": "Accenture plc",
+    "NOW": "ServiceNow, Inc.",
+    "ANET": "Arista Networks",
     # Financials
     "JPM": "JPMorgan Chase & Co.",
     "BAC": "Bank of America",
@@ -2919,6 +2923,14 @@ COMPANY_NAMES = {
     "USB": "U.S. Bancorp",
     "PNC": "PNC Financial Services",
     "SCHW": "Charles Schwab Corp.",
+    "V": "Visa Inc.",
+    "MA": "Mastercard Inc.",
+    "AXP": "American Express Co.",
+    "BLK": "BlackRock, Inc.",
+    "SPGI": "S&P Global Inc.",
+    "PGR": "The Progressive Corp.",
+    "ICE": "Intercontinental Exchange",
+    "FI": "Fiserv, Inc.",
     # Healthcare
     "JNJ": "Johnson & Johnson",
     "PFE": "Pfizer Inc.",
@@ -2929,6 +2941,13 @@ COMPANY_NAMES = {
     "CI": "The Cigna Group",
     "HUM": "Humana Inc.",
     "CVS": "CVS Health Corp.",
+    "UNH": "UnitedHealth Group",
+    "ABBV": "AbbVie Inc.",
+    "TMO": "Thermo Fisher Scientific",
+    "DHR": "Danaher Corp.",
+    "SYK": "Stryker Corp.",
+    "MDT": "Medtronic plc",
+    "ELV": "Elevance Health",
     # Consumer / Retail
     "WMT": "Walmart Inc.",
     "KO": "The Coca-Cola Co.",
@@ -2940,6 +2959,10 @@ COMPANY_NAMES = {
     "DG": "Dollar General Corp.",
     "HD": "The Home Depot",
     "LOW": "Lowe's Companies",
+    "TJX": "The TJX Companies",
+    "PM": "Philip Morris International",
+    "CL": "Colgate-Palmolive Co.",
+    "GM": "General Motors Co.",
     # Energy
     "XOM": "Exxon Mobil Corp.",
     "CVX": "Chevron Corp.",
@@ -2960,6 +2983,10 @@ COMPANY_NAMES = {
     "DE": "Deere & Company",
     "LMT": "Lockheed Martin Corp.",
     "RTX": "RTX Corporation",
+    "ETN": "Eaton Corporation",
+    "WM": "Waste Management",
+    "GD": "General Dynamics",
+    "NOC": "Northrop Grumman",
     # Telecom / Media
     "T": "AT&T Inc.",
     "VZ": "Verizon Communications",
@@ -2978,6 +3005,9 @@ COMPANY_NAMES = {
     "NEM": "Newmont Corp.",
     "DOW": "Dow Inc.",
     "DD": "DuPont de Nemours",
+    "SHW": "Sherwin-Williams Co.",
+    "APD": "Air Products and Chemicals",
+    "LIN": "Linde plc",
 }
 
 COMPANY_SUMMARIES = {
@@ -2989,6 +3019,10 @@ COMPANY_SUMMARIES = {
     "SNOW": "Cloud-based data warehousing and analytics platform.",
     "PATH": "Enterprise automation software using robotic process automation (RPA).",
     "ESTC": "Open-source search, observability, and security analytics platform.",
+    "CRM": "Enterprise cloud software for customer relationship management and automation.",
+    "ACN": "Global professional services firm in strategy, consulting, digital, and operations.",
+    "NOW": "Cloud platform for digital workflows, IT service management, and enterprise automation.",
+    "ANET": "Cloud networking company making high-speed switches for data centers and AI clusters.",
     "JPM": "Largest U.S. bank by assets; investment banking, asset management, and retail banking.",
     "BAC": "Major U.S. bank offering consumer banking, wealth management, and capital markets.",
     "WFC": "Diversified financial services company focused on banking and mortgage lending.",
@@ -2999,6 +3033,14 @@ COMPANY_SUMMARIES = {
     "USB": "Regional bank providing consumer and commercial banking, payments, and wealth management.",
     "PNC": "Major U.S. regional bank offering retail and corporate banking services.",
     "SCHW": "Brokerage and wealth management firm serving individual investors and advisors.",
+    "V": "Global payments network processing consumer and commercial card transactions.",
+    "MA": "Global payments technology company operating a credit, debit, and commercial card network.",
+    "AXP": "Integrated payments and travel company issuing charge and credit cards worldwide.",
+    "BLK": "World's largest asset manager offering iShares ETFs and institutional investment services.",
+    "SPGI": "Provider of credit ratings, market data, and benchmarks including the S&P 500.",
+    "PGR": "Major U.S. auto insurer also offering home, renters, and commercial coverage.",
+    "ICE": "Operator of global exchanges and clearing houses, including the NYSE.",
+    "FI": "Payments and financial technology company serving banks, merchants, and billers.",
     "JNJ": "Diversified healthcare company in pharmaceuticals, medical devices, and consumer health.",
     "PFE": "Global pharmaceutical company known for vaccines, oncology, and specialty medicines.",
     "ABT": "Healthcare company making diagnostics, medical devices, nutritionals, and pharmaceuticals.",
@@ -3008,6 +3050,13 @@ COMPANY_SUMMARIES = {
     "CI": "Global health services company offering insurance, pharmacy benefits, and care delivery.",
     "HUM": "Health insurance company focused on Medicare Advantage plans.",
     "CVS": "Healthcare company operating pharmacies, insurance (Aetna), and health services.",
+    "UNH": "Largest U.S. health insurer; also operates Optum pharmacy and care-delivery services.",
+    "ABBV": "Biopharmaceutical company in immunology, oncology, neuroscience, and aesthetics.",
+    "TMO": "Life-science tools and diagnostics company serving labs, pharma, and biotech.",
+    "DHR": "Science and technology conglomerate in diagnostics, life sciences, and environmental tools.",
+    "SYK": "Medical technology company making orthopedic implants, surgical tools, and neuro devices.",
+    "MDT": "Medical device company in cardiac, diabetes, surgical, and neuroscience products.",
+    "ELV": "Health benefits company operating Anthem-branded commercial and government plans.",
     "WMT": "World's largest retailer operating discount stores, supercenters, and e-commerce.",
     "KO": "World's largest beverage company; iconic brands including Coca-Cola, Sprite, Fanta.",
     "PEP": "Global food and beverage company with brands like Pepsi, Lay's, Gatorade, Quaker.",
@@ -3018,6 +3067,10 @@ COMPANY_SUMMARIES = {
     "DG": "Discount retailer operating small-format stores in rural and suburban communities.",
     "HD": "Largest U.S. home improvement retailer selling tools, hardware, and building materials.",
     "LOW": "Home improvement retailer offering products for maintenance, repair, and remodeling.",
+    "TJX": "Off-price retailer operating T.J. Maxx, Marshalls, HomeGoods, and related banners.",
+    "PM": "International tobacco company behind Marlboro outside the U.S.; expanding smoke-free products.",
+    "CL": "Consumer products company in oral care, personal care, and home care brands.",
+    "GM": "U.S. automaker producing Chevrolet, GMC, Cadillac, and Buick vehicles plus EV platforms.",
     "XOM": "World's largest publicly traded oil and gas company; exploration, refining, and chemicals.",
     "CVX": "Integrated energy company in oil/gas exploration, refining, and renewable energy.",
     "COP": "Independent exploration and production company focused on oil and natural gas.",
@@ -3036,6 +3089,10 @@ COMPANY_SUMMARIES = {
     "DE": "Leading manufacturer of agricultural, construction, and forestry equipment.",
     "LMT": "World's largest defense contractor; fighter jets, missiles, and space systems.",
     "RTX": "Aerospace and defense company formed from Raytheon and United Technologies merger.",
+    "ETN": "Power management company in electrical, aerospace, and vehicle components.",
+    "WM": "Largest U.S. waste and recycling company serving residential and commercial customers.",
+    "GD": "Defense contractor in combat vehicles, ships, Gulfstream jets, and IT services.",
+    "NOC": "Aerospace and defense company making bombers, autonomous systems, and mission systems.",
     "T": "Telecommunications giant providing wireless, broadband, and media services.",
     "VZ": "Major U.S. telecom operator offering wireless, internet, and business solutions.",
     "DIS": "Global entertainment conglomerate in theme parks, studios, streaming, and media.",
@@ -3051,6 +3108,9 @@ COMPANY_SUMMARIES = {
     "NEM": "World's largest gold mining company with operations on five continents.",
     "DOW": "Global materials science company producing plastics, chemicals, and coatings.",
     "DD": "Specialty chemicals company serving electronics, water, and industrial markets.",
+    "SHW": "Largest U.S. paints and coatings company serving consumers, contractors, and industry.",
+    "APD": "Industrial gases company supplying atmospheric and process gases and related equipment.",
+    "LIN": "World's largest industrial gases and engineering company.",
 }
 
 NYSE_UNIVERSE = list(COMPANY_NAMES.keys())

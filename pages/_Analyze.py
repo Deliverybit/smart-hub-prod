@@ -112,14 +112,23 @@ _ANALYZE_HEADLINE_SCORE_TIP = (
 )
 
 
-def _analyze_desktop_tip(inner_html: str, explanation: str, extra_class: str = "") -> str:
-    """Hover explanation on desktop Analyze; inactive on phone/tablet."""
+def _analyze_desktop_tip(
+    inner_html: str,
+    explanation: str,
+    extra_class: str = "",
+    *,
+    label: str = "",
+) -> str:
+    """Hover/tap explanation for Analyze banner and Market Mood scores."""
     cls = "scoop-analyze-desktop-tip"
     if extra_class:
         cls = f"{cls} {extra_class}"
+    label_html = (
+        f'<span class="scoop-analyze-tip-label">{html.escape(label)}</span>' if label else ""
+    )
     return (
-        f'<span class="{html.escape(cls, quote=True)}">{inner_html}'
-        f'<span class="tip-text">{html.escape(explanation)}</span></span>'
+        f'<span class="{html.escape(cls, quote=True)}" tabindex="0">{inner_html}'
+        f'<span class="tip-text">{label_html}{html.escape(explanation)}</span></span>'
     )
 
 
@@ -444,11 +453,21 @@ st.markdown(
         visibility: visible;
         opacity: 1;
     }
-    /* Desktop Analyze only: explain banner vs Market Mood scores */
+    /* Analyze: explain banner vs Market Mood scores (all viewports) */
     .scoop-analyze-desktop-tip {
         display: inline-block;
         cursor: help;
         border-bottom: 2px dotted currentColor;
+        outline: none;
+    }
+    .scoop-analyze-desktop-tip:hover .tip-text,
+    .scoop-analyze-desktop-tip:focus .tip-text,
+    .scoop-analyze-desktop-tip:focus-within .tip-text,
+    .scoop-analyze-desktop-tip:active .tip-text,
+    .scoop-analyze-desktop-tip.scoop-analyze-tip-open .tip-text {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto;
     }
     .scoop-analyze-desktop-tip .tip-text {
         visibility: hidden;
@@ -483,6 +502,15 @@ st.markdown(
         pointer-events: none;
         transition: opacity 0.15s ease;
     }
+    .scoop-analyze-desktop-tip .scoop-analyze-tip-label {
+        display: block;
+        font-weight: 800;
+        font-size: 1.08em;
+        color: #f8fafc;
+        margin: 0 0 0.4rem 0;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid rgba(229, 231, 235, 0.28);
+    }
     .scoop-analyze-direction-banner .scoop-analyze-desktop-tip {
         color: inherit;
         font-weight: inherit;
@@ -496,10 +524,6 @@ st.markdown(
         justify-content: center;
     }
     @media (min-width: 1367px) {
-        .scoop-analyze-desktop-tip:hover .tip-text {
-            visibility: visible;
-            opacity: 1;
-        }
         .scoop-analyze-direction-banner,
         .scoop-mood-summary {
             position: relative;
@@ -518,12 +542,36 @@ st.markdown(
         }
     }
     @media (max-width: 1366px) {
-        .scoop-analyze-desktop-tip {
-            border-bottom: none !important;
-            cursor: inherit;
+        .scoop-analyze-direction-banner,
+        .scoop-mood-summary {
+            position: relative;
+            overflow: visible;
         }
         .scoop-analyze-desktop-tip .tip-text {
-            display: none !important;
+            position: fixed !important;
+            left: 50% !important;
+            right: auto !important;
+            top: 18vh !important;
+            bottom: auto !important;
+            transform: translateX(-50%) !important;
+            width: min(28rem, 92vw) !important;
+            max-width: 92vw !important;
+            z-index: 100002;
+            font-size: 1.05rem !important;
+        }
+        html[data-scoop-theme="dark"] .scoop-analyze-desktop-tip .tip-text {
+            outline-color: #ffffff;
+        }
+        .scoop-analyze-desktop-tip:hover .tip-text,
+        .scoop-analyze-desktop-tip:focus .tip-text,
+        .scoop-analyze-desktop-tip:focus-within .tip-text,
+        .scoop-analyze-desktop-tip:active .tip-text {
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        .scoop-analyze-desktop-tip.scoop-analyze-tip-open .tip-text {
+            visibility: visible !important;
+            opacity: 1 !important;
         }
     }
     [data-testid="stSidebar"] .stSlider label { font-size: 1.5rem !important; }
@@ -1717,12 +1765,21 @@ def _render_search_dashboard(ticker: str) -> None:
         f"{html.escape(direction)}</span>"
     )
     mood_label = html.escape(sentiment_label.capitalize())
-    dir_tip = _analyze_desktop_tip(dir_inner, _ANALYZE_DIR_TIP, "scoop-analyze-desktop-tip--dir")
+    dir_tip = _analyze_desktop_tip(
+        dir_inner,
+        _ANALYZE_DIR_TIP,
+        "scoop-analyze-desktop-tip--dir",
+        label=direction,
+    )
     combined_tip = _analyze_desktop_tip(
-        f"Score: {combined:+.4f}", _ANALYZE_COMBINED_SCORE_TIP
+        f"Score: {combined:+.4f}",
+        _ANALYZE_COMBINED_SCORE_TIP,
+        label=f"Score: {combined:+.4f}",
     )
     banner_mood_tip = _analyze_desktop_tip(
-        f"Market Mood: {mood_label}", _ANALYZE_BANNER_MOOD_TIP
+        f"Market Mood: {mood_label}",
+        _ANALYZE_BANNER_MOOD_TIP,
+        label=f"Market Mood: {sentiment_label.capitalize()}",
     )
     st.markdown(
         f"""
@@ -1843,7 +1900,7 @@ def _render_search_dashboard(ticker: str) -> None:
                 background:#0f172a08;
             ">
                 <div class="scoop-mood-label" style="display:flex;align-items:center;gap:0.6rem;font-weight:700;color:#0f172a;">
-                    {_analyze_desktop_tip("Market Mood", _ANALYZE_PANEL_MOOD_TIP)}
+                    {_analyze_desktop_tip("Market Mood", _ANALYZE_PANEL_MOOD_TIP, label="Market Mood")}
                     <span style="
                         display:inline-block;
                         width:0.9rem;
@@ -1854,7 +1911,7 @@ def _render_search_dashboard(ticker: str) -> None:
                     "></span>
                 </div>
                 <div class="scoop-mood-detail" style="margin-top:0.45rem;color:#334155;">
-                    Current Mood: <b>{mood_label}</b> &nbsp;|&nbsp; {_analyze_desktop_tip(f"Score: <b>{sentiment_score:+.4f}</b>", _ANALYZE_HEADLINE_SCORE_TIP, "scoop-analyze-desktop-tip--end")}
+                    Current Mood: <b>{mood_label}</b> &nbsp;|&nbsp; {_analyze_desktop_tip(f"Score: <b>{sentiment_score:+.4f}</b>", _ANALYZE_HEADLINE_SCORE_TIP, "scoop-analyze-desktop-tip--end", label=f"Score: {sentiment_score:+.4f}")}
                 </div>
             </div>
             """,

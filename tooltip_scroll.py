@@ -5063,13 +5063,33 @@ def inject_desktop_analyze_top_compact() -> None:
         f"<style id='scoop-desktop-analyze-top-compact-css'>{DESKTOP_ANALYZE_TOP_COMPACT}</style>"
         f"<style id='scoop-responsive-analyze-top-compact-css'>{RESPONSIVE_ANALYZE_TOP_COMPACT}</style>"
         f"<style id='scoop-crypto-analyze-responsive-metrics-css'>{CRYPTO_ANALYZE_RESPONSIVE_METRICS_CSS}</style>"
+        "<style id='scoop-analyze-score-tip-show'>"
+        ".scoop-analyze-desktop-tip:hover .tip-text,"
+        ".scoop-analyze-desktop-tip:focus .tip-text,"
+        ".scoop-analyze-desktop-tip:focus-within .tip-text,"
+        ".scoop-analyze-desktop-tip:active .tip-text,"
+        ".scoop-analyze-desktop-tip.scoop-analyze-tip-open .tip-text{"
+        "visibility:visible!important;opacity:1!important;"
+        "}"
+        "@media (max-width:1366px){"
+        ".scoop-analyze-desktop-tip:hover .tip-text,"
+        ".scoop-analyze-desktop-tip:focus .tip-text,"
+        ".scoop-analyze-desktop-tip:focus-within .tip-text,"
+        ".scoop-analyze-desktop-tip:active .tip-text{"
+        "visibility:hidden!important;opacity:0!important;"
+        "}"
+        ".scoop-analyze-desktop-tip.scoop-analyze-tip-open .tip-text{"
+        "visibility:visible!important;opacity:1!important;"
+        "}"
+        "}"
+        "</style>"
         + "<script>(function(){try{"
         + "var doc=(window.parent&&window.parent!==window&&window.parent.document)?window.parent.document:document;"
         + "var win=doc.defaultView||window;"
         + "var root=doc.documentElement;"
         + 'root.setAttribute("data-scoop-analyze-active","1");'
         + source_js
-        + "if(win.__scoopDesktopAnalyzeMoodV===3)return;"
+        + "if(win.__scoopDesktopAnalyzeMoodV!==3){"
         + "win.__scoopDesktopAnalyzeMoodV=3;"
         + "var size=function(){"
         + "if((win.innerWidth||0)<1367)return;"
@@ -5090,6 +5110,61 @@ def inject_desktop_analyze_top_compact() -> None:
         + "win.requestAnimationFrame(tick);"
         + "win.addEventListener('resize',tick);"
         + "if(win.MutationObserver){new MutationObserver(tick).observe(doc.body,{childList:true,subtree:true});}"
+        + "}"
+        + "if(win.__scoopAnalyzeScoreTipV!==4){"
+        + "win.__scoopAnalyzeScoreTipV=4;"
+        + "var TIP='scoop-analyze-desktop-tip',OPEN='scoop-analyze-tip-open';"
+        + "var docs=[doc];"
+        + "if(document!==doc)docs.push(document);"
+        + "var isNarrow=function(){return (win.innerWidth||0)<=1366;};"
+        + "var closeTips=function(){"
+        + "docs.forEach(function(d){d.querySelectorAll('.'+TIP).forEach(function(el){"
+        + "el.classList.remove(OPEN);"
+        + "el.removeAttribute('data-tip-sticky');"
+        + "el.removeAttribute('data-tip-lock');"
+        + "if(d.activeElement===el){try{el.blur();}catch(err){}}"
+        + "});});"
+        + "};"
+        + "var wrapOf=function(t){return (t&&t.closest)?t.closest('.'+TIP):null;};"
+        + "var inTipBox=function(t){return !!(t&&t.closest&&t.closest('.'+TIP+' .tip-text'));};"
+        + "var openTip=function(wrap){"
+        + "if(!wrap)return;"
+        + "docs.forEach(function(d){d.querySelectorAll('.'+TIP).forEach(function(el){"
+        + "if(el!==wrap){el.classList.remove(OPEN);el.removeAttribute('data-tip-sticky');}"
+        + "});});"
+        + "wrap.classList.add(OPEN);"
+        + "wrap.setAttribute('data-tip-sticky','1');"
+        + "};"
+        + "docs.forEach(function(d){"
+        + "var w=d.defaultView||win;"
+        + "d.addEventListener('pointerover',function(e){"
+        + "if(isNarrow())return;"
+        + "var wrap=wrapOf(e.target);if(!wrap)return;"
+        + "if(wrap.classList.contains(OPEN))return;"
+        + "openTip(wrap);"
+        + "},true);"
+        + "d.addEventListener('pointerout',function(e){"
+        + "if(isNarrow())return;"
+        + "var wrap=wrapOf(e.target);if(!wrap)return;"
+        + "var rel=e.relatedTarget;if(rel&&wrap.contains(rel))return;"
+        + "wrap.classList.remove(OPEN);wrap.removeAttribute('data-tip-sticky');"
+        + "},true);"
+        + "d.addEventListener('click',function(e){"
+        + "if(!isNarrow()){"
+        + "var wrap=wrapOf(e.target);if(wrap){openTip(wrap);return;}closeTips();return;"
+        + "}"
+        + "if(inTipBox(e.target))return;"
+        + "var wrap=wrapOf(e.target);"
+        + "if(wrap){if(wrap.classList.contains(OPEN)){closeTips();return;}openTip(wrap);return;}"
+        + "closeTips();"
+        + "},true);"
+        + "var onNarrowAway=function(){if(isNarrow())closeTips();};"
+        + "d.addEventListener('scroll',onNarrowAway,true);"
+        + "w.addEventListener('scroll',onNarrowAway,true);"
+        + "d.addEventListener('wheel',onNarrowAway,{capture:true,passive:true});"
+        + "d.addEventListener('touchmove',onNarrowAway,{capture:true,passive:true});"
+        + "});"
+        + "}"
         + "}catch(e){}})();</script>",
         unsafe_allow_javascript=True,
     )
@@ -6583,6 +6658,50 @@ _DESKTOP_HL_LOCK_JS = r"""
 """
 
 
+_ANALYZE_NARROW_SCORE_TIP_JS = r"""
+(() => {
+    if (window.__scoopAnalyzeNarrowTipAbort) {
+        try { window.__scoopAnalyzeNarrowTipAbort.abort(); } catch (e) {}
+    }
+    const ac = new AbortController();
+    window.__scoopAnalyzeNarrowTipAbort = ac;
+    const opt = { capture: true, signal: ac.signal };
+    const TIP = "scoop-analyze-desktop-tip";
+    const OPEN = "scoop-analyze-tip-open";
+    const isNarrow = () => (window.innerWidth || 0) <= 1366;
+    const wraps = () => document.querySelectorAll("." + TIP);
+    const closeTips = () => {
+        wraps().forEach((el) => {
+            el.classList.remove(OPEN);
+            try { if (document.activeElement === el) el.blur(); } catch (e) {}
+        });
+    };
+    const wrapOf = (t) => (t && t.closest) ? t.closest("." + TIP) : null;
+    const inBox = (t) => !!(t && t.closest && t.closest("." + TIP + " .tip-text"));
+    const openTip = (wrap) => {
+        wraps().forEach((el) => { if (el !== wrap) el.classList.remove(OPEN); });
+        wrap.classList.add(OPEN);
+    };
+    document.addEventListener("click", (e) => {
+        if (!isNarrow() || !e || !e.target) return;
+        if (inBox(e.target)) return;
+        const wrap = wrapOf(e.target);
+        if (wrap) {
+            if (wrap.classList.contains(OPEN)) { closeTips(); return; }
+            openTip(wrap);
+            return;
+        }
+        closeTips();
+    }, opt);
+    const onAway = () => { if (isNarrow()) closeTips(); };
+    document.addEventListener("scroll", onAway, opt);
+    window.addEventListener("scroll", onAway, opt);
+    document.addEventListener("wheel", onAway, { capture: true, passive: true, signal: ac.signal });
+    document.addEventListener("touchmove", onAway, { capture: true, passive: true, signal: ac.signal });
+})();
+"""
+
+
 def install_tooltip_scroll_handler() -> None:
     """Inject mobile headline CSS; HTML backdrop label closes panel on outside tap."""
     from theme_mode import inject_dark_mode_styles
@@ -6642,6 +6761,7 @@ def install_tooltip_scroll_handler() -> None:
         f"<script id='scoop-tablet-headlines-center-standalone'>{_TABLET_HEADLINES_CENTER_STANDALONE_JS}</script>"
         f"<script id='scoop-ipad-mini-headlines-center-standalone'>{_IPAD_MINI_HEADLINES_CENTER_STANDALONE_JS}</script>"
         f"<script id='scoop-tablet-tip-dismiss-standalone'>{_TABLET_TIP_DISMISS_STANDALONE_JS}</script>"
+        f"<script id='scoop-analyze-narrow-score-tip'>{_ANALYZE_NARROW_SCORE_TIP_JS}</script>"
         f"<style id='scoop-mobile-tablet-tip-exclusive-css'>{_MOBILE_TABLET_TIP_EXCLUSIVE_CSS}</style>"
         f"<script id='scoop-mobile-tablet-tip-exclusive'>{_MOBILE_TABLET_TIP_EXCLUSIVE_JS}</script>"
         f"<style id='scoop-desktop-headlines-css'>{_DESKTOP_HEADLINES_CSS}</style>",

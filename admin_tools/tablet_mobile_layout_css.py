@@ -3398,6 +3398,10 @@ _DESKTOP_ANALYZE_POP_RULES = """
         text-decoration: underline !important;
         text-underline-offset: 0.14em !important;
     }
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] a.scoop-analyze-back,
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] a.scoop-analyze-back:hover {
+        color: #ffffff !important;
+    }
     html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] h1 {
         font-weight: 800 !important;
         letter-spacing: -0.03em !important;

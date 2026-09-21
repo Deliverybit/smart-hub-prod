@@ -19,8 +19,8 @@ from http.client import RemoteDisconnected
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-IMAGE = "scoop52:staging"
-CONTAINER = "scoop52-staging-test"
+IMAGE = "scoop52:production"
+CONTAINER = "scoop52-production-test"
 HOST_PORT = 8502
 SECRETS_PATH = ROOT / ".streamlit" / "secrets.toml"
 
@@ -39,7 +39,7 @@ def _load_secrets_env() -> dict[str, str]:
             f"Missing {SECRETS_PATH}. Copy .streamlit/secrets.toml.example first."
         )
 
-    env: dict[str, str] = {"APP_ENV": "staging"}
+    env: dict[str, str] = {"APP_ENV": "production"}
     for line in SECRETS_PATH.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#") or "=" not in stripped:

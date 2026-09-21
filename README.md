@@ -1,44 +1,39 @@
-# Smart Hub Stage
+# Smart Hub Prod
 
-Staging environment for **The Scoop 52** — Streamlit market screener with legal consent logging to Supabase (`smart-hub-stage`).
-
-## Environments
+Production tree for **The Scoop 52** — Streamlit market screener with legal consent logging to Supabase (`smart-hub-prod`).
 
 | Environment | Supabase project | `APP_ENV` |
 |-------------|------------------|-----------|
-| Local | SQLite (default) or stage DB | `local` / unset |
-| **Staging** | `smart-hub-stage` | `staging` |
-| Production (future) | `smart-hub-prod` | `production` |
+| Production | `smart-hub-prod` | `production` |
 
 ## Run locally
 
-**Windows (recommended):**
+**Windows:**
 
 ```powershell
 .\launch.ps1
 ```
 
-The script creates a project-local `venv`, installs dependencies, copies secrets if needed, and starts Streamlit with `APP_ENV=staging`. If you copied this repo from another project and see a launcher error mentioning `smart-hub-prod`, run `.\launch.ps1 -RecreateVenv`.
+The launcher uses `APP_ENV=production`. Edit `.streamlit/secrets.toml` with the **smart-hub-prod** Session pooler URI (never the staging database).
 
 **Manual:**
 
 ```bash
 pip install -r requirements.txt
 cp .streamlit/secrets.toml.example .streamlit/secrets.toml
-# Edit secrets: APP_ENV, DATABASE_URL, ALPHA_VANTAGE_API_KEY
 python -m streamlit run app.py
 ```
 
-## Database setup
+## Database
 
-See [docs/SUPABASE_STAGING.md](docs/SUPABASE_STAGING.md).
+See [docs/SUPABASE_PRODUCTION.md](docs/SUPABASE_PRODUCTION.md).
 
 ```bash
-python admin_tools/run_migrations.py
+python admin_tools/run_migrations.py --require-prod
 python admin_tools/screener_worker.py
 ```
 
 ## Secrets (never commit)
 
-- `.streamlit/secrets.toml` — local / Streamlit Cloud secrets
-- `DATABASE_URL` — Supabase Session pooler URI with `?sslmode=require`
+- `.streamlit/secrets.toml` — local / host secrets
+- `DATABASE_URL` — **smart-hub-prod** Session pooler URI with `?sslmode=require`

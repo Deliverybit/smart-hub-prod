@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Apply SQL migrations to Postgres (Supabase staging or production).
+Apply SQL migrations to Postgres (Supabase smart-hub-prod).
 
 Usage (from repo root):
     set DATABASE_URL=postgresql://postgres.[ref]:[password]@...supabase.com:5432/postgres?sslmode=require
@@ -20,13 +20,23 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app_config import get_database_url  # noqa: E402
+from app_config import get_app_env, get_database_url  # noqa: E402
 
 MIGRATIONS_DIR = ROOT / "migrations"
 
 
+def _assert_prod_target(database_url: str) -> None:
+    if get_app_env() != "production":
+        raise RuntimeError(
+            "Refusing --require-prod: set APP_ENV=production in the environment."
+        )
+
+
 def main() -> int:
+    require_prod = "--require-prod" in sys.argv
     database_url = get_database_url(required=True)
+    if require_prod:
+        _assert_prod_target(database_url)
     files = sorted(MIGRATIONS_DIR.glob("*.sql"))
     if not files:
         print("No migration files found.", file=sys.stderr)

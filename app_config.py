@@ -32,7 +32,7 @@ def _load_secret(name: str) -> str | None:
     return None
 
 
-def get_app_env(default: str = "staging") -> str:
+def get_app_env(default: str = "production") -> str:
     """Deployment environment label: staging, production, or local."""
     raw = _load_secret("APP_ENV")
     env = (raw or default).strip().lower()
@@ -107,7 +107,7 @@ def get_screener_symbol_limit(default: int = 1000) -> int:
 # Bump when screener/API behavior changes to invalidate stale Streamlit caches.
 SCREENER_CACHE_VERSION = 9
 
-# Visible in the staging banner so Streamlit Cloud deploys are easy to verify.
+# Build id for deploys (production clone does not show an env banner).
 APP_BUILD_ID = "2026-09-20-licenses-notice"
 
 # Back-compat aliases used by some page variants.

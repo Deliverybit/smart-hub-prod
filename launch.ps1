@@ -1,11 +1,11 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Launch Smart Hub Stage (The Scoop 52 Streamlit app).
+  Launch Smart Hub Prod (The Scoop 52 Streamlit app).
 
 .DESCRIPTION
   Creates/activates a local venv, installs dependencies, ensures secrets exist,
-  and runs the app with APP_ENV=staging.
+  and runs the app with APP_ENV=production.
 
 .EXAMPLE
   .\launch.ps1
@@ -130,7 +130,7 @@ if (-not (Test-Path $secretsPath)) {
     }
 }
 
-$env:APP_ENV = "staging"
+$env:APP_ENV = "production"
 
 if (-not $SkipSmokeTest) {
     Write-Host ""
@@ -147,7 +147,7 @@ if (-not $SkipSmokeTest) {
 }
 
 Write-Host ""
-Write-Host "Starting Smart Hub Stage (APP_ENV=staging) at http://localhost:$Port"
+Write-Host "Starting Smart Hub Prod (APP_ENV=production) at http://localhost:$Port"
 Write-Host "Press Ctrl+C to stop."
 Write-Host ""
 

@@ -16,18 +16,6 @@ def logo_path_str() -> str:
 
 
 def render_environment_banner(st_module) -> None:
-    """Show a banner when not running in production."""
-    from app_config import APP_BUILD_ID, get_app_env
-
-    env = get_app_env()
-    if env == "production":
-        return
-    label = env.upper()
-    st_module.markdown(
-        f'<div class="scoop-env-banner" style="background:#f59e0b;color:#1e293b;text-align:center;'
-        f'padding:0.45rem 0.75rem;font-weight:600;border-radius:6px;'
-        f'margin-bottom:0.75rem;">⚠️ {label} ENVIRONMENT — not production'
-        f'<span style="font-weight:500;opacity:0.85;"> · build {APP_BUILD_ID}</span></div>',
-        unsafe_allow_html=True,
-    )
+    """Production clone: no environment banner."""
+    return
 

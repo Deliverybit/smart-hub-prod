@@ -1,4 +1,4 @@
-name: Refresh screener snapshots
+name: Refresh production screener snapshots
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: screener-snapshots
+  group: screener-snapshots-prod
   cancel-in-progress: true
 
 jobs:
@@ -46,12 +46,13 @@ jobs:
 
       - name: Apply migrations
         env:
+          APP_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python admin_tools/run_migrations.py
+        run: python admin_tools/run_migrations.py --require-prod
 
       - name: Refresh screener snapshots
         env:
-          APP_ENV: staging
+          APP_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
         run: python admin_tools/screener_worker.py

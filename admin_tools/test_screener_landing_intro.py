@@ -52,6 +52,7 @@ def test_gated_mobile_refine_css_restores_readable_spacing() -> None:
         RESPONSIVE_TAB_NAV_BOOTSTRAP,
         _GATED_MOBILE_TABLET_LANDING_REFINE_CSS,
         _GATED_MOBILE_TABLET_MARKET_TYPE_CSS,
+        _GATED_MOBILE_TABLET_NO_SCROLL_CSS,
     )
 
     assert "font-size: 18px !important;" in _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
@@ -71,6 +72,11 @@ def test_gated_mobile_refine_css_restores_readable_spacing() -> None:
     assert "color: #f8fafc !important;" in _GATED_MOBILE_TABLET_LANDING_REFINE_CSS
     assert _GATED_MOBILE_TABLET_LANDING_REFINE_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
     assert _GATED_MOBILE_TABLET_LANDING_REFINE_CSS in RESPONSIVE_SCREENER_TOP_COMPACT
+    assert ".scoop-landing-sentiment" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    assert "[data-testid=\"stAlert\"]" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    assert "Headline sentiment is taken into account" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
+    assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_SCREENER_TOP_COMPACT
 
 
 def test_landing_css_mobile_tablet_adds_spacing() -> None:

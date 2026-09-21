@@ -247,6 +247,7 @@ _SCREENER_LANDING_INTRO_CSS = """
 <style id="scoop-landing-intro-css">
     .scoop-landing-full { display: none; }
     .scoop-landing-compact { display: block; }
+    .scoop-landing-gate-note { display: none; }
     .scoop-landing-summary,
     .scoop-landing-sentiment {
         margin: 0 0 0.65rem 0;
@@ -297,6 +298,13 @@ _SCREENER_LANDING_INTRO_CSS = """
         html:not([data-scoop-screener-gated="1"]) .scoop-landing-divider {
             display: none !important;
         }
+        html[data-scoop-screener-gated="1"] .scoop-landing-gate-note {
+            display: block !important;
+            margin: 0 0 0.55rem 0;
+            padding: 0.55rem 0.7rem;
+            line-height: 1.4;
+            border-radius: 0.5rem;
+        }
         .scoop-screener-last-updated {
             margin-top: 0.35rem !important;
             margin-bottom: 0.85rem !important;
@@ -307,6 +315,7 @@ _SCREENER_LANDING_INTRO_CSS = """
         }
     }
     @media (min-width: 1367px) {
+        .scoop-landing-gate-note { display: none !important; }
         .scoop-landing-summary,
         .scoop-landing-sentiment {
             margin-bottom: 0.9rem;

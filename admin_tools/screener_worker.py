@@ -51,9 +51,11 @@ def main() -> int:
     for payload in payloads:
         display_count = len(payload.get("display_results") or [])
         all_count = len(payload.get("all_results") or [])
+        analyze_count = len(payload.get("analyze_bundles") or {})
         print(
             f"[{'DRY-RUN' if args.dry_run else 'SAVED'}] "
             f"{payload['screener_key']}: {display_count} displayed / {all_count} scanned "
+            f"analyze={analyze_count} "
             f"mode={payload.get('selection_mode')} "
             f"updated={payload.get('last_updated_display')}"
         )

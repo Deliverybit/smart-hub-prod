@@ -2028,7 +2028,7 @@ _DESKTOP_MARKET_NAV_LIGHT_RULES = """
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {
         width: 100% !important;
         max-width: 100% !important;
-        border: 3px solid #2563eb !important;
+        border: 3px solid #22c55e !important;
         border-radius: 0.75rem !important;
         background: #ffffff !important;
         padding: 0.15rem 0.35rem !important;
@@ -2038,8 +2038,8 @@ _DESKTOP_MARKET_NAV_LIGHT_RULES = """
     }
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):hover,
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover {
-        border-color: #1d4ed8 !important;
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.18) !important;
+        border-color: #16a34a !important;
+        box-shadow: 0 2px 6px rgba(34, 197, 94, 0.18) !important;
     }
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]) a,
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {
@@ -2900,8 +2900,16 @@ DESKTOP_TABLET_DISCLAIMER_FLOW = """
 }
 """
 
-_HOME_MARKET_NAV_LIGHT_RULES = _mirror_sidebar_nav_css_for_home(_DESKTOP_MARKET_NAV_LIGHT_RULES)
-_HOME_MARKET_NAV_DARK_RULES = _mirror_sidebar_nav_css_for_home(_DESKTOP_MARKET_NAV_DARK_RULES)
+# Home (mobile/tablet) keeps blue outlines; desktop sidebar is green.
+_HOME_MARKET_NAV_LIGHT_RULES = _mirror_sidebar_nav_css_for_home(
+    _DESKTOP_MARKET_NAV_LIGHT_RULES.replace("#22c55e", "#2563eb")
+    .replace("#16a34a", "#1d4ed8")
+    .replace("rgba(34, 197, 94, 0.18)", "rgba(37, 99, 235, 0.18)")
+    .replace("border: 3px solid", "border: 2px solid")
+)
+_HOME_MARKET_NAV_DARK_RULES = _mirror_sidebar_nav_css_for_home(
+    _DESKTOP_MARKET_NAV_DARK_RULES.replace("border: 3px solid", "border: 2px solid")
+)
 
 # 12px space between market nav buttons — final cascade wins over margin resets.
 _HOME_MARKET_NAV_GAP_SPACER_RULES = f"""
@@ -4440,6 +4448,9 @@ _MOBILE_TABLET_TERMS_CHECKBOX_RESTORE = f"""
         z-index: 7 !important;
         cursor: pointer !important;
         touch-action: manipulation !important;
+    }}
+    html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"][data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:not(:has(input[aria-label="Dark mode"])) [data-baseweb="checkbox"] > span {{
+        border: 1px solid #0f172a !important;
     }}
 }}
 """
@@ -6470,7 +6481,7 @@ _HOME_LANDING_ATTRACT_CSS = f"""
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]),
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
         background: linear-gradient(180deg, #243449 0%, #152033 100%) !important;
-        border: 3px solid #38bdf8 !important;
+        border: 2px solid #38bdf8 !important;
         box-shadow:
             0 14px 28px rgba(0, 0, 0, 0.38),
             inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
@@ -7153,6 +7164,9 @@ _GATED_MOBILE_TABLET_LANDING_REFINE_CSS = """
         background: #ffffff !important;
         border: 2px solid #2563eb !important;
     }
+    html:not([data-scoop-theme="dark"])[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stCheckbox"]:not(:has(input[aria-label="Dark mode"])) [data-baseweb="checkbox"] > span {
+        border: 1px solid #0f172a !important;
+    }
     html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {
         background: #152033 !important;
         border: 2px solid #38bdf8 !important;
@@ -7308,6 +7322,108 @@ _GATED_MOBILE_TABLET_MARKET_TYPE_CSS = f"""
 }}
 """
 
+# Last-wins: gated phone/tablet must fit without scroll.
+_GATED_MOBILE_TABLET_NO_SCROLL_CSS = f"""
+@media (max-width: 1366px) {{
+    {_GATED_MT} .scoop-landing-info,
+    {_GATED_MT} .scoop-landing-sentiment,
+    {_GATED_MT} .scoop-landing-divider,
+    {_GATED_MT} .scoop-landing-compact:has(.scoop-landing-info),
+    {_GATED_MT} .scoop-landing-compact:has(.scoop-landing-sentiment),
+    {_GATED_MT} .scoop-env-banner,
+    {_GATED_MT} [data-testid="stAlert"],
+    {_GATED_MT} [data-testid="stElementContainer"]:has([data-testid="stAlert"]),
+    {_GATED_MT} [data-testid="element-container"]:has([data-testid="stAlert"]),
+    {_GATED_MT} [data-testid="stElementContainer"]:has(.scoop-env-banner),
+    {_GATED_MT} [data-testid="element-container"]:has(.scoop-env-banner) {{
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }}
+    {_GATED_MT},
+    {_GATED_MT} body,
+    {_GATED_MT} .stApp,
+    {_GATED_MT} [data-testid="stAppViewContainer"],
+    {_GATED_MT} [data-testid="stAppViewContainer"] > section.main,
+    {_GATED_MT} [data-testid="stAppScrollToBottomContainer"] {{
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+    }}
+    {_GATED_MT} [data-testid="stMainBlockContainer"],
+    {_GATED_MT} section.main > div {{
+        padding: 0.2rem 0.85rem 0.35rem 0.85rem !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }}
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {{
+        gap: 0.18rem !important;
+    }}
+    {_GATED_MT} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: 1.35rem !important;
+        line-height: 1.15 !important;
+        margin: 0.1rem 0 0.15rem 0 !important;
+    }}
+    {_GATED_MT} .scoop-landing-compact:has(.scoop-landing-summary),
+    {_GATED_MT} .scoop-landing-summary,
+    {_GATED_MT} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_MT} .scoop-landing-summary p {{
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 0 0.35rem 0 !important;
+        padding: 0.55rem 0.7rem !important;
+        font-size: 0.92rem !important;
+        line-height: 1.4 !important;
+    }}
+    {_GATED_MT} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        content: "Headline sentiment is taken into account, and headlines are provided for the results.";
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0.35rem 0 0.15rem 0 !important;
+        padding: 0.55rem 0.7rem !important;
+        font-size: 0.92rem !important;
+        line-height: 1.4 !important;
+        border-radius: 0.5rem !important;
+        border: 1px solid #93c5fd !important;
+        background: #eff6ff !important;
+        color: #0f172a !important;
+    }}
+    html[data-scoop-theme="dark"][data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        border-color: #38bdf8 !important;
+        background: rgba(30, 58, 138, 0.28) !important;
+        color: #e2e8f0 !important;
+    }}
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
+        margin: 0.08rem 0 !important;
+        padding: 0 !important;
+    }}
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {{
+        font-size: 0.95rem !important;
+        line-height: 1.3 !important;
+    }}
+    {_GATED_MT} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)),
+    {_GATED_MT} [data-testid="element-container"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)),
+    {_GATED_MT} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {{
+        margin: 0.08rem 0 !important;
+        padding-top: 0.45rem !important;
+        padding-bottom: 0.45rem !important;
+    }}
+    {_GATED_MT} .disclaimer-footer {{
+        margin: 0.12rem 0 0 0 !important;
+        padding: 0.4rem 0.55rem !important;
+        font-size: 0.62rem !important;
+        line-height: 1.25 !important;
+    }}
+}}
+"""
+
 # Cloud Streamlit uses a React Aria switch (no [data-baseweb="switch"]).
 # Force readable Dark mode label + track on phone/tablet only.
 _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
@@ -7435,10 +7551,12 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS
     + _GATED_MOBILE_TABLET_LANDING_REFINE_CSS
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
+    + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
 )
 
 RESPONSIVE_SCREENER_TOP_COMPACT = (
     RESPONSIVE_SCREENER_TOP_COMPACT
     + _GATED_MOBILE_TABLET_LANDING_REFINE_CSS
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
+    + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
 )

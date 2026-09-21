@@ -23,6 +23,7 @@ from analyze_page import (
 from asset_names import resolve_asset_display_name
 from predictor import Predictor
 from market_data import MarketData
+from analyze_snapshot import analyze_bundle_from_snapshot
 from screener_headlines import get_cached_news_items, normalize_screener_ticker
 from sentiment_engine import SentimentEngine
 from legal_consent_logger import ensure_timezone_cookie, log_terms_acceptance, render_terms_gate, terms_accepted
@@ -202,6 +203,8 @@ def _build_search_price_figure(
             ),
             font=dict(size=20),
             xaxis=dict(
+                type="date",
+                autorange=True,
                 tickfont=dict(size=axis_tick, **tick_kw),
                 title_font=dict(size=axis_title, **title_kw),
                 showspikes=False,
@@ -236,6 +239,8 @@ def _build_search_price_figure(
             margin=dict(l=60, r=20, t=margin_top, b=60),
             font=dict(size=20),
             xaxis=dict(
+                type="date",
+                autorange=True,
                 tickfont=dict(size=axis_tick, **tick_kw),
                 title_font=dict(size=axis_title, **title_kw),
                 showspikes=False,
@@ -1360,7 +1365,7 @@ def get_predictor():
     return Predictor()
 
 @st.cache_resource
-def get_market_data():
+def get_market_data(_cache_version: int = 2):
     return MarketData()
 
 @st.cache_resource
@@ -1370,49 +1375,95 @@ def get_sentiment_engine():
 _SEARCH_ANALYSIS_TTL_SEC = 15 * 60
 
 
+def _analyze_span_bucket(days) -> str:
+    try:
+        return "short" if int(days) <= 100 else "long"
+    except (TypeError, ValueError):
+        return "long"
+
+
+@st.cache_data(
+    ttl=_SEARCH_ANALYSIS_TTL_SEC,
+    show_spinner="Loading prices…",
+)
+def _cached_analyze_history(
+    ticker: str,
+    span_bucket: str,
+    screener_key: str | None,
+    _hist_span_v: int = 4,
+) -> dict | None:
+    """History cached by short (compact) vs long (2y full). Slider slices in-page."""
+    sym = normalize_screener_ticker(ticker)
+    try:
+        from screener_headlines import snapshot_quote_for_ticker as _snap_quote
+    except ImportError:
+        _snap_quote = None
+    snap = _snap_quote(sym, screener_key) if _snap_quote else None
+    days = 100 if span_bucket == "short" else 730
+    market = get_market_data()
+    bundle_fn = market.get_analyze_price_bundle
+    try:
+        return bundle_fn(sym, days, snapshot=snap, fail_fast=True)
+    except TypeError:
+        return bundle_fn(sym, days)
+
+
 @st.cache_data(
     ttl=_SEARCH_ANALYSIS_TTL_SEC,
     show_spinner="Loading analysis…",
 )
-def _cached_analyze_bundle(ticker: str, days, screener_key: str | None) -> dict | None:
-    """
-    One cached Analyze payload — single price API pass, snapshot headlines when
-    available, and no redundant predictor price fetches.
-    """
+def _cached_analyze_core(
+    ticker: str,
+    screener_key: str | None,
+    latest_price: float,
+    price_change_pct: float,
+    _core_v: int = 4,
+) -> dict | None:
+    """News / sentiment / score — independent of the chart slider."""
     sym = normalize_screener_ticker(ticker)
-    market_eng = get_market_data()
-    sentiment_eng = get_sentiment_engine()
-    predictor_eng = get_predictor()
-
-    price = market_eng.get_analyze_price_bundle(sym, days)
-    if not price:
-        return None
-
     news_items = get_cached_news_items(sym, screener_key=screener_key or None)
     headlines = [item["title"] for item in news_items]
-    sent_result = sentiment_eng.analyze_headlines(sym, headlines)
+    sent_result = get_sentiment_engine().analyze_headlines(sym, headlines)
+    result = get_predictor().predict(
+        sym,
+        headlines,
+        market_data=get_market_data(),
+        latest_price=latest_price,
+        price_change_pct=price_change_pct,
+        sentiment_score=sent_result["score"],
+    )
+    return {
+        "news_items": news_items,
+        "sent_result": sent_result,
+        "result": result,
+    }
 
-    history = price["history"]
+
+def _cached_analyze_bundle(ticker: str, days, screener_key: str | None, _hist_span_v: int = 5) -> dict | None:
+    prerun = analyze_bundle_from_snapshot(ticker, screener_key, days)
+    if prerun:
+        return prerun
+    if screener_key:
+        return None
+    price = _cached_analyze_history(ticker, _analyze_span_bucket(days), screener_key)
+    if not price:
+        return None
+    try:
+        chart_days = 730 if days == "max" else min(int(days), 730)
+    except (TypeError, ValueError):
+        chart_days = 365
+    history = list(price.get("history") or [])[-chart_days:]
     latest_price = price["latest_price"]
     if len(history) >= 2:
         prev_price = history[-2]["price"]
         price_change_pct = (latest_price - prev_price) / prev_price if prev_price else 0
     else:
         price_change_pct = 0
-
-    result = predictor_eng.predict(
-        sym,
-        headlines,
-        market_data=market_eng,
-        latest_price=latest_price,
-        price_change_pct=price_change_pct,
-        sentiment_score=sent_result["score"],
-    )
-
+    core = _cached_analyze_core(ticker, screener_key, float(latest_price or 0), float(price_change_pct))
+    if not core:
+        return None
     return {
-        "news_items": news_items,
-        "sent_result": sent_result,
-        "result": result,
+        **core,
         "history": history,
         "latest_price": latest_price,
         "week52_low": price["week52_low"],
@@ -1451,8 +1502,6 @@ PERIOD_OPTIONS = {
     "180 days": 180,
     "1 year": 365,
     "2 years": 730,
-    "5 years": 1825,
-    "All Time": "max",
 }
 
 
@@ -1706,7 +1755,13 @@ def _render_search_dashboard(ticker: str) -> None:
     screener_key = analyze_screener_snapshot_key()
     bundle = _cached_analyze_bundle(ticker, days, screener_key)
     if not bundle:
-        st.error(f"Could not find data for {ticker}. Please check the ticker symbol.")
+        if screener_key:
+            st.error(
+                f"Analyze for {ticker} is not in the prerun snapshot yet. "
+                "Wait for the next screener worker refresh."
+            )
+        else:
+            st.error(f"Could not find data for {ticker}. Please check the ticker symbol.")
         st.stop()
 
     news_items = bundle["news_items"]
@@ -1723,7 +1778,12 @@ def _render_search_dashboard(ticker: str) -> None:
 
     sentiment_score = sent_result["score"]
     sentiment_label = sent_result["label"]
-    last_price = latest_price if latest_price > 0 else df.iloc[-1]["price"]
+    if latest_price and latest_price > 0:
+        last_price = latest_price
+    elif not df.empty:
+        last_price = df.iloc[-1]["price"]
+    else:
+        last_price = 0
     prev_price = df.iloc[-2]["price"] if len(df) >= 2 else last_price
     change_24h_pct = ((last_price - prev_price) / prev_price * 100) if prev_price else 0
     combined = result["combined_score"]
@@ -1968,6 +2028,8 @@ agreed = terms_accepted(st, "search_terms_accepted")
 ensure_timezone_cookie(st)
 if "search_price_history_range" not in st.session_state:
     st.session_state["search_price_history_range"] = "30 days"
+elif st.session_state["search_price_history_range"] not in PERIOD_OPTIONS:
+    st.session_state["search_price_history_range"] = "2 years"
 
 ticker = ticker.strip().upper()
 _probe_search_chart_viewport()

@@ -52,21 +52,6 @@ class MarketData:
         "MEME28301": "MEME",
     }
 
-    # Yahoo Finance quote symbols when they differ from the AV/CMC id.
-    _YAHOO_CRYPTO_ALIASES = {
-        "RENDER": "RNDR",
-    }
-
-    _YAHOO_QUOTE_URL = "https://query1.finance.yahoo.com/v7/finance/quote"
-    _YAHOO_QUOTE_CHUNK = 50
-    _YAHOO_HEADERS = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-        ),
-        "Accept": "application/json",
-    }
-
     _INDEX_SYMBOLS = {
         "^IXIC": "QQQ",   # NASDAQ Composite not on AV; QQQ ETF proxy
         "^NYA": "DIA",    # NYSE Composite not on AV; Dow ETF proxy
@@ -207,14 +192,14 @@ class MarketData:
         symbol = ticker.replace("-USD", "")
         return symbol in self._CRYPTO_SYMBOLS
 
-    def _request(self, **params) -> dict:
-        max_attempts = 4
+    def _request(self, *, fail_fast: bool = False, **params) -> dict:
+        max_attempts = 1 if fail_fast else 4
         for attempt in range(max_attempts):
             try:
                 response = self.session.get(
                     self.base_url,
                     params={**params, "apikey": self.api_key},
-                    timeout=20,
+                    timeout=12 if fail_fast else 20,
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -247,28 +232,60 @@ class MarketData:
     def _daily_cache_key(self, ticker: str, outputsize: str) -> tuple:
         symbol = self._format_ticker(ticker)
         if self._is_crypto(ticker):
-            return (symbol, "digital")
+            return (symbol, "digital", outputsize)
         return (symbol, outputsize)
+
+    @staticmethod
+    def _needs_longer_history(df: pd.DataFrame, outputsize: str, max_rows: int | None) -> bool:
+        if df is None or df.empty:
+            return True
+        if outputsize != "full" or max_rows is None:
+            return False
+        return len(df) < max(int(max_rows) - 20, 1)
+
+    def _history_from_any_cache(
+        self,
+        ticker: str,
+        outputsize: str,
+        max_rows: int | None,
+    ) -> pd.DataFrame | None:
+        """Reuse compact or full cache when it already covers the requested span."""
+        keys = [self._daily_cache_key(ticker, outputsize)]
+        other = "compact" if outputsize == "full" else "full"
+        other_key = self._daily_cache_key(ticker, other)
+        if other_key not in keys:
+            keys.append(other_key)
+        for cache_key in keys:
+            cached = self._daily_cache.get(cache_key)
+            if cached is None or cached.empty:
+                continue
+            if self._needs_longer_history(cached, outputsize, max_rows):
+                continue
+            if max_rows is not None and len(cached) > max_rows:
+                return cached.tail(max_rows).copy()
+            return cached.copy()
+        return None
 
     def _daily_history_frame(
         self,
         ticker: str,
         outputsize: str = "full",
         max_rows: int | None = None,
+        *,
+        fail_fast: bool = False,
     ) -> pd.DataFrame:
         symbol = self._format_ticker(ticker)
-        cache_key = self._daily_cache_key(ticker, outputsize)
-        if cache_key in self._daily_cache:
-            df = self._daily_cache[cache_key]
-            if max_rows is not None and len(df) > max_rows:
-                return df.tail(max_rows).copy()
-            return df.copy()
+        cached = self._history_from_any_cache(ticker, outputsize, max_rows)
+        if cached is not None:
+            return cached
 
         if self._is_crypto(ticker):
             data = self._request(
                 function="DIGITAL_CURRENCY_DAILY",
                 symbol=symbol,
                 market="USD",
+                outputsize=outputsize,
+                fail_fast=fail_fast,
             )
             series = data.get("Time Series (Digital Currency Daily)", {})
         else:
@@ -276,6 +293,7 @@ class MarketData:
                 function="TIME_SERIES_DAILY_ADJUSTED",
                 symbol=symbol,
                 outputsize=outputsize,
+                fail_fast=fail_fast,
             )
             series = data.get("Time Series (Daily)", {})
 
@@ -297,6 +315,7 @@ class MarketData:
         if not df.empty:
             df = df.sort_values("date").reset_index(drop=True)
 
+        cache_key = self._daily_cache_key(ticker, outputsize)
         self._daily_cache[cache_key] = df
         if max_rows is not None and len(df) > max_rows:
             return df.tail(max_rows).copy()
@@ -341,11 +360,6 @@ class MarketData:
 
     def get_daily_change(self, ticker):
         """Return latest price and daily percentage change."""
-        if self._is_crypto(ticker) or str(ticker).upper().endswith("=F"):
-            batched = self.get_screener_snapshots([ticker], av_fallback=False)
-            row = batched.get(ticker)
-            if row and row.get("daily_change_pct") is not None:
-                return row["current_price"], row["daily_change_pct"]
         history = self.get_price_history(ticker, days=5)
         if len(history) < 2:
             return None, None
@@ -355,41 +369,84 @@ class MarketData:
             return latest, 0.0
         return latest, ((latest - previous) / previous) * 100
 
-    def get_analyze_price_bundle(self, ticker: str, days=30) -> dict | None:
-        """Single-pass price history + 52-week stats for Analyze (one API call for crypto)."""
-        if days == "max":
-            max_rows = None
-        else:
-            try:
-                max_rows = max(int(days), 365) + 10
-            except (TypeError, ValueError):
-                max_rows = 375
+    def get_analyze_price_bundle(
+        self,
+        ticker: str,
+        days=30,
+        *,
+        snapshot: dict | None = None,
+        fail_fast: bool = True,
+    ) -> dict | None:
+        """Analyze history from Alpha Vantage. Short ranges use compact; 52w can come from snapshot."""
+        chart_max_days = 730
+        compact_days = 100
+        try:
+            chart_days = chart_max_days if days == "max" else min(int(days), chart_max_days)
+        except (TypeError, ValueError):
+            chart_days = 365
 
-        df = self._daily_history_frame(ticker, outputsize="full", max_rows=max_rows)
+        snap = snapshot or {}
+        snap_low = self._to_float(snap.get("year_low") or snap.get("52W Low"))
+        snap_high = self._to_float(snap.get("year_high") or snap.get("52W High"))
+        snap_price = self._to_float(snap.get("current_price") or snap.get("Price"))
+        has_snap_52w = (
+            snap_low is not None
+            and snap_high is not None
+            and snap_low > 0
+            and snap_high > 0
+        )
+
+        if chart_days <= compact_days and has_snap_52w:
+            outputsize = "compact"
+            max_rows = compact_days + 10
+        elif chart_days <= compact_days:
+            outputsize = "full"
+            max_rows = 375
+        else:
+            outputsize = "full"
+            max_rows = chart_max_days + 10
+
+        df = self._daily_history_frame(
+            ticker,
+            outputsize=outputsize,
+            max_rows=max_rows,
+            fail_fast=fail_fast,
+        )
         if df.empty:
-            return None
+            if not has_snap_52w:
+                return None
+            latest_price = snap_price if snap_price is not None else 0.0
+            return {
+                "history": [],
+                "latest_price": latest_price,
+                "week52_low": snap_low,
+                "week52_high": snap_high,
+                "low_date": None,
+                "high_date": None,
+            }
 
         year_df = df.tail(365)
         low_series = year_df["low"].dropna()
         high_series = year_df["high"].dropna()
 
         latest_price = float(df["price"].iloc[-1])
-        week52_low = float(low_series.min()) if not low_series.empty else None
-        week52_high = float(high_series.max()) if not high_series.empty else None
+        if snap_price is not None and snap_price > 0:
+            latest_price = snap_price
+        week52_low = snap_low if has_snap_52w else (
+            float(low_series.min()) if not low_series.empty else None
+        )
+        week52_high = snap_high if has_snap_52w else (
+            float(high_series.max()) if not high_series.empty else None
+        )
 
         low_date = high_date = None
-        if not low_series.empty:
-            low_date = year_df.loc[year_df["low"].idxmin(), "date"].strftime("%b %d, %Y")
-        if not high_series.empty:
-            high_date = year_df.loc[year_df["high"].idxmax(), "date"].strftime("%b %d, %Y")
+        if not has_snap_52w:
+            if not low_series.empty:
+                low_date = year_df.loc[year_df["low"].idxmin(), "date"].strftime("%b %d, %Y")
+            if not high_series.empty:
+                high_date = year_df.loc[year_df["high"].idxmax(), "date"].strftime("%b %d, %Y")
 
-        if days == "max":
-            chart_df = df
-        else:
-            try:
-                chart_df = df.tail(int(days))
-            except (TypeError, ValueError):
-                chart_df = df
+        chart_df = df.tail(chart_days)
 
         chart_df = chart_df.copy()
         chart_df["change_pct"] = chart_df["price"].pct_change().fillna(0)
@@ -411,102 +468,26 @@ class MarketData:
             "high_date": high_date,
         }
 
-    def _yahoo_crypto_symbol(self, ticker: str) -> str:
-        base = self._format_ticker(ticker)
-        yahoo_base = self._YAHOO_CRYPTO_ALIASES.get(base, base)
-        return f"{yahoo_base}-USD"
-
-    def _yahoo_screener_symbol(self, ticker: str) -> str:
-        raw = (ticker or "").strip().upper()
-        if self._is_crypto(raw):
-            return self._yahoo_crypto_symbol(raw)
-        return raw
-
-    def _parse_yahoo_crypto_quote(self, item: dict) -> dict | None:
-        price = self._to_float(item.get("regularMarketPrice"))
-        year_low = self._to_float(item.get("fiftyTwoWeekLow"))
-        year_high = self._to_float(item.get("fiftyTwoWeekHigh"))
-        if price is None or year_low is None or year_high is None or year_low <= 0:
-            return None
-        change_pct = self._to_float(item.get("regularMarketChangePercent"))
-        return {
-            "current_price": price,
-            "year_low": year_low,
-            "year_high": year_high,
-            "daily_change_pct": change_pct,
-            "source": "yahoo_quote",
-        }
-
-    def _fetch_yahoo_quotes(self, yahoo_symbols: list[str]) -> dict[str, dict]:
-        """A few HTTP calls for many 52-week quotes."""
-        found: dict[str, dict] = {}
-        if not yahoo_symbols:
-            return found
-        chunk = max(1, self._YAHOO_QUOTE_CHUNK)
-        for start in range(0, len(yahoo_symbols), chunk):
-            batch = yahoo_symbols[start : start + chunk]
-            try:
-                response = self.session.get(
-                    self._YAHOO_QUOTE_URL,
-                    params={"symbols": ",".join(batch), "formatted": "false"},
-                    headers=self._YAHOO_HEADERS,
-                    timeout=20,
-                )
-                response.raise_for_status()
-                payload = response.json()
-            except (requests.RequestException, ValueError):
-                continue
-            results = (payload.get("quoteResponse") or {}).get("result") or []
-            for item in results:
-                symbol = str(item.get("symbol") or "").upper()
-                parsed = self._parse_yahoo_crypto_quote(item)
-                if symbol and parsed:
-                    found[symbol] = parsed
-        return found
-
-    def _fetch_yahoo_crypto_quotes(self, yahoo_symbols: list[str]) -> dict[str, dict]:
-        return self._fetch_yahoo_quotes(yahoo_symbols)
-
     def get_screener_snapshots(
         self,
         tickers: list[str],
         *,
         av_fallback: bool = True,
     ) -> dict[str, dict]:
-        """Batch 52-week quotes; fall back to Alpha Vantage per miss."""
+        """52-week quotes from Alpha Vantage only."""
         snapshots: dict[str, dict] = {}
-        pending: list[str] = []
-        yahoo_needed: list[str] = []
-
         for ticker in tickers:
             cached = self._screener_quote_cache.get(ticker)
             if cached:
                 snapshots[ticker] = dict(cached)
                 continue
-            pending.append(ticker)
-            yahoo_symbol = self._yahoo_screener_symbol(ticker)
-            if yahoo_symbol not in yahoo_needed:
-                yahoo_needed.append(yahoo_symbol)
-
-        yahoo_found = self._fetch_yahoo_quotes(yahoo_needed)
-        still_missing: list[str] = []
-        for ticker in pending:
-            yahoo_symbol = self._yahoo_screener_symbol(ticker)
-            parsed = yahoo_found.get(yahoo_symbol)
-            if parsed:
-                self._screener_quote_cache[ticker] = dict(parsed)
-                snapshots[ticker] = dict(parsed)
-            else:
-                still_missing.append(ticker)
-
-        if av_fallback:
-            for ticker in still_missing:
-                av_row = self.get_market_snapshot(ticker)
-                if av_row:
-                    wrapped = {**av_row, "source": "alpha_vantage", "daily_change_pct": None}
-                    self._screener_quote_cache[ticker] = dict(wrapped)
-                    snapshots[ticker] = dict(wrapped)
-
+            if not av_fallback:
+                continue
+            av_row = self.get_market_snapshot(ticker)
+            if av_row:
+                wrapped = {**av_row, "source": "alpha_vantage", "daily_change_pct": None}
+                self._screener_quote_cache[ticker] = dict(wrapped)
+                snapshots[ticker] = dict(wrapped)
         return snapshots
 
     def get_crypto_screener_snapshots(
@@ -515,7 +496,7 @@ class MarketData:
         *,
         av_fallback: bool = True,
     ) -> dict[str, dict]:
-        """Batch 52-week crypto quotes; fall back to Alpha Vantage per miss."""
+        """52-week crypto quotes from Alpha Vantage only."""
         return self.get_screener_snapshots(tickers, av_fallback=av_fallback)
 
     def get_market_snapshot(self, ticker):
@@ -570,7 +551,7 @@ class MarketData:
         items = self.get_news_items(ticker)
         return [item["title"] for item in items]
 
-    def get_news_items(self, ticker):
+    def get_news_items(self, ticker, *, fail_fast: bool = False):
         """Pulls headline + source URL pairs for the specific asset."""
         symbol = self._format_ticker(ticker)
         is_crypto = self._is_crypto(ticker)
@@ -584,7 +565,7 @@ class MarketData:
         elif symbol:
             params["tickers"] = symbol
 
-        data = self._request(**params)
+        data = self._request(fail_fast=fail_fast, **params)
         feed = data.get("feed", [])
         if is_crypto:
             expected_ticker = f"CRYPTO:{symbol}"

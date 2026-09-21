@@ -26,9 +26,9 @@ def polarity_from_headlines(headlines: list[str]) -> float:
     return sum(TextBlob(headline).sentiment.polarity for headline in headlines) / len(headlines)
 
 
-def fetch_news_items(ticker: str) -> list[dict]:
+def fetch_news_items(ticker: str, *, fail_fast: bool = False) -> list[dict]:
     try:
-        return MarketData().get_news_items(ticker)
+        return MarketData().get_news_items(ticker, fail_fast=fail_fast)
     except Exception:
         return []
 

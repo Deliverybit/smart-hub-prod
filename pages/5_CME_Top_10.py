@@ -2892,7 +2892,7 @@ if agreed:
 
 # ── Constants ─────────────────────────────────────────────────────────
 # Curated watchlist of 100 well-known CME Group futures (not an official contract list).
-# Yahoo-style =F symbols are used for batched quotes; Analyze may use ETF proxies.
+# Futures =F symbols are used for quotes; Analyze may use ETF proxies.
 COMMODITY_NAMES = {
     # Precious Metals (COMEX)
     "GC=F":  "Gold",

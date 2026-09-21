@@ -78,6 +78,38 @@ def news_items_from_snapshot(ticker: str, screener_key: str) -> list[dict] | Non
     return None
 
 
+def snapshot_quote_for_ticker(ticker: str, screener_key: str | None = None) -> dict | None:
+    """Return Price / 52W fields from a screener snapshot when available."""
+    if not screener_key:
+        return None
+    try:
+        from screener_snapshots import fetch_snapshot
+
+        payload = fetch_snapshot(screener_key)
+    except Exception:
+        return None
+    if not payload:
+        return None
+    rows = list(payload.get("display_results") or []) + list(payload.get("all_results") or [])
+    for row in rows:
+        if not _ticker_matches_row(ticker, row):
+            continue
+        price = row.get("Price")
+        year_low = row.get("52W Low")
+        year_high = row.get("52W High")
+        if price is None or year_low is None or year_high is None:
+            continue
+        return {
+            "Price": price,
+            "52W Low": year_low,
+            "52W High": year_high,
+            "current_price": price,
+            "year_low": year_low,
+            "year_high": year_high,
+        }
+    return None
+
+
 @st.cache_data(ttl=ALPHAVANTAGE_CACHE_TIMEOUT, show_spinner=False)
 def _cached_news_items(
     ticker: str,
@@ -94,7 +126,7 @@ def _cached_news_items(
         )
 
     rows = []
-    for item in fetch_news_items(sym)[:10]:
+    for item in fetch_news_items(sym, fail_fast=True)[:10]:
         rows.append((
             item.get("title", ""),
             item.get("url", ""),

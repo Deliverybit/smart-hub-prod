@@ -28,7 +28,7 @@ def test_home_landing_attract_css_is_mobile_tablet_only() -> None:
     assert "border-left: 4px solid #0ea5e9" in css
     assert "html[data-scoop-theme=\"dark\"][data-scoop-tab-nav=\"1\"][data-scoop-home-page=\"1\"]" in css
     assert "linear-gradient(180deg, #243449 0%, #152033 100%)" in css
-    assert "border: 3px solid #38bdf8" in css
+    assert "border: 2px solid #38bdf8" in css
     assert "scoop-home-nav-anchor" not in css
     assert '[data-testid="stHeader"]' in css
     assert "scoop-home-landing" in css

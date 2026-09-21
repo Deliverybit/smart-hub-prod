@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from app_config import get_screener_symbol_limit
+from analyze_snapshot import build_analyze_bundles
 from headline_service import enrich_result_rows
 from market_data import MarketData
 from screener_selection import ProximitySelection, select_proximity_results
@@ -273,6 +274,7 @@ def build_snapshot_payload(
     all_results, scanned_count, universe_size = run_screener_scan(defn, market_data=market_data)
     selection = select_proximity_results(all_results)
     display_results = enrich_result_rows(selection.results)
+    analyze_bundles = build_analyze_bundles(display_results, market_data)
     updated = datetime.now()
     return {
         "screener_key": defn.key,
@@ -280,6 +282,7 @@ def build_snapshot_payload(
         "last_updated_display": updated.strftime("%b %d, %Y  %I:%M %p"),
         "all_results": all_results,
         "display_results": display_results,
+        "analyze_bundles": analyze_bundles,
         "selection_mode": selection.mode,
         "strict_count": selection.strict_count,
         "padded_count": selection.padded_count,

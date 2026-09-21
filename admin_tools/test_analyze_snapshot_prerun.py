@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 from analyze_snapshot import (  # noqa: E402
     analyze_bundle_from_payload,
     build_analyze_bundles,
+    ensure_analyze_bundle,
 )
 
 
@@ -61,8 +62,64 @@ def test_build_and_slice_analyze_bundles() -> None:
     assert analyze_bundle_from_payload(payload, "BTC-USD", 7) is None
 
 
+def test_ensure_computes_and_persists_on_miss() -> None:
+    from datetime import datetime, timezone
+    from unittest.mock import patch
+
+    history = [{"date": "2026-01-01", "price": 10.0, "change_pct": 0.0}]
+    md = MagicMock()
+    md.get_analyze_price_bundle.return_value = {
+        "history": history,
+        "latest_price": 10.0,
+        "week52_low": 8.0,
+        "week52_high": 12.0,
+        "low_date": None,
+        "high_date": None,
+    }
+    saved: dict = {}
+
+    def _save(key, payload):
+        saved["key"] = key
+        saved["payload"] = payload
+
+    payload = {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "display_results": [
+            {
+                "Ticker": "LULU",
+                "_source_ticker": "LULU",
+                "Price": 10.0,
+                "52W Low": 8.0,
+                "52W High": 12.0,
+                "_headline_texts": ["LULU holds"],
+                "_headline_urls": [""],
+            }
+        ],
+        "analyze_bundles": {},
+    }
+    with (
+        patch("screener_snapshots._fetch_snapshot_uncached", return_value=payload),
+        patch("screener_snapshots.save_snapshot", side_effect=_save),
+        patch("analyze_snapshot.SentimentEngine") as sent_cls,
+        patch("analyze_snapshot.Predictor") as pred_cls,
+    ):
+        sent_cls.return_value.analyze_headlines.return_value = {"score": 0.0, "label": "neutral"}
+        pred_cls.return_value.predict.return_value = {"combined_score": 0.0}
+        first = ensure_analyze_bundle("LULU", "NASDAQ", 30, market_data=md)
+        assert first is not None
+        assert md.get_analyze_price_bundle.call_count == 1
+        assert saved["key"] == "NASDAQ"
+        assert "LULU" in saved["payload"]["analyze_bundles"]
+
+        payload["analyze_bundles"] = saved["payload"]["analyze_bundles"]
+        second = ensure_analyze_bundle("LULU", "NASDAQ", 30, market_data=md)
+        assert second is not None
+        assert md.get_analyze_price_bundle.call_count == 1
+
+
 def main() -> int:
     test_build_and_slice_analyze_bundles()
+    test_ensure_computes_and_persists_on_miss()
     print("PASS analyze snapshot prerun")
     return 0
 

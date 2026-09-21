@@ -6892,7 +6892,23 @@ html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"] [data-testid=
 }
 """
 
-DESKTOP_SCREENER_GATING_LAYOUT = DESKTOP_SCREENER_GATING_LAYOUT + _GATING_DISCLAIMER_MATCH_FOOTER_LINK_CSS
+# Landing pages (home + gated screeners): keep CSS zoom at 100%.
+_LANDING_VIEW_100_CSS = """
+html[data-scoop-home-page="1"],
+html[data-scoop-screener-gated="1"] {
+    zoom: 1 !important;
+}
+html[data-scoop-home-page="1"] body,
+html[data-scoop-screener-gated="1"] body {
+    zoom: 1 !important;
+}
+"""
+
+DESKTOP_SCREENER_GATING_LAYOUT = (
+    DESKTOP_SCREENER_GATING_LAYOUT
+    + _GATING_DISCLAIMER_MATCH_FOOTER_LINK_CSS
+    + _LANDING_VIEW_100_CSS
+)
 
 # Phone/tablet gating screen only: trim extra gaps (keep some breathing room).
 _GATED_MOBILE_TABLET_LANDING_TIGHTEN_CSS = """
@@ -7552,6 +7568,7 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _GATED_MOBILE_TABLET_LANDING_REFINE_CSS
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
     + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    + _LANDING_VIEW_100_CSS
 )
 
 RESPONSIVE_SCREENER_TOP_COMPACT = (

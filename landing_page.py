@@ -88,6 +88,32 @@ def _responsive_viewport_js() -> str:
     )
 
 
+def _landing_view_100_script() -> str:
+    """Force landing pages to 100% scale (CSS zoom + viewport initial-scale)."""
+    return (
+        "<script>(function(){"
+        "function setViewport(doc){"
+        "  if(!doc) return;"
+        "  var head=doc.head||doc.documentElement;"
+        "  var meta=doc.querySelector('meta[name=\"viewport\"]');"
+        "  if(!meta){meta=doc.createElement('meta');meta.setAttribute('name','viewport');head.appendChild(meta);}"
+        "  meta.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes');"
+        "}"
+        "function reset(doc){"
+        "  if(!doc||!doc.documentElement) return;"
+        "  var root=doc.documentElement;"
+        "  root.style.setProperty('zoom','1','important');"
+        "  if(doc.body) doc.body.style.setProperty('zoom','1','important');"
+        "  setViewport(doc);"
+        "  try{if(doc.scrollingElement) doc.scrollingElement.scrollTop=0;}catch(e){}"
+        "}"
+        "var docs=[document];"
+        "try{if(window.parent&&window.parent.document) docs.push(window.parent.document);}catch(e){}"
+        "docs.forEach(reset);"
+        "})();</script>"
+    )
+
+
 def _home_mini_type_flag_script() -> str:
     return (
         "<script>(function(){"
@@ -574,7 +600,8 @@ def prepare_mobile_home_landing() -> None:
         'document.documentElement.setAttribute("data-scoop-tab-nav","1");'
         'document.documentElement.setAttribute("data-scoop-home-page","1");'
         '</script>'
-        + _home_mini_type_flag_script(),
+        + _home_mini_type_flag_script()
+        + _landing_view_100_script(),
         unsafe_allow_javascript=True,
     )
 

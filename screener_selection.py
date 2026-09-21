@@ -415,8 +415,11 @@ def sync_screener_gating_layout(st_module, *, gated: bool) -> None:
             f'<style id="scoop-screener-gating-page-css">{DESKTOP_SCREENER_GATING_LAYOUT}</style>',
             unsafe_allow_html=True,
         )
+        from landing_page import _landing_view_100_script
+
         st_module.html(
-            '<script>document.documentElement.setAttribute("data-scoop-screener-gated","1");</script>',
+            '<script>document.documentElement.setAttribute("data-scoop-screener-gated","1");</script>'
+            + _landing_view_100_script(),
             unsafe_allow_javascript=True,
         )
     else:

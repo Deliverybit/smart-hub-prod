@@ -15,6 +15,21 @@ if str(ROOT) not in sys.path:
 import landing_page  # noqa: E402
 
 
+def test_landing_view_resets_to_100_percent() -> None:
+    from admin_tools.tablet_mobile_layout_css import (
+        _LANDING_VIEW_100_CSS,
+        DESKTOP_SCREENER_GATING_LAYOUT,
+        RESPONSIVE_TAB_NAV_BOOTSTRAP,
+    )
+    from landing_page import _landing_view_100_script
+
+    js = _landing_view_100_script()
+    assert "initial-scale=1" in js
+    assert "zoom" in js
+    assert _LANDING_VIEW_100_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
+    assert _LANDING_VIEW_100_CSS in DESKTOP_SCREENER_GATING_LAYOUT
+
+
 def test_home_landing_attract_css_is_mobile_tablet_only() -> None:
     from admin_tools.tablet_mobile_layout_css import (
         _HOME_LANDING_ATTRACT_CSS,
@@ -287,6 +302,7 @@ def test_enforce_waits_when_storage_probe_pending() -> None:
 
 def main() -> int:
     tests = [
+        test_landing_view_resets_to_100_percent,
         test_home_landing_attract_css_is_mobile_tablet_only,
         test_home_ipad13_surface_pro10_css_is_scoped,
         test_home_surface_pro10_nav_fill_is_scoped,

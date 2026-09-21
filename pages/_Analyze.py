@@ -23,7 +23,10 @@ from analyze_page import (
 from asset_names import resolve_asset_display_name
 from predictor import Predictor
 from market_data import MarketData
-from analyze_snapshot import analyze_bundle_from_snapshot
+import importlib
+
+import analyze_snapshot as _analyze_snapshot_mod
+
 from screener_headlines import get_cached_news_items, normalize_screener_ticker
 from sentiment_engine import SentimentEngine
 from legal_consent_logger import ensure_timezone_cookie, log_terms_acceptance, render_terms_gate, terms_accepted
@@ -1439,12 +1442,28 @@ def _cached_analyze_core(
     }
 
 
-def _cached_analyze_bundle(ticker: str, days, screener_key: str | None, _hist_span_v: int = 5) -> dict | None:
-    prerun = analyze_bundle_from_snapshot(ticker, screener_key, days)
+@st.cache_data(
+    ttl=_SEARCH_ANALYSIS_TTL_SEC,
+    show_spinner="Loading analysis…",
+)
+def _ensured_analyze_bundle(
+    ticker: str,
+    screener_key: str | None,
+    days,
+    _hist_span_v: int = 6,
+) -> dict | None:
+    """Snapshot hit, or first-user compute persisted for 15 minutes."""
+    snap = importlib.reload(_analyze_snapshot_mod)
+    fn = getattr(snap, "ensure_analyze_bundle", None)
+    if fn is None:
+        return None
+    return fn(ticker, screener_key, days)
+
+
+def _cached_analyze_bundle(ticker: str, days, screener_key: str | None, _hist_span_v: int = 6) -> dict | None:
+    prerun = _ensured_analyze_bundle(ticker, screener_key, days)
     if prerun:
         return prerun
-    if screener_key:
-        return None
     price = _cached_analyze_history(ticker, _analyze_span_bucket(days), screener_key)
     if not price:
         return None
@@ -1755,13 +1774,7 @@ def _render_search_dashboard(ticker: str) -> None:
     screener_key = analyze_screener_snapshot_key()
     bundle = _cached_analyze_bundle(ticker, days, screener_key)
     if not bundle:
-        if screener_key:
-            st.error(
-                f"Analyze for {ticker} is not in the prerun snapshot yet. "
-                "Wait for the next screener worker refresh."
-            )
-        else:
-            st.error(f"Could not find data for {ticker}. Please check the ticker symbol.")
+        st.error(f"Could not find data for {ticker}. Please check the ticker symbol.")
         st.stop()
 
     news_items = bundle["news_items"]

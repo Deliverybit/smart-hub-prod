@@ -6895,11 +6895,13 @@ html[data-scoop-desktop-layout="1"][data-scoop-screener-gated="1"] [data-testid=
 # Landing pages (home + gated screeners): keep CSS zoom at 100%.
 _LANDING_VIEW_100_CSS = """
 html[data-scoop-home-page="1"],
-html[data-scoop-screener-gated="1"] {
+html[data-scoop-screener-gated="1"],
+html[data-scoop-licenses-page="1"] {
     zoom: 1 !important;
 }
 html[data-scoop-home-page="1"] body,
-html[data-scoop-screener-gated="1"] body {
+html[data-scoop-screener-gated="1"] body,
+html[data-scoop-licenses-page="1"] body {
     zoom: 1 !important;
 }
 """

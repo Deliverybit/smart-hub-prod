@@ -661,6 +661,8 @@ st.markdown(
     '<h3 style="color:#60a5fa;font-size:1.5rem;">5. Data Sources</h3>'
     "<p>Market data is sourced from Alpha Vantage and other third-party providers. "
     "News headline sentiment is computed using TextBlob natural language processing. "
+    "Charts use Plotly. Open-source copyright notices are listed on "
+    '<a href="/Licenses" target="_self">Third-party licenses</a>. '
     "Data may be delayed, incomplete, or inaccurate. We make no guarantees about data freshness "
     "or accuracy.</p>"
     '<h3 style="color:#60a5fa;font-size:1.5rem;">6. Changes to Terms</h3>'
@@ -747,6 +749,7 @@ st.markdown(
         Market data is provided 'as-is' and may be delayed or inaccurate.
         <strong>Trading involves significant risk of loss.</strong>
         <a href="/Terms_of_Service" target="_self">Terms of Service</a> ·
+        <a href="/Licenses" target="_self">Third-party licenses</a> ·
         Past performance is not indicative of future results.
     </div>
     """,

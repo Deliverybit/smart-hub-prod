@@ -3547,6 +3547,7 @@ st.markdown(
         Market data is provided 'as-is' and may be delayed or inaccurate.
         <strong>Trading involves significant risk of loss.</strong>
         <a href="/Terms_of_Service" target="_self">Terms of Service</a> ·
+        <a href="/Licenses" target="_self">Third-party licenses</a> ·
         Past performance is not indicative of future results.
     </div>
     """,

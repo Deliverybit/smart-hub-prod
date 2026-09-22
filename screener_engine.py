@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import math
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -301,14 +302,38 @@ def refresh_screener(defn: ScreenerDefinition, *, persist: bool = True) -> dict[
     return payload
 
 
+def apply_last_scan_time(
+    payloads: list[dict[str, Any]],
+    *,
+    persist: bool = True,
+) -> str:
+    """Stamp every completed screener with the time the full scan finished."""
+    completed = datetime.now(timezone.utc)
+    display = datetime.now().strftime("%b %d, %Y  %I:%M %p")
+    completed_iso = completed.isoformat()
+    for payload in payloads:
+        payload["updated_at"] = completed_iso
+        payload["last_updated_display"] = display
+        payload["last_scan_completed_at"] = completed_iso
+        if persist:
+            save_snapshot(str(payload["screener_key"]), payload)
+    return display
+
+
 def refresh_all_screeners(*, persist: bool = True) -> list[dict[str, Any]]:
     market_data = MarketData()
     payloads: list[dict[str, Any]] = []
     for defn in SCREENER_DEFINITIONS:
-        payload = build_snapshot_payload(defn, market_data=market_data)
+        try:
+            payload = build_snapshot_payload(defn, market_data=market_data)
+        except Exception as exc:
+            print(f"[ERROR] {defn.key}: {exc}", file=sys.stderr)
+            continue
         if persist:
             save_snapshot(defn.key, payload)
         payloads.append(payload)
+    if payloads:
+        apply_last_scan_time(payloads, persist=persist)
     return payloads
 
 

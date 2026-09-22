@@ -433,7 +433,7 @@ def render_screener_last_updated(st_module, last_updated: str) -> None:
     """Render the screener refresh timestamp row."""
     st_module.markdown(
         f'<div class="scoop-screener-last-updated">'
-        f"Last updated: <b>{last_updated}</b>  ·  Auto-refreshes every 15 min</div>",
+        f"Last updated: <b>{last_updated}</b></div>",
         unsafe_allow_html=True,
     )
 

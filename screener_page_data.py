@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Callable
 
 from app_config import get_screener_symbol_limit
-from screener_engine import selection_from_payload
+from screener_engine import format_scan_display, selection_from_payload
 from screener_selection import ProximitySelection, select_proximity_results
 from screener_snapshots import fetch_snapshot, snapshot_is_fresh
 
@@ -25,6 +26,18 @@ class ScreenerPageLoad:
     headlines_enriched: bool
 
 
+def _display_last_updated(payload: dict) -> str:
+    """Show the stored UTC completion time in Central time."""
+    raw = payload.get("last_scan_completed_at") or payload.get("updated_at")
+    if raw:
+        try:
+            moment = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+            return format_scan_display(moment)
+        except ValueError:
+            pass
+    return str(payload.get("last_updated_display") or "")
+
+
 def load_screener_page_data(
     screener_key: str,
     *,
@@ -41,7 +54,7 @@ def load_screener_page_data(
             all_results=list(payload.get("all_results") or []),
             display_results=list(payload.get("display_results") or []),
             selection=selection,
-            last_updated=str(payload.get("last_updated_display") or ""),
+            last_updated=_display_last_updated(payload),
             scanned_count=int(payload.get("scanned_count") or 0),
             universe_size=int(payload.get("universe_size") or universe_size),
             asset_noun=str(payload.get("asset_noun") or asset_noun),

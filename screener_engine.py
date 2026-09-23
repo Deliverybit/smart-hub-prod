@@ -7,6 +7,7 @@ import math
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from typing import Any, Callable
 
@@ -16,6 +17,8 @@ from headline_service import enrich_result_rows
 from market_data import MarketData
 from screener_selection import ProximitySelection, select_proximity_results
 from screener_snapshots import save_snapshot
+
+DISPLAY_TZ = ZoneInfo("America/Chicago")
 
 ROOT = Path(__file__).resolve().parent
 PAGES = ROOT / "pages"
@@ -268,6 +271,16 @@ def run_screener_scan(
     return results, len(scan_universe), len(universe)
 
 
+def format_scan_display(moment: datetime | None = None) -> str:
+    """Format a scan time in Central time, matching the clock visitors use."""
+    if moment is None:
+        moment = datetime.now(timezone.utc)
+    elif moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    local = moment.astimezone(DISPLAY_TZ)
+    return local.strftime("%b %d, %Y  %I:%M %p CT")
+
+
 def build_snapshot_payload(
     defn: ScreenerDefinition,
     market_data: MarketData | None = None,
@@ -276,11 +289,11 @@ def build_snapshot_payload(
     selection = select_proximity_results(all_results)
     display_results = enrich_result_rows(selection.results)
     analyze_bundles = build_analyze_bundles(display_results, market_data)
-    updated = datetime.now()
+    updated = datetime.now(timezone.utc)
     return {
         "screener_key": defn.key,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
-        "last_updated_display": updated.strftime("%b %d, %Y  %I:%M %p"),
+        "updated_at": updated.isoformat(),
+        "last_updated_display": format_scan_display(updated),
         "all_results": all_results,
         "display_results": display_results,
         "analyze_bundles": analyze_bundles,
@@ -309,7 +322,7 @@ def apply_last_scan_time(
 ) -> str:
     """Stamp every completed screener with the time the full scan finished."""
     completed = datetime.now(timezone.utc)
-    display = datetime.now().strftime("%b %d, %Y  %I:%M %p")
+    display = format_scan_display(completed)
     completed_iso = completed.isoformat()
     for payload in payloads:
         payload["updated_at"] = completed_iso

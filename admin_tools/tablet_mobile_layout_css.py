@@ -6940,10 +6940,42 @@ html[data-scoop-licenses-page="1"] body {
 }
 """
 
+# iPad Pro 13 and Surface Pro 10 landscape are >=1367px. Market pages use the
+# 30px desktop scale there; the gate must not keep the 18px or 21px fit scale.
+_GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS = """
+@media (min-width: 1367px) and (max-width: 1420px) and (min-height: 980px) and (max-height: 1060px),
+       (min-width: 1367px) and (max-width: 1500px) and (min-height: 880px) and (max-height: 1000px),
+       (min-width: 1760px) and (max-width: 2000px) and (min-height: 1240px) and (max-height: 1320px) {
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]),
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) body,
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [class*="css"] {
+        font-size: 30px !important;
+        line-height: 1.7 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] h1 {
+        font-size: 5rem !important;
+        line-height: 1.12 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {
+        font-size: 1.6rem !important;
+        line-height: 1.75 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) .disclaimer-footer {
+        font-size: clamp(0.88rem, 2vw, 1.02rem) !important;
+        line-height: 1.45 !important;
+    }
+}
+"""
+
 DESKTOP_SCREENER_GATING_LAYOUT = (
     DESKTOP_SCREENER_GATING_LAYOUT
     + _GATING_DISCLAIMER_MATCH_FOOTER_LINK_CSS
     + _LANDING_VIEW_100_CSS
+    + _GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS
 )
 
 # Phone/tablet gating screen only: trim extra gaps (keep some breathing room).
@@ -7512,9 +7544,9 @@ _GATED_NAMED_TABLET_MARKET_TYPE_CSS = f"""
 }}
 @media (min-width: 980px) and (max-width: 1200px) and (min-height: 700px) and (max-height: 820px),
        (min-width: 980px) and (max-width: 1060px) and (min-height: 1160px) and (max-height: 1420px),
-       (min-width: 1160px) and (max-width: 1420px) and (min-height: 980px) and (max-height: 1060px),
+       (min-width: 1160px) and (max-width: 1366px) and (min-height: 980px) and (max-height: 1060px),
        (min-width: 880px) and (max-width: 1000px) and (min-height: 1260px) and (max-height: 1500px),
-       (min-width: 1260px) and (max-width: 1500px) and (min-height: 880px) and (max-height: 1000px),
+       (min-width: 1260px) and (max-width: 1366px) and (min-height: 880px) and (max-height: 1000px),
        (min-width: 1240px) and (max-width: 1320px) and (min-height: 1760px) and (max-height: 2000px) {{
     {_GATED_DEVICE},
     {_GATED_DEVICE} body,

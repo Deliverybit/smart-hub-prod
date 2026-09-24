@@ -3377,7 +3377,7 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"],
     html[data-scoop-analyze-active="1"] body,
     html[data-scoop-analyze-active="1"] [class*="css"] {
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stHeader"],
@@ -6687,7 +6687,7 @@ _HOME_SURFACE_PRO10_NAV_FILL_CSS = f"""
     {_home_type_scopes()},
     {_home_type_scopes(" body")},
     {_home_type_scopes(' [class*="css"]')} {{
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }}
     {_home_type_scopes(' [data-testid="stMainBlockContainer"] .sidebar-brand-text')},
@@ -6823,7 +6823,7 @@ _HOME_LANDING_STABLE_TYPE_CSS = f"""
     {_HOME_HS},
     {_HOME_HS} body,
     {_HOME_HS} [class*="css"] {{
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }}
     {_HOME_HS} [data-testid="stMainBlockContainer"] .sidebar-brand-text,
@@ -6965,7 +6965,7 @@ _GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS = """
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]),
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) body,
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [class*="css"] {
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] h1 {

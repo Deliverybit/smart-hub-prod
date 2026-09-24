@@ -3377,7 +3377,7 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"],
     html[data-scoop-analyze-active="1"] body,
     html[data-scoop-analyze-active="1"] [class*="css"] {
-        font-size: 30px !important;
+        font-size: 20px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stHeader"],
@@ -6687,7 +6687,7 @@ _HOME_SURFACE_PRO10_NAV_FILL_CSS = f"""
     {_home_type_scopes()},
     {_home_type_scopes(" body")},
     {_home_type_scopes(' [class*="css"]')} {{
-        font-size: 30px !important;
+        font-size: 20px !important;
         line-height: 1.7 !important;
     }}
     {_home_type_scopes(' [data-testid="stMainBlockContainer"] .sidebar-brand-text')},
@@ -6823,7 +6823,7 @@ _HOME_LANDING_STABLE_TYPE_CSS = f"""
     {_HOME_HS},
     {_HOME_HS} body,
     {_HOME_HS} [class*="css"] {{
-        font-size: 30px !important;
+        font-size: 20px !important;
         line-height: 1.7 !important;
     }}
     {_HOME_HS} [data-testid="stMainBlockContainer"] .sidebar-brand-text,
@@ -6965,7 +6965,7 @@ _GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS = """
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]),
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) body,
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [class*="css"] {
-        font-size: 30px !important;
+        font-size: 20px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] h1 {
@@ -7606,13 +7606,26 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"],
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] body,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [class*="css"] {{
-        font-size: clamp(21px, 2.35vw, 24px) !important;
-        line-height: 1.62 !important;
+        font-size: clamp(28px, 3.2vw, 34px) !important;
+        line-height: 1.55 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] {{
+        padding: 0.7rem 1.15rem 0.85rem 1.15rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {{
+        gap: 0.55rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-index-card,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-index-card {{
+        padding: 1rem 1.15rem !important;
+        min-height: 5.5rem !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] h1,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] h1 {{
-        font-size: clamp(2.2rem, 5vw, 3.1rem) !important;
-        line-height: 1.12 !important;
+        font-size: clamp(2.8rem, 6.2vw, 3.8rem) !important;
+        line-height: 1.1 !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
@@ -7620,8 +7633,9 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
-        font-size: clamp(1.2rem, 2.6vw, 1.45rem) !important;
-        line-height: 1.65 !important;
+        font-size: clamp(1.45rem, 3.2vw, 1.75rem) !important;
+        line-height: 1.5 !important;
+        padding: 0.85rem 1rem !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
@@ -7631,13 +7645,18 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stWidgetLabel"] p {{
-        font-size: clamp(1.15rem, 2.5vw, 1.38rem) !important;
-        line-height: 1.45 !important;
+        font-size: clamp(1.4rem, 3vw, 1.65rem) !important;
+        line-height: 1.4 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)),
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) {{
+        padding: 0.7rem 0.9rem !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .disclaimer-footer,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .disclaimer-footer {{
-        font-size: clamp(0.76rem, 1.8vw, 0.92rem) !important;
-        line-height: 1.35 !important;
+        font-size: clamp(0.95rem, 2.2vw, 1.15rem) !important;
+        line-height: 1.4 !important;
+        padding: 0.7rem 0.85rem !important;
     }}
 }}
 @media (min-width: 1367px) {{
@@ -7647,7 +7666,7 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"],
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] body,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [class*="css"] {{
-        font-size: 30px !important;
+        font-size: 28px !important;
         line-height: 1.7 !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] h1,

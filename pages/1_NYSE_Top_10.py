@@ -95,7 +95,7 @@ st.markdown(
 
     /* ===== DESKTOP / HIGH-RES ===== */
     html, body, [class*="css"] {
-        font-size: 30px !important;
+        font-size: 20px !important;
         line-height: 1.7 !important;
     }
     h1 { font-size: 5rem !important; font-weight: 800 !important; }
@@ -1677,7 +1677,7 @@ st.markdown(
             width: 100% !important;
         }
         [data-testid="stSidebar"] #scoop-title {
-            font-size: 60px !important;
+            font-size: 40px !important;
             line-height: 1.05 !important;
         }
     }

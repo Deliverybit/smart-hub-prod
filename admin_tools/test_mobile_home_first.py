@@ -90,7 +90,7 @@ def test_home_surface_pro10_nav_fill_is_scoped() -> None:
     assert "clamp(1.15rem, 2.5vw, 1.38rem)" in css
     assert "@media (max-width: 1366px)" in css
     assert "@media (min-width: 1367px)" in css
-    assert "font-size: 30px !important;" in css
+    assert "font-size: 20px !important;" in css
     assert "font-size: 1.6rem !important;" in css
     assert "margin-bottom: 12px !important;" in css
     assert 'html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"]' in css
@@ -124,7 +124,7 @@ def test_home_landing_stable_type_uses_market_breakpoints() -> None:
     assert "@media (min-width: 1367px)" in css
     assert "font-size: 18px !important;" in css
     assert "clamp(21px, 2.35vw, 24px)" in css
-    assert "font-size: 30px !important;" in css
+    assert "font-size: 20px !important;" in css
     assert css in RESPONSIVE_TAB_NAV_BOOTSTRAP
 
 

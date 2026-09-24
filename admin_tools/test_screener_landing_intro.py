@@ -80,7 +80,8 @@ def test_gated_mobile_refine_css_restores_readable_spacing() -> None:
     assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_SCREENER_TOP_COMPACT
     assert 'html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"]' in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
     assert 'html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"]' in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
-    assert "font-size: 30px !important;" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    assert "font-size: 28px !important;" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    assert "clamp(28px, 3.2vw, 34px)" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
     assert "max-width: 1366px) and (min-height: 980px)" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
     from admin_tools.tablet_mobile_layout_css import (
         DESKTOP_SCREENER_GATING_LAYOUT,

@@ -4304,9 +4304,9 @@ _DESKTOP_SCREENER_GATING_LAYOUT_RULES = """
     }
     /* First visit: page CSS uses a 30px root, which pushes the consent
        checkbox below the locked 100dvh gate. Fit the gate to the viewport. */
-    html[data-scoop-screener-gated="1"],
-    html[data-scoop-screener-gated="1"] body,
-    html[data-scoop-screener-gated="1"] [class*="css"] {
+    html[data-scoop-screener-gated="1"]:not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]),
+    html[data-scoop-screener-gated="1"]:not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) body,
+    html[data-scoop-screener-gated="1"]:not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) [class*="css"] {
         font-size: 18px !important;
         line-height: 1.45 !important;
     }
@@ -7543,6 +7543,80 @@ _GATED_NAMED_TABLET_MARKET_TYPE_CSS = f"""
     {_GATED_DEVICE} .disclaimer-footer {{
         font-size: clamp(0.76rem, 1.8vw, 0.92rem) !important;
         line-height: 1.35 !important;
+    }}
+}}
+/* Device flags, not viewport height: iPad Pro 13 landscape and Surface Pro 10
+   are often wider than 1366px, so the desktop gate's 18px scale was winning. */
+html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"],
+html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
+    --scoop-named-tablet-gate: 1;
+}}
+@media (max-width: 1366px) {{
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] body,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [class*="css"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] body,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [class*="css"] {{
+        font-size: clamp(21px, 2.35vw, 24px) !important;
+        line-height: 1.62 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] h1 {{
+        font-size: clamp(2.2rem, 5vw, 3.1rem) !important;
+        line-height: 1.12 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        font-size: clamp(1.2rem, 2.6vw, 1.45rem) !important;
+        line-height: 1.65 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stWidgetLabel"] p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stWidgetLabel"] p {{
+        font-size: clamp(1.15rem, 2.5vw, 1.38rem) !important;
+        line-height: 1.45 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .disclaimer-footer,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .disclaimer-footer {{
+        font-size: clamp(0.76rem, 1.8vw, 0.92rem) !important;
+        line-height: 1.35 !important;
+    }}
+}}
+@media (min-width: 1367px) {{
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] body,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [class*="css"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"],
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] body,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [class*="css"] {{
+        font-size: 30px !important;
+        line-height: 1.7 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] h1 {{
+        font-size: 5rem !important;
+        line-height: 1.12 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p {{
+        font-size: 1.6rem !important;
+        line-height: 1.75 !important;
     }}
 }}
 """

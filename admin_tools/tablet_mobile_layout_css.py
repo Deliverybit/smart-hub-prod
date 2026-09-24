@@ -1900,14 +1900,14 @@ html[data-scoop-desktop-layout="1"] {{
     html:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]),
     html:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) body,
     html:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) [class*="css"] {{
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }}
 }}
 html[data-scoop-desktop-layout="1"]:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]),
 html[data-scoop-desktop-layout="1"]:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) body,
 html[data-scoop-desktop-layout="1"]:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) [class*="css"] {{
-    font-size: 20px !important;
+    font-size: 16px !important;
     line-height: 1.7 !important;
 }}
 """
@@ -3391,7 +3391,7 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"],
     html[data-scoop-analyze-active="1"] body,
     html[data-scoop-analyze-active="1"] [class*="css"] {
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stHeader"],
@@ -6701,7 +6701,7 @@ _HOME_SURFACE_PRO10_NAV_FILL_CSS = f"""
     {_home_type_scopes()},
     {_home_type_scopes(" body")},
     {_home_type_scopes(' [class*="css"]')} {{
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }}
     {_home_type_scopes(' [data-testid="stMainBlockContainer"] .sidebar-brand-text')},
@@ -6837,7 +6837,7 @@ _HOME_LANDING_STABLE_TYPE_CSS = f"""
     {_HOME_HS},
     {_HOME_HS} body,
     {_HOME_HS} [class*="css"] {{
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }}
     {_HOME_HS} [data-testid="stMainBlockContainer"] .sidebar-brand-text,
@@ -6979,7 +6979,7 @@ _GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS = """
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]),
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) body,
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [class*="css"] {
-        font-size: 20px !important;
+        font-size: 16px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] h1 {
@@ -7671,6 +7671,35 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
         font-size: clamp(0.95rem, 2.2vw, 1.15rem) !important;
         line-height: 1.4 !important;
         padding: 0.7rem 0.85rem !important;
+    }}
+}}
+/* iPad Pro 13 gate only: keep the same filled layout, but pull the
+   disclaimer fully inside the locked viewport. */
+@media (max-width: 1366px) {{
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] {{
+        padding: 0.35rem 1rem 0.3rem 1rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {{
+        gap: 0.28rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] h1 {{
+        margin-top: 0.1rem !important;
+        margin-bottom: 0.15rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        padding: 0.55rem 0.85rem !important;
+        line-height: 1.35 !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) {{
+        padding: 0.4rem 0.7rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .disclaimer-footer {{
+        font-size: clamp(0.82rem, 1.85vw, 0.98rem) !important;
+        line-height: 1.28 !important;
+        padding: 0.45rem 0.7rem !important;
+        margin-bottom: 0 !important;
     }}
 }}
 @media (min-width: 1367px) {{

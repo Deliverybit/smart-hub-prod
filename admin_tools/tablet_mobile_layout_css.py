@@ -1900,14 +1900,14 @@ html[data-scoop-desktop-layout="1"] {{
     html:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]),
     html:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) body,
     html:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) [class*="css"] {{
-        font-size: 16px !important;
+        font-size: 18px !important;
         line-height: 1.7 !important;
     }}
 }}
 html[data-scoop-desktop-layout="1"]:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]),
 html[data-scoop-desktop-layout="1"]:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) body,
 html[data-scoop-desktop-layout="1"]:not([data-scoop-home-ipad-mini="1"]):not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) [class*="css"] {{
-    font-size: 16px !important;
+    font-size: 18px !important;
     line-height: 1.7 !important;
 }}
 """
@@ -3391,7 +3391,7 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"],
     html[data-scoop-analyze-active="1"] body,
     html[data-scoop-analyze-active="1"] [class*="css"] {
-        font-size: 16px !important;
+        font-size: 18px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-analyze-active="1"] [data-testid="stHeader"],
@@ -6701,7 +6701,7 @@ _HOME_SURFACE_PRO10_NAV_FILL_CSS = f"""
     {_home_type_scopes()},
     {_home_type_scopes(" body")},
     {_home_type_scopes(' [class*="css"]')} {{
-        font-size: 16px !important;
+        font-size: 18px !important;
         line-height: 1.7 !important;
     }}
     {_home_type_scopes(' [data-testid="stMainBlockContainer"] .sidebar-brand-text')},
@@ -6837,7 +6837,7 @@ _HOME_LANDING_STABLE_TYPE_CSS = f"""
     {_HOME_HS},
     {_HOME_HS} body,
     {_HOME_HS} [class*="css"] {{
-        font-size: 16px !important;
+        font-size: 18px !important;
         line-height: 1.7 !important;
     }}
     {_HOME_HS} [data-testid="stMainBlockContainer"] .sidebar-brand-text,
@@ -6979,7 +6979,7 @@ _GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS = """
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]),
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) body,
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [class*="css"] {
-        font-size: 16px !important;
+        font-size: 18px !important;
         line-height: 1.7 !important;
     }
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] h1 {
@@ -7728,6 +7728,32 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
         font-size: 1.6rem !important;
         line-height: 1.75 !important;
     }}
+}}
+/* iPad Mini gate only: same filled layout, disclaimer stays inside the viewport. */
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] [data-testid="stMainBlockContainer"] {{
+    padding: 0.25rem 0.75rem 0.2rem 0.75rem !important;
+}}
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {{
+    gap: 0.22rem !important;
+}}
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] [data-testid="stMainBlockContainer"] h1 {{
+    margin-top: 0.05rem !important;
+    margin-bottom: 0.1rem !important;
+}}
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] .scoop-landing-summary,
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] .scoop-landing-summary p,
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+    line-height: 1.4 !important;
+    padding: 0.45rem 0.7rem !important;
+}}
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) {{
+    padding: 0.35rem 0.6rem !important;
+}}
+html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] .disclaimer-footer {{
+    font-size: clamp(0.7rem, 2.4vw, 0.84rem) !important;
+    line-height: 1.25 !important;
+    padding: 0.35rem 0.55rem !important;
+    margin: 0 !important;
 }}
 """
 

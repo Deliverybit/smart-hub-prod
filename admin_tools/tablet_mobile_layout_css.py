@@ -7476,6 +7476,77 @@ _GATED_MOBILE_TABLET_NO_SCROLL_CSS = f"""
 }}
 """
 
+# iPad Mini, iPad 13, and Surface Pro: gate type matches those devices' market pages.
+# Comes after the fit-without-scroll shrink so these devices keep the market scale.
+_GATED_DEVICE = 'html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"]'
+_GATED_NAMED_TABLET_MARKET_TYPE_CSS = f"""
+@media (min-width: 700px) and (max-width: 820px) and (min-height: 980px) and (max-height: 1200px) {{
+    {_GATED_DEVICE},
+    {_GATED_DEVICE} body,
+    {_GATED_DEVICE} [class*="css"] {{
+        font-size: 18px !important;
+        line-height: 1.55 !important;
+    }}
+    {_GATED_DEVICE} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: clamp(1.85rem, 6.3vw, 2.55rem) !important;
+        line-height: 1.12 !important;
+    }}
+    {_GATED_DEVICE} .scoop-landing-summary,
+    {_GATED_DEVICE} .scoop-landing-summary p,
+    {_GATED_DEVICE} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_DEVICE} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        font-size: clamp(1.08rem, 3.75vw, 1.28rem) !important;
+        line-height: 1.68 !important;
+    }}
+    {_GATED_DEVICE} [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    {_GATED_DEVICE} [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
+    {_GATED_DEVICE} [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    {_GATED_DEVICE} [data-testid="stWidgetLabel"] p {{
+        font-size: clamp(1.08rem, 3.75vw, 1.24rem) !important;
+        line-height: 1.45 !important;
+    }}
+    {_GATED_DEVICE} .disclaimer-footer {{
+        font-size: clamp(0.76rem, 2.9vw, 0.92rem) !important;
+        line-height: 1.4 !important;
+    }}
+}}
+@media (min-width: 980px) and (max-width: 1200px) and (min-height: 700px) and (max-height: 820px),
+       (min-width: 980px) and (max-width: 1060px) and (min-height: 1160px) and (max-height: 1420px),
+       (min-width: 1160px) and (max-width: 1420px) and (min-height: 980px) and (max-height: 1060px),
+       (min-width: 880px) and (max-width: 1000px) and (min-height: 1260px) and (max-height: 1500px),
+       (min-width: 1260px) and (max-width: 1500px) and (min-height: 880px) and (max-height: 1000px),
+       (min-width: 1240px) and (max-width: 1320px) and (min-height: 1760px) and (max-height: 2000px) {{
+    {_GATED_DEVICE},
+    {_GATED_DEVICE} body,
+    {_GATED_DEVICE} [class*="css"] {{
+        font-size: clamp(21px, 2.35vw, 24px) !important;
+        line-height: 1.62 !important;
+    }}
+    {_GATED_DEVICE} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: clamp(2.2rem, 5vw, 3.1rem) !important;
+        line-height: 1.12 !important;
+    }}
+    {_GATED_DEVICE} .scoop-landing-summary,
+    {_GATED_DEVICE} .scoop-landing-summary p,
+    {_GATED_DEVICE} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_DEVICE} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        font-size: clamp(1.2rem, 2.6vw, 1.45rem) !important;
+        line-height: 1.65 !important;
+    }}
+    {_GATED_DEVICE} [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    {_GATED_DEVICE} [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
+    {_GATED_DEVICE} [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    {_GATED_DEVICE} [data-testid="stWidgetLabel"] p {{
+        font-size: clamp(1.15rem, 2.5vw, 1.38rem) !important;
+        line-height: 1.45 !important;
+    }}
+    {_GATED_DEVICE} .disclaimer-footer {{
+        font-size: clamp(0.76rem, 1.8vw, 0.92rem) !important;
+        line-height: 1.35 !important;
+    }}
+}}
+"""
+
 # Cloud Streamlit uses a React Aria switch (no [data-baseweb="switch"]).
 # Force readable Dark mode label + track on phone/tablet only.
 _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
@@ -7604,6 +7675,7 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _GATED_MOBILE_TABLET_LANDING_REFINE_CSS
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
     + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    + _GATED_NAMED_TABLET_MARKET_TYPE_CSS
     + _LANDING_VIEW_100_CSS
 )
 
@@ -7612,4 +7684,5 @@ RESPONSIVE_SCREENER_TOP_COMPACT = (
     + _GATED_MOBILE_TABLET_LANDING_REFINE_CSS
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
     + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    + _GATED_NAMED_TABLET_MARKET_TYPE_CSS
 )

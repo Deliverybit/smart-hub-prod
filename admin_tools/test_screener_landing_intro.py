@@ -53,6 +53,7 @@ def test_gated_mobile_refine_css_restores_readable_spacing() -> None:
         _GATED_MOBILE_TABLET_LANDING_REFINE_CSS,
         _GATED_MOBILE_TABLET_MARKET_TYPE_CSS,
         _GATED_MOBILE_TABLET_NO_SCROLL_CSS,
+        _GATED_NAMED_TABLET_MARKET_TYPE_CSS,
     )
 
     assert "font-size: 18px !important;" in _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
@@ -77,6 +78,14 @@ def test_gated_mobile_refine_css_restores_readable_spacing() -> None:
     assert "Headline sentiment is taken into account" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
     assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
     assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_SCREENER_TOP_COMPACT
+    assert "min-width: 700px" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    assert "min-width: 980px" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    assert "min-width: 880px" in _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    assert _GATED_NAMED_TABLET_MARKET_TYPE_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
+    assert _GATED_NAMED_TABLET_MARKET_TYPE_CSS in RESPONSIVE_SCREENER_TOP_COMPACT
+    assert RESPONSIVE_TAB_NAV_BOOTSTRAP.index(_GATED_NAMED_TABLET_MARKET_TYPE_CSS) > RESPONSIVE_TAB_NAV_BOOTSTRAP.index(
+        _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    )
 
 
 def test_landing_css_mobile_tablet_adds_spacing() -> None:

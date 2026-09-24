@@ -53,7 +53,7 @@ st.markdown(
         zoom: 1 !important;
     }
     html, body, [class*="css"] {
-        font-size: 16px !important;
+        font-size: 20px !important;
         line-height: 1.7 !important;
     }
     h1 { font-size: 5rem !important; font-weight: 800 !important; }

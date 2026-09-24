@@ -29,7 +29,7 @@ def test_landing_view_resets_to_100_percent() -> None:
     assert _LANDING_VIEW_100_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
     assert _LANDING_VIEW_100_CSS in DESKTOP_SCREENER_GATING_LAYOUT
     assert 'html[data-scoop-screener-gated="1"]' in DESKTOP_SCREENER_GATING_LAYOUT
-    assert "font-size: 18px !important;" in DESKTOP_SCREENER_GATING_LAYOUT
+    assert "font-size: 18px !important;" not in DESKTOP_SCREENER_GATING_LAYOUT
 
 
 def test_home_landing_attract_css_is_mobile_tablet_only() -> None:

@@ -4347,42 +4347,8 @@ _DESKTOP_SCREENER_GATING_LAYOUT_RULES = """
         margin-bottom: 0.55rem !important;
     }
     html[data-scoop-screener-gated="1"] [data-testid="stMainBlockContainer"] h1 {
-        margin-top: 0.15rem !important;
-        margin-bottom: 0.2rem !important;
-        font-size: 2.4rem !important;
-        line-height: 1.15 !important;
-    }
-    /* First visit: page CSS uses a 30px root, which pushes the consent
-       checkbox below the locked 100dvh gate. Fit the gate to the viewport. */
-    html[data-scoop-screener-gated="1"]:not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]),
-    html[data-scoop-screener-gated="1"]:not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) body,
-    html[data-scoop-screener-gated="1"]:not([data-scoop-home-mini-type="1"]):not([data-scoop-home-surface-pro10="1"]) [class*="css"] {
-        font-size: 18px !important;
-        line-height: 1.45 !important;
-    }
-    html[data-scoop-screener-gated="1"] [data-testid="stSidebar"] #scoop-title,
-    html[data-scoop-screener-gated="1"] [data-testid="stSidebar"] .sidebar-brand,
-    html[data-scoop-screener-gated="1"] [data-testid="stSidebar"] .sidebar-brand-text {
-        font-size: 32px !important;
-        white-space: nowrap !important;
-        line-height: 1.1 !important;
-    }
-    html[data-scoop-screener-gated="1"] .scoop-index-card {
-        flex-wrap: wrap !important;
-        align-items: center !important;
-        padding: 0.75rem 1rem !important;
-        gap: 0.35rem 0.75rem !important;
-    }
-    html[data-scoop-screener-gated="1"] .scoop-index-card span {
-        white-space: normal !important;
-        line-height: 1.25 !important;
-    }
-    html[data-scoop-screener-gated="1"] .scoop-index-card span[style*="font-size:1.4rem"] {
-        font-size: 1.05rem !important;
-        flex: 1 1 100% !important;
-    }
-    html[data-scoop-screener-gated="1"] .scoop-index-card span[style*="font-size:2.2rem"] {
-        font-size: 1.55rem !important;
+        margin-top: 0.2rem !important;
+        margin-bottom: 0.3rem !important;
     }
 """
 

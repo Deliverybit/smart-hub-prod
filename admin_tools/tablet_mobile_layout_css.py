@@ -3572,6 +3572,55 @@ _desktop_analyze_pop_attr = _DESKTOP_ANALYZE_POP_RULES.replace(
     'html[data-scoop-analyze-active="1"]',
     'html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"]',
 )
+# Keep the headline panel beside the price column on desktop, including when
+# browser zoom sets data-scoop-desktop-layout below the 1367px media query.
+_DESKTOP_ANALYZE_MOOD_ROW_CSS = """
+@media (min-width: 1367px) {
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed),
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: flex-start !important;
+        width: 100% !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div,
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div {
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:first-child,
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div:first-child {
+        flex: 2 1 0 !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:last-child,
+    html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div:last-child {
+        flex: 1 1 0 !important;
+    }
+}
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed),
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div,
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div {
+    min-width: 0 !important;
+    max-width: none !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:first-child,
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div:first-child {
+    flex: 2 1 0 !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed) > div:last-child,
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-column) > div:last-child {
+    flex: 1 1 0 !important;
+}
+"""
+
 DESKTOP_ANALYZE_TOP_COMPACT = (
     DESKTOP_ANALYZE_TOP_COMPACT
     + f"""
@@ -3580,6 +3629,7 @@ DESKTOP_ANALYZE_TOP_COMPACT = (
 }}
 {_desktop_analyze_pop_attr}
 """
+    + _DESKTOP_ANALYZE_MOOD_ROW_CSS
 )
 
 # Mobile/tablet Analyze deep-dive: collapse bootstrap gaps, js_eval, and stray divider lines.

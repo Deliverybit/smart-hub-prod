@@ -102,6 +102,7 @@ def test_desktop_analyze_keeps_mood_column_right() -> None:
     css = (ROOT / "admin_tools" / "tablet_mobile_layout_css.py").read_text(encoding="utf-8")
     analyze_src = (ROOT / "pages" / "_Analyze.py").read_text(encoding="utf-8")
     assert 'html[data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed)' in css
+    assert 'html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stHorizontalBlock"]:has(.mood-feed)' in css
     assert "flex-wrap: nowrap !important" in css
     assert 'is_desktop_viewport(page="pages/_Analyze.py") is False' in analyze_src
     assert "[data-testid=\"stHorizontalBlock\"]:has(.mood-feed)" in analyze_src

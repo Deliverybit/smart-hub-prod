@@ -5651,7 +5651,11 @@ RESPONSIVE_TAB_NAV_BAR = """
     }
     html[data-scoop-tab-nav="1"] .scoop-mobile-back-home {
         display: inline-flex !important;
+        flex: 0 0 auto !important;
         align-items: center !important;
+        width: max-content !important;
+        min-width: max-content !important;
+        max-width: none !important;
         margin: 0 0 0.45rem 0 !important;
         padding: 0.35rem 0.75rem !important;
         border-radius: 999px !important;
@@ -5659,8 +5663,12 @@ RESPONSIVE_TAB_NAV_BAR = """
         background: #f8fafc !important;
         font-size: 0.85rem !important;
         font-weight: 700 !important;
+        line-height: 1.15 !important;
         text-decoration: none !important;
         color: #0f172a !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
     }
     html[data-scoop-theme="dark"] .scoop-mobile-back-home {
         border-color: #94a3b8 !important;
@@ -5701,6 +5709,7 @@ MOBILE_BACK_HOME_BAR = """
         right: auto !important;
         z-index: 2 !important;
         display: flex !important;
+        flex-wrap: nowrap !important;
         align-items: center !important;
         justify-content: flex-start !important;
         gap: 0.5rem !important;
@@ -5717,9 +5726,13 @@ MOBILE_BACK_HOME_BAR = """
         visibility: hidden !important;
         pointer-events: none !important;
     }
-    .scoop-mobile-back-home-bar .scoop-mobile-back-home {
+    html[data-scoop-tab-nav="1"] .scoop-mobile-back-home-bar a.scoop-mobile-back-home {
         display: inline-flex !important;
+        flex: 0 0 auto !important;
         align-items: center !important;
+        width: max-content !important;
+        min-width: max-content !important;
+        max-width: none !important;
         margin: 0 !important;
         padding: 0.4rem 0.8rem !important;
         border-radius: 999px !important;
@@ -5727,10 +5740,13 @@ MOBILE_BACK_HOME_BAR = """
         background: #f8fafc !important;
         font-size: 0.88rem !important;
         font-weight: 700 !important;
+        line-height: 1.15 !important;
         text-decoration: none !important;
         color: #0f172a !important;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12) !important;
         white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
     }
     html[data-scoop-theme="dark"] .scoop-mobile-back-home-bar .scoop-mobile-back-home {
         border-color: #94a3b8 !important;

@@ -76,6 +76,9 @@ def test_gated_mobile_refine_css_restores_readable_spacing() -> None:
     assert ".scoop-landing-sentiment" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
     assert "[data-testid=\"stAlert\"]" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
     assert "Headline sentiment is taken into account" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    assert 'stMarkdownContainer"]:has(.scoop-landing-compact)' in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    assert "align-self: stretch !important;" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
+    assert "min-width: 100% !important;" in _GATED_MOBILE_TABLET_NO_SCROLL_CSS
     assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_TAB_NAV_BOOTSTRAP
     assert _GATED_MOBILE_TABLET_NO_SCROLL_CSS in RESPONSIVE_SCREENER_TOP_COMPACT
     assert 'html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"]' in _GATED_NAMED_TABLET_MARKET_TYPE_CSS

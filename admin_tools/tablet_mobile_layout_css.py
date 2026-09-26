@@ -7499,12 +7499,36 @@ _GATED_MOBILE_TABLET_NO_SCROLL_CSS = f"""
         line-height: 1.15 !important;
         margin: 0.1rem 0 0.15rem 0 !important;
     }}
+    /* Phone/tablet gate: Streamlit markdown is fit-content, so width:100% on the
+       cards resolved against a shrink-wrapped column and the copy wrapped into a
+       narrow strip. Stretch the widget to the main column first. */
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"],
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] {{
+        width: 100% !important;
+        max-width: 100% !important;
+        align-items: stretch !important;
+    }}
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-landing-compact),
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-landing-compact),
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stMarkdown"]:has(.scoop-landing-compact),
+    {_GATED_MT} [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"]:has(.scoop-landing-compact) {{
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        align-self: stretch !important;
+        flex: 1 1 auto !important;
+        box-sizing: border-box !important;
+    }}
     {_GATED_MT} .scoop-landing-compact:has(.scoop-landing-summary),
     {_GATED_MT} .scoop-landing-summary,
     {_GATED_MT} .scoop-landing-compact:has(.scoop-landing-summary) p,
     {_GATED_MT} .scoop-landing-summary p {{
         display: block !important;
         width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        align-self: stretch !important;
         box-sizing: border-box !important;
         margin: 0 0 0.35rem 0 !important;
         padding: 0.55rem 0.7rem !important;
@@ -7515,6 +7539,8 @@ _GATED_MOBILE_TABLET_NO_SCROLL_CSS = f"""
         content: "Headline sentiment is taken into account, and headlines are provided for the results.";
         display: block !important;
         width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
         box-sizing: border-box !important;
         margin: 0.35rem 0 0.15rem 0 !important;
         padding: 0.55rem 0.7rem !important;

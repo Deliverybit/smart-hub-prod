@@ -7683,14 +7683,16 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
         font-size: clamp(2.8rem, 6.2vw, 3.8rem) !important;
         line-height: 1.1 !important;
     }}
-    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
-    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
-    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
-    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
-    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
-    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
-        font-size: clamp(1.45rem, 3.2vw, 1.75rem) !important;
-        line-height: 1.5 !important;
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        font-size: clamp(1.85rem, 3.6vw, 2.15rem) !important;
+        line-height: 1.45 !important;
         padding: 0.85rem 1rem !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
@@ -7759,12 +7761,17 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
         font-size: 5rem !important;
         line-height: 1.12 !important;
     }}
-    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
-    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
-    html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
-    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
-    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
-    html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        font-size: 2.05rem !important;
+        line-height: 1.5 !important;
+    }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p {{
         font-size: 1.6rem !important;

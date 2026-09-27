@@ -1631,18 +1631,8 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
     };
 
     const syncMarketNavActive = () => {
-        const isDesktop = layout()?.isDesktopViewport?.();
-        const isResponsive = layout()?.isResponsiveViewport?.();
-        if (!isDesktop && !isResponsive) {
-            return;
-        }
-        const navSelector = isDesktop
-            ? '[data-testid="stSidebar"] [data-testid="stPageLink"] a[href$="_Top_10"]'
-            : isTabNavMode()
-            ? '.scoop-mobile-tab-row [data-testid="stPageLink"] a'
-            : '[data-testid="stSidebar"] [data-testid="stPageLink"] a';
         const normalize = (value) => (value || "").replace(/^\\/+|\\/+$/g, "").toLowerCase();
-        const current = normalize(location.pathname);
+        const current = normalize(appWin.location.pathname || location.pathname);
         const isHomePath = !current || current === "app" || current.endsWith("/app");
         const markActive = (selector) => {
             doc.querySelectorAll(selector).forEach((a) => {
@@ -1663,7 +1653,10 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
                 }
             });
         };
-        markActive(navSelector);
+        markActive('[data-testid="stSidebar"] [data-testid="stPageLink"] a[href$="_Top_10"]');
+        if (isTabNavMode()) {
+            markActive('.scoop-mobile-tab-row [data-testid="stPageLink"] a');
+        }
         if (doc.documentElement.getAttribute("data-scoop-home-page") === "1") {
             markActive('.scoop-home-market-grid [data-testid="stPageLink"] a');
         }
@@ -1726,12 +1719,14 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
     };
 
     const resync = () => {
+        try {
+            syncMarketNavActive();
+        } catch (e) {}
         syncAnalyzePageFlag();
         syncScreenerPageFlag();
         syncTermsPageFlag();
         holdMobileTermsMainView();
         layout()?.syncSidebarLayout?.();
-        syncMarketNavActive();
         resetScroll();
     };
 
@@ -1882,6 +1877,54 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
         doc.addEventListener("touchstart", appWin.__scoopPageNavClickHandler, { passive: true, capture: true });
         doc.addEventListener("pointerdown", appWin.__scoopPageNavClickHandler, true);
         appWin.__scoopPageNavBindVersion = PAGE_NAV_BIND_VERSION;
+    }
+
+    if (!appWin.__scoopHomeHoverBound) {
+        const hoverLink = (event) => {
+            const width = appWin.innerWidth || window.innerWidth || 0;
+            const root = doc.documentElement;
+            if (root.getAttribute("data-scoop-desktop-layout") === "1") {
+                return;
+            }
+            if (width > 1366 && root.getAttribute("data-scoop-tab-nav") !== "1") {
+                return;
+            }
+            if (root.getAttribute("data-scoop-home-page") !== "1") {
+                return;
+            }
+            const link = event.target && event.target.closest
+                ? event.target.closest('[data-testid="stMainBlockContainer"] [data-testid="stPageLink"]')
+                : null;
+            if (!link) {
+                return;
+            }
+            const href = (link.querySelector("a") && link.querySelector("a").getAttribute("href")) || "";
+            if (!/Top_10|Terms_of_Service/i.test(href)) {
+                return;
+            }
+            doc.querySelectorAll("[data-scoop-hover]").forEach((el) => {
+                if (el !== link) {
+                    el.removeAttribute("data-scoop-hover");
+                }
+            });
+            link.setAttribute("data-scoop-hover", "");
+        };
+        const clearHover = (event) => {
+            const link = event.target && event.target.closest
+                ? event.target.closest('[data-testid="stPageLink"]')
+                : null;
+            if (!link || !link.hasAttribute("data-scoop-hover")) {
+                return;
+            }
+            const next = event.relatedTarget;
+            if (next && link.contains(next)) {
+                return;
+            }
+            link.removeAttribute("data-scoop-hover");
+        };
+        doc.addEventListener("mouseover", hoverLink, true);
+        doc.addEventListener("mouseout", clearHover, true);
+        appWin.__scoopHomeHoverBound = 1;
     }
 
     resync();
@@ -4961,7 +5004,22 @@ def inject_desktop_sidebar_nav_market() -> None:
         f"<style id='scoop-desktop-terms-top-compact-css'>{DESKTOP_TERMS_TOP_COMPACT}</style>"
         f"<style id='scoop-responsive-sidebar-brand-toggle-buffer-css'>{RESPONSIVE_SIDEBAR_BRAND_TOGGLE_BUFFER}</style>"
         f"<style id='scoop-desktop-sidebar-brand-toggle-buffer-css'>{DESKTOP_SIDEBAR_BRAND_TOGGLE_BUFFER}</style>"
-        f"<style id='scoop-desktop-sidebar-logo-css'>{DESKTOP_SIDEBAR_LOGO_RULES}</style>",
+        f"<style id='scoop-desktop-sidebar-logo-css'>{DESKTOP_SIDEBAR_LOGO_RULES}</style>"
+        """<script>(() => {
+  const mark = () => {
+    const path = ((location.pathname) || "").replace(/^\\/+|\\/+$/g, "").toLowerCase();
+    document.querySelectorAll('[data-testid="stSidebar"] [data-testid="stPageLink"] a[href$="_Top_10"]').forEach((a) => {
+      const box = a.closest('[data-testid="stPageLink"]');
+      if (!box) return;
+      const href = (a.getAttribute("href") || "").replace(/^\\/+|\\/+$/g, "").toLowerCase();
+      const on = Boolean(href) && (path === href || path.endsWith("/" + href));
+      if (on) box.setAttribute("data-scoop-nav-active", "");
+      else box.removeAttribute("data-scoop-nav-active");
+    });
+  };
+  mark();
+  [200, 700, 1500].forEach((ms) => setTimeout(mark, ms));
+})();</script>""",
         unsafe_allow_javascript=True,
     )
     # Separate inject so Streamlit cannot drop this block when co-bundled.

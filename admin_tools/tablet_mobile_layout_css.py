@@ -2065,6 +2065,20 @@ _DESKTOP_MARKET_NAV_LIGHT_RULES = """
         padding: 0.45rem 0.65rem !important;
         box-sizing: border-box !important;
     }
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]),
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active {
+        background: #7dd3fc !important;
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.45) !important;
+    }
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a,
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a p,
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) span,
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a,
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a p {
+        background: transparent !important;
+        color: #0f172a !important;
+    }
 """
 
 _DESKTOP_MARKET_NAV_DARK_RULES = """
@@ -2111,12 +2125,19 @@ _DESKTOP_MARKET_NAV_DARK_RULES = """
         color: #ffffff !important;
         background-color: transparent !important;
     }
-    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) {
-        background: #333333 !important;
-        border-color: #38bdf8 !important;
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]),
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active {
+        background: #7dd3fc !important;
+        border-color: #e0f2fe !important;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.45) !important;
     }
-    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a {
-        background-color: rgba(255, 255, 255, 0.1) !important;
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a,
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a p,
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) span,
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a,
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a p {
+        background: transparent !important;
+        color: #0f172a !important;
     }
 """
 
@@ -3249,6 +3270,36 @@ html[data-scoop-desktop-layout="1"] {{
 {_RESPONSIVE_MARKET_NAV_LIGHT_RULES}
 {_RESPONSIVE_MARKET_NAV_DARK_RULES}
 }}
+@media (min-width: 1367px) {{
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]),
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active {{
+        background: #7dd3fc !important;
+        border-color: #e0f2fe !important;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.45) !important;
+    }}
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a,
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a p,
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) span,
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a,
+    html[data-scoop-theme="dark"] body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a p {{
+        background: transparent !important;
+        color: #0f172a !important;
+    }}
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]),
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active {{
+        background: #7dd3fc !important;
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.45) !important;
+    }}
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a,
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a p,
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) span,
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a,
+    html:not([data-scoop-theme="dark"]) body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active a p {{
+        background: transparent !important;
+        color: #0f172a !important;
+    }}
+}}
 """
 
 # Analyze deep-dive: drop header padding, js_eval gaps, and divider lines (desktop only).
@@ -4214,7 +4265,7 @@ _DESKTOP_SCREENER_POP_CSS = """
     html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody td[data-label="Analyze"] .fr-analyze-cell,
     html:not([data-scoop-home-page="1"]) .full-results-wrap .full-results-table tbody td[data-label="Analyze"] a.fr-analyze-link {
         position: relative !important;
-        z-index: 2147483646 !important;
+        z-index: 1 !important;
         pointer-events: auto !important;
     }
     html:not([data-scoop-home-page="1"]) [data-testid="stMarkdownContainer"] table {
@@ -7527,25 +7578,33 @@ _GATED_MOBILE_TABLET_NO_SCROLL_CSS = f"""
         display: block !important;
         width: 100% !important;
         max-width: 100% !important;
-        min-width: 100% !important;
+        min-width: 0 !important;
         align-self: stretch !important;
         box-sizing: border-box !important;
         margin: 0 0 0.35rem 0 !important;
         padding: 0.55rem 0.7rem !important;
         font-size: 0.92rem !important;
         line-height: 1.4 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: manual !important;
     }}
     {_GATED_MT} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
         content: "Headline sentiment is taken into account, and headlines are provided for the results.";
         display: block !important;
         width: 100% !important;
         max-width: 100% !important;
-        min-width: 100% !important;
+        min-width: 0 !important;
         box-sizing: border-box !important;
         margin: 0.35rem 0 0.15rem 0 !important;
         padding: 0.55rem 0.7rem !important;
         font-size: 0.92rem !important;
         line-height: 1.4 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: manual !important;
         border-radius: 0.5rem !important;
         border: 1px solid #93c5fd !important;
         background: #eff6ff !important;
@@ -7655,14 +7714,16 @@ html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"],
 html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     --scoop-named-tablet-gate: 1;
 }}
-@media (max-width: 1366px) {{
+/* Flags stick in localStorage after a tablet visit, so this block used to
+   enlarge the gate on phones too. Only real tablet widths may use it. */
+@media (min-width: 880px) and (max-width: 1366px) {{
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"],
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] body,
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [class*="css"],
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"],
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] body,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [class*="css"] {{
-        font-size: clamp(28px, 3.2vw, 34px) !important;
+        font-size: 21px !important;
         line-height: 1.55 !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"],
@@ -7680,8 +7741,8 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] h1,
     html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] h1 {{
-        font-size: clamp(2.8rem, 6.2vw, 3.8rem) !important;
-        line-height: 1.1 !important;
+        font-size: 1.7rem !important;
+        line-height: 1.2 !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary,
     html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-mini-type="1"] .scoop-landing-summary p,
@@ -7691,9 +7752,13 @@ html[data-scoop-screener-gated="1"][data-scoop-home-surface-pro10="1"] {{
     html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
     html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
     html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"][data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
-        font-size: clamp(1.85rem, 3.6vw, 2.15rem) !important;
+        font-size: 1.05rem !important;
         line-height: 1.45 !important;
-        padding: 0.85rem 1rem !important;
+        padding: 0.7rem 0.85rem !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        hyphens: manual !important;
     }}
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
     html[data-scoop-screener-gated="1"][data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
@@ -7806,6 +7871,598 @@ html[data-scoop-screener-gated="1"][data-scoop-home-ipad-mini="1"] .disclaimer-f
 }}
 """
 
+# Last-wins phone/tablet gate: fill the viewport with the existing blocks only.
+_GATED_POLISH = 'html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"]'
+_GATED_MOBILE_TABLET_POLISH_CSS = f"""
+@media (max-width: 1366px) {{
+    {_GATED_POLISH},
+    {_GATED_POLISH} body,
+    {_GATED_POLISH} .stApp,
+    {_GATED_POLISH} [data-testid="stAppViewContainer"],
+    {_GATED_POLISH} [data-testid="stAppViewContainer"] > section.main,
+    {_GATED_POLISH} [data-testid="stMain"],
+    {_GATED_POLISH} [data-testid="stAppScrollToBottomContainer"] {{
+        height: auto !important;
+        min-height: 100dvh !important;
+        max-height: none !important;
+        overflow: auto !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"],
+    {_GATED_POLISH} section.main > div {{
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        padding: 0.65rem 0.9rem 0.85rem 0.9rem !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"],
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] {{
+        flex: 0 0 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+        gap: 0.55rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"],
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"] {{
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:not(:has(h1)):not(:has(.scoop-mobile-back-home-bar)):not(:has(.scoop-mobile-inner-top-toggle)):not(:has(.scoop-landing-compact)):not(:has(a[href*="Terms_of_Service"])):not(:has([data-testid="stCheckbox"])):not(:has(.disclaimer-footer)),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:not(:has(h1)):not(:has(.scoop-mobile-back-home-bar)):not(:has(.scoop-mobile-inner-top-toggle)):not(:has(.scoop-landing-compact)):not(:has(a[href*="Terms_of_Service"])):not(:has([data-testid="stCheckbox"])):not(:has(.disclaimer-footer)) {{
+        display: none !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-landing-compact),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-landing-compact),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stMarkdown"]:has(.scoop-landing-compact) {{
+        flex: 0 0 auto !important;
+        height: auto !important;
+        align-self: stretch !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: 1.65rem !important;
+        line-height: 1.2 !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.02em !important;
+        margin: 0.15rem 0 0.1rem 0 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-compact:has(.scoop-landing-summary),
+    {_GATED_POLISH} .scoop-landing-summary,
+    {_GATED_POLISH} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH} .scoop-landing-summary p,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-summary,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-summary p {{
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0.7rem 0.85rem !important;
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+        border-radius: 0.9rem !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        hyphens: manual !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        margin-top: 0.9rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {{
+        font-size: 1.02rem !important;
+        line-height: 1.35 !important;
+        font-weight: 700 !important;
+    }}
+    {_GATED_POLISH} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {{
+        margin: 0 !important;
+        padding: 0.85rem 1rem !important;
+        border-radius: 0.9rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label,
+    {_GATED_POLISH} [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] [data-testid="stCheckbox"]:not(:has(.scoop-mobile-inner-top-toggle)) label p {{
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+    }}
+    {_GATED_POLISH} .disclaimer-footer,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .disclaimer-footer,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .disclaimer-footer,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .disclaimer-footer {{
+        position: static !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0.55rem 0.75rem !important;
+        font-size: 0.72rem !important;
+        line-height: 1.35 !important;
+        border-radius: 0.85rem !important;
+        box-sizing: border-box !important;
+    }}
+    {_GATED_POLISH} [data-testid="stElementContainer"]:has(.disclaimer-footer),
+    {_GATED_POLISH} [data-testid="element-container"]:has(.disclaimer-footer),
+    {_GATED_POLISH} [data-testid="stMarkdown"]:has(.disclaimer-footer) {{
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+    }}
+}}
+@media (max-width: 768px) {{
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"],
+    {_GATED_POLISH} section.main > div {{
+        padding: 0.4rem 0.75rem 0.35rem 0.75rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"],
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] {{
+        gap: 0.45rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: 1.35rem !important;
+        margin: 0 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-summary,
+    {_GATED_POLISH} .scoop-landing-summary p,
+    {_GATED_POLISH} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        padding: 0.65rem 0.8rem !important;
+        font-size: 0.92rem !important;
+        line-height: 1.35 !important;
+    }}
+    {_GATED_POLISH} .disclaimer-footer {{
+        font-size: 0.68rem !important;
+        line-height: 1.3 !important;
+        padding: 0.45rem 0.65rem !important;
+    }}
+}}
+@media (max-width: 1366px) and (max-height: 780px) {{
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"],
+    {_GATED_POLISH} section.main > div {{
+        padding: 0.35rem 0.75rem 0.3rem 0.75rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"],
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] {{
+        gap: 0.4rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: 1.3rem !important;
+        margin: 0 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-summary,
+    {_GATED_POLISH} .scoop-landing-summary p,
+    {_GATED_POLISH} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        padding: 0.5rem 0.7rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.3 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        margin-top: 0.75rem !important;
+    }}
+    {_GATED_POLISH} .disclaimer-footer {{
+        font-size: 0.66rem !important;
+        line-height: 1.28 !important;
+        padding: 0.4rem 0.6rem !important;
+    }}
+}}
+@media (max-width: 1366px) and (max-height: 680px) {{
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"],
+    {_GATED_POLISH} section.main > div {{
+        padding: 0.25rem 0.65rem 0.2rem 0.65rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"],
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] {{
+        gap: 0.35rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-summary,
+    {_GATED_POLISH} .scoop-landing-summary p,
+    {_GATED_POLISH} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.84rem !important;
+        line-height: 1.28 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        margin-top: 0.65rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {{
+        padding: 0.4rem 0.6rem !important;
+    }}
+    {_GATED_POLISH} .disclaimer-footer {{
+        font-size: 0.62rem !important;
+        line-height: 1.25 !important;
+        padding: 0.35rem 0.5rem !important;
+    }}
+}}
+html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.disclaimer-footer),
+html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.disclaimer-footer) {{
+    margin: 0 !important;
+}}
+@media (min-width: 744px) and (max-width: 1366px) {{
+    {_GATED_POLISH},
+    {_GATED_POLISH} body,
+    {_GATED_POLISH} .stApp,
+    {_GATED_POLISH} [data-testid="stAppViewContainer"],
+    {_GATED_POLISH} [data-testid="stAppViewContainer"] > section.main,
+    {_GATED_POLISH} [data-testid="stMain"],
+    {_GATED_POLISH} [data-testid="stAppScrollToBottomContainer"] {{
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"],
+    {_GATED_POLISH} section.main > div {{
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        padding: 1rem 1.35rem 2.15rem 1.35rem !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"],
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] {{
+        flex: 1 1 auto !important;
+        height: 100% !important;
+        justify-content: flex-start !important;
+        gap: 0.65rem !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] h1 {{
+        font-size: clamp(2.8rem, 6.4vh, 4rem) !important;
+        line-height: 1.15 !important;
+        margin: 0 !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.scoop-mobile-back-home-bar),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:has(.scoop-mobile-back-home-bar),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.scoop-mobile-inner-top-toggle),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:has(.scoop-mobile-inner-top-toggle) {{
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(h1),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:has(h1) {{
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.scoop-landing-summary),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:has(.scoop-landing-summary) {{
+        margin-bottom: 0 !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(a[href*="Terms_of_Service"]):not(:has(.disclaimer-footer)),
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:has(a[href*="Terms_of_Service"]):not(:has(.disclaimer-footer)) {{
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-summary,
+    {_GATED_POLISH} .scoop-landing-summary p,
+    {_GATED_POLISH} .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-summary,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-summary p,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-summary,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-summary p,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(.scoop-landing-summary) p,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-summary,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-summary p,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        font-size: clamp(1.12rem, 2.5vh, 1.55rem) !important;
+        line-height: 1.45 !important;
+        padding: clamp(0.85rem, 2vh, 1.35rem) clamp(1rem, 2vw, 1.4rem) !important;
+    }}
+    {_GATED_POLISH} .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .scoop-landing-compact:has(> .scoop-landing-summary)::after {{
+        margin-top: clamp(0.95rem, 2vh, 1.35rem) !important;
+    }}
+    {_GATED_POLISH} [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {{
+        font-size: clamp(1.05rem, 2.2vh, 1.4rem) !important;
+    }}
+    {_GATED_POLISH} [data-testid="stCheckbox"]:not(:has(input[aria-label="Dark mode"])):not(:has(.scoop-mobile-inner-top-toggle)) label,
+    {_GATED_POLISH} [data-testid="stCheckbox"]:not(:has(input[aria-label="Dark mode"])):not(:has(.scoop-mobile-inner-top-toggle)) label p,
+    {_GATED_POLISH} [data-testid="stCheckbox"]:not(:has(input[aria-label="Dark mode"])):not(:has(.scoop-mobile-inner-top-toggle)) [data-testid="stWidgetLabel"],
+    {_GATED_POLISH} [data-testid="stCheckbox"]:not(:has(input[aria-label="Dark mode"])):not(:has(.scoop-mobile-inner-top-toggle)) [data-testid="stWidgetLabel"] p {{
+        font-size: clamp(1.12rem, 2.5vh, 1.55rem) !important;
+        line-height: 1.45 !important;
+    }}
+    {_GATED_POLISH} [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]):not(:has(.scoop-mobile-inner-top-toggle)) div[data-testid="stCheckbox"] {{
+        padding: clamp(0.75rem, 1.8vh, 1.15rem) 1.1rem !important;
+    }}
+    {_GATED_POLISH} .disclaimer-footer,
+    {_GATED_POLISH}[data-scoop-home-mini-type="1"] .disclaimer-footer,
+    {_GATED_POLISH}[data-scoop-home-surface-pro10="1"] .disclaimer-footer,
+    {_GATED_POLISH}[data-scoop-home-ipad-mini="1"] .disclaimer-footer {{
+        font-size: clamp(0.82rem, 1.7vh, 1.05rem) !important;
+        line-height: 1.4 !important;
+        padding: clamp(0.7rem, 1.6vh, 1.05rem) 1rem !important;
+    }}
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.scoop-landing-summary) {{
+        margin-bottom: 0 !important;
+    }}
+}}
+"""
+
+# Tablet only: larger Back to Home pill and Dark mode control.
+_TABLET_TOP_CONTROLS_CSS = """
+@media (min-width: 744px) and (max-width: 1366px) {
+    html[data-scoop-tab-nav="1"] .scoop-mobile-back-home-bar a.scoop-mobile-back-home,
+    html[data-scoop-tab-nav="1"] .scoop-mobile-back-home {
+        padding: 0.72rem 1.25rem !important;
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+    }
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label {
+        gap: 0.7rem !important;
+    }
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-baseweb="checkbox"] > div:first-child {
+        width: 58px !important;
+        min-width: 58px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+    }
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-baseweb="checkbox"] > div:first-child > div {
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
+        min-height: 26px !important;
+    }
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"],
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) [data-testid="stWidgetLabel"] p,
+    html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label p {
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+    }
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1 span,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1 div,
+    html[data-scoop-tab-nav="1"][data-scoop-screener-active="1"]:not([data-scoop-home-page="1"]) body .stApp [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-tab-nav="1"][data-scoop-screener-active="1"]:not([data-scoop-home-page="1"]) body .stApp [data-testid="stMainBlockContainer"] h1 span,
+    html[data-scoop-tab-nav="1"][data-scoop-screener-active="1"]:not([data-scoop-home-page="1"]) body .stApp [data-testid="stMainBlockContainer"] h1 div {
+        font-size: 2.375rem !important;
+        line-height: 1.05 !important;
+    }
+}
+@media (max-width: 743px) {
+    html[data-scoop-tab-nav="1"][data-scoop-screener-active="1"]:not([data-scoop-home-page="1"]) body .stApp [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-tab-nav="1"][data-scoop-screener-active="1"]:not([data-scoop-home-page="1"]) body .stApp [data-testid="stMainBlockContainer"] h1 span,
+    html[data-scoop-tab-nav="1"][data-scoop-screener-active="1"]:not([data-scoop-home-page="1"]) body .stApp [data-testid="stMainBlockContainer"] h1 div,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1 span,
+    html[data-scoop-screener-gated="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1 div {
+        font-size: 2rem !important;
+        line-height: 1.1 !important;
+    }
+}
+"""
+
+# Phone home only: fit the landing on one screen, keep a gap between blocks.
+_MOBILE_HOME_ONE_SCREEN_CSS = """
+@media (max-width: 743px) {
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMain"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stAppViewContainer"] {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+        padding: 0.3rem 0.7rem 0.35rem 0.7rem !important;
+        box-sizing: border-box !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:not(:has([data-testid="stImage"])):not(:has(h1)):not(:has(.scoop-mobile-nav-title)):not(:has(#scoop-title)):not(:has(input[aria-label="Dark mode"])):not(:has(.scoop-home-landing)):not(:has([data-testid="stPageLink"])),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"]:not(:has([data-testid="stImage"])):not(:has(h1)):not(:has(.scoop-mobile-nav-title)):not(:has(#scoop-title)):not(:has(input[aria-label="Dark mode"])):not(:has(.scoop-home-landing)):not(:has([data-testid="stPageLink"])) {
+        display: none !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {
+        gap: 0.45rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="element-container"] {
+        margin: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"] {
+        max-height: 52px !important;
+        min-height: 0 !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"]) {
+        min-height: 0 !important;
+        height: auto !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {
+        max-height: 48px !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stImage"]) {
+        padding: 0.1rem 0 0.15rem 0 !important;
+        margin: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1 {
+        font-size: 1.35rem !important;
+        line-height: 1.1 !important;
+        margin: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-home-landing),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-home-landing),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.scoop-home-landing) + [data-testid="stElementContainer"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(.scoop-home-landing) + [data-testid="element-container"] {
+        margin: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing {
+        margin: 0 !important;
+        padding: 0.45rem 0.7rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing p {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 1.05rem !important;
+        line-height: 1.35 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] {
+        min-height: 0 !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {
+        min-height: 0 !important;
+        height: auto !important;
+        padding: 0.4rem 0.7rem !important;
+        font-size: 1rem !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a span {
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 1rem !important;
+        line-height: 1.2 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"]) {
+        margin-top: 0.35rem !important;
+    }
+}
+@media (max-width: 743px) and (max-height: 640px) {
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] {
+        padding: 0.15rem 0.55rem 0.2rem 0.55rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] {
+        gap: 0.32rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"] {
+        max-height: 48px !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {
+        max-height: 44px !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing {
+        padding: 0.35rem 0.55rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing p {
+        padding: 0 !important;
+        font-size: 0.98rem !important;
+        line-height: 1.3 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {
+        padding: 0.32rem 0.55rem !important;
+        font-size: 0.95rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a span {
+        padding: 0 !important;
+        font-size: 0.95rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"]) {
+        margin-top: 0.28rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] h1,
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] .scoop-mobile-nav-title {
+        font-size: 1.15rem !important;
+        line-height: 1.05 !important;
+        margin: 0 !important;
+    }
+}
+@media (min-width: 744px) and (max-width: 1366px) {
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMain"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stAppViewContainer"],
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing {
+        padding: 0.75rem 0.95rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing p {
+        font-size: 1.25rem !important;
+        line-height: 1.4 !important;
+        padding: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] {
+        padding: 0 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+        padding: 0.5rem 0.85rem !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a span {
+        padding: 0 !important;
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+    }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"]) {
+        margin-top: 0.45rem !important;
+    }
+}
+@media (min-width: 744px) and (max-width: 1366px) {
+    html:has(.scoop-home-landing),
+    html:has(.scoop-home-landing) body {
+        zoom: 1 !important;
+    }
+    html:has(.scoop-home-landing) .scoop-home-landing p {
+        font-size: 1.25rem !important;
+        line-height: 1.4 !important;
+    }
+    html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+        padding: 0.5rem 0.85rem !important;
+    }
+    html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a span {
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+        padding: 0 !important;
+    }
+}
+"""
+
 # Cloud Streamlit uses a React Aria switch (no [data-baseweb="switch"]).
 # Force readable Dark mode label + track on phone/tablet only.
 _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
@@ -7902,6 +8559,67 @@ _MOBILE_TABLET_RESULTS_DIVIDER_GAP_CSS = """
 }
 """
 
+# Last-wins: dark mode press/current market is visible on phone and tablet.
+_MOBILE_TABLET_DARK_MARKET_SELECT_CSS = """
+@media (max-width: 1366px) {
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):active,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp .scoop-mobile-tab-row [data-testid="stPageLink"]:active,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp .scoop-mobile-tab-row [data-testid="stPageLink"][data-scoop-nav-active] {
+        background: #7dd3fc !important;
+        border-color: #e0f2fe !important;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.55) !important;
+    }
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):active a,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):active a p,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp .scoop-mobile-tab-row [data-testid="stPageLink"]:active a,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp .scoop-mobile-tab-row [data-testid="stPageLink"]:active a p,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp .scoop-mobile-tab-row [data-testid="stPageLink"][data-scoop-nav-active] a,
+    html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] body .stApp .scoop-mobile-tab-row [data-testid="stPageLink"][data-scoop-nav-active] a p {
+        background: transparent !important;
+        color: #0f172a !important;
+    }
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Top_10"]),
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Terms_of_Service"]) {
+        background: #7dd3fc !important;
+        background-color: #7dd3fc !important;
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.55) !important;
+    }
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover a,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover a,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Top_10"]) a,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Terms_of_Service"]) a,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover a *,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover a *,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Top_10"]) a *,
+    html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Terms_of_Service"]) a * {
+        background: #7dd3fc !important;
+        background-color: #7dd3fc !important;
+        color: #0f172a !important;
+    }
+}
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Top_10"]),
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover]:has(a[href*="Terms_of_Service"]) {
+    background: #7dd3fc !important;
+    background-color: #7dd3fc !important;
+    border-color: #0284c7 !important;
+}
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover a,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover a,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover] a,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover a *,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover a *,
+html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-layout="1"]) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"][data-scoop-hover] a * {
+    background: #7dd3fc !important;
+    background-color: #7dd3fc !important;
+    color: #0f172a !important;
+}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -7935,7 +8653,11 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
     + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
     + _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    + _GATED_MOBILE_TABLET_POLISH_CSS
+    + _TABLET_TOP_CONTROLS_CSS
+    + _MOBILE_HOME_ONE_SCREEN_CSS
     + _LANDING_VIEW_100_CSS
+    + _MOBILE_TABLET_DARK_MARKET_SELECT_CSS
 )
 
 RESPONSIVE_SCREENER_TOP_COMPACT = (
@@ -7944,4 +8666,5 @@ RESPONSIVE_SCREENER_TOP_COMPACT = (
     + _GATED_MOBILE_TABLET_MARKET_TYPE_CSS
     + _GATED_MOBILE_TABLET_NO_SCROLL_CSS
     + _GATED_NAMED_TABLET_MARKET_TYPE_CSS
+    + _GATED_MOBILE_TABLET_POLISH_CSS
 )

@@ -1475,6 +1475,13 @@ _RESPONSIVE_LAYOUT_CORE_JS = (
             const path = (appWin.location.pathname || "").replace(/\/+$/, "") || "/";
             return path === "" || path === "/" || /\\/app$/i.test(path);
         };
+        const viewW = __scoopViewportWidth();
+        if (isHomeLanding() && viewW >= 744 && viewW <= 1366) {
+            targets.forEach((el) => {
+                el.style.setProperty("padding-top", "0px", "important");
+            });
+            return;
+        }
         if (isTabNavMode()) {
             const homePad = isHomeLanding() ? "0px" : "4px";
             targets.forEach((el) => {
@@ -1547,6 +1554,22 @@ _RESPONSIVE_LAYOUT_CORE_JS = (
     };
 
     const syncSidebarLayout = () => {
+        const homeTablet =
+            ((appWin.location.pathname || "").replace(/\/+$/, "") || "/") === "/" ||
+            /\/app$/i.test(appWin.location.pathname || "");
+        const viewW = __scoopViewportWidth();
+        if (homeTablet && viewW >= 744 && viewW <= 1366) {
+            setDesktopLayoutFlag(false);
+            const fixElHome = doc.getElementById("scoop-desktop-nav-fix-css");
+            if (fixElHome) {
+                fixElHome.remove();
+            }
+            doc.documentElement.setAttribute("data-scoop-tab-nav", "1");
+            doc.documentElement.setAttribute("data-scoop-home-page", "1");
+            applyResponsiveSidebarLayout();
+            syncMainBlockHeaderPadding();
+            return;
+        }
         // Tablet/phone Terms: stay in main-view tab-nav chrome (never flip to desktop split).
         if (__scoopIsTermsPage() && __scoopShouldHoldTermsMainView()) {
             setDesktopLayoutFlag(false);

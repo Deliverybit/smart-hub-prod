@@ -8620,6 +8620,84 @@ html[data-scoop-tab-nav="1"][data-scoop-home-page="1"]:not([data-scoop-desktop-l
 }
 """
 
+# Tablet landing only: one size from first paint through device-flag scripts.
+_TABLET_HOME_SIZE_LOCK_CSS = """
+@media (min-width: 744px) and (max-width: 1366px) {
+    html:has(.scoop-home-landing),
+    html:has(.scoop-home-landing) body,
+    html[data-scoop-home-ipad-mini="1"]:has(.scoop-home-landing),
+    html[data-scoop-home-mini-type="1"]:has(.scoop-home-landing),
+    html[data-scoop-home-surface-pro10="1"]:has(.scoop-home-landing) {
+        zoom: 1 !important;
+    }
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"],
+    html[data-scoop-home-ipad-mini="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"],
+    html[data-scoop-home-mini-type="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"],
+    html[data-scoop-home-surface-pro10="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] {
+        padding-top: 0.6rem !important;
+    }
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"],
+    html[data-scoop-home-ipad-mini="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
+    html[data-scoop-home-mini-type="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
+    html[data-scoop-home-surface-pro10="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {
+        width: 220px !important;
+        max-width: 220px !important;
+        height: 120px !important;
+        max-height: 120px !important;
+        min-height: 120px !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
+    html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
+    html[data-scoop-home-ipad-mini="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
+    html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
+    html[data-scoop-home-surface-pro10="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {
+        display: block !important;
+        width: auto !important;
+        height: 120px !important;
+        max-height: 120px !important;
+        object-fit: contain !important;
+        margin: 0 auto !important;
+    }
+    html:has(.scoop-home-landing) body .stApp #scoop-title,
+    html:has(.scoop-home-landing) body .stApp .sidebar-brand-text,
+    html[data-scoop-home-ipad-mini="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] #scoop-title,
+    html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] #scoop-title,
+    html[data-scoop-home-surface-pro10="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] #scoop-title {
+        font-size: 2.4rem !important;
+        line-height: 1.12 !important;
+    }
+    html:has(.scoop-home-landing) body .stApp .scoop-home-landing p,
+    html[data-scoop-home-ipad-mini="1"][data-scoop-home-page="1"] body .stApp .scoop-home-landing p,
+    html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"] body .stApp .scoop-home-landing p,
+    html[data-scoop-home-surface-pro10="1"][data-scoop-home-page="1"] body .stApp .scoop-home-landing p {
+        font-size: 1.25rem !important;
+        line-height: 1.4 !important;
+    }
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    html[data-scoop-home-ipad-mini="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+    html[data-scoop-home-surface-pro10="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a {
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+        padding: 0.5rem 0.85rem !important;
+    }
+    html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a span,
+    html[data-scoop-home-ipad-mini="1"]:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html[data-scoop-home-mini-type="1"]:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p,
+    html[data-scoop-home-surface-pro10="1"]:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p {
+        padding: 0 !important;
+        font-size: 1.2rem !important;
+        line-height: 1.2 !important;
+    }
+}
+"""
+
 RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     RESPONSIVE_TAB_NAV_HIDE_SIDEBAR
     + RESPONSIVE_TAB_NAV_SHELL
@@ -8658,6 +8736,7 @@ RESPONSIVE_TAB_NAV_BOOTSTRAP = (
     + _MOBILE_HOME_ONE_SCREEN_CSS
     + _LANDING_VIEW_100_CSS
     + _MOBILE_TABLET_DARK_MARKET_SELECT_CSS
+    + _TABLET_HOME_SIZE_LOCK_CSS
 )
 
 RESPONSIVE_SCREENER_TOP_COMPACT = (

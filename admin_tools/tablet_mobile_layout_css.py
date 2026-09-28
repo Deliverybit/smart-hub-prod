@@ -8634,7 +8634,7 @@ _TABLET_HOME_SIZE_LOCK_CSS = """
     html[data-scoop-home-ipad-mini="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"],
     html[data-scoop-home-mini-type="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"],
     html[data-scoop-home-surface-pro10="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] {
-        padding-top: 0.6rem !important;
+        padding-top: 0 !important;
     }
     html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
     html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],

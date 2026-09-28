@@ -592,7 +592,51 @@ def prepare_mobile_home_landing() -> None:
 
     inject_streamlit_chrome_hide()
     st.html(
-        f'<style id="scoop-responsive-tab-nav-css">{RESPONSIVE_TAB_NAV_BOOTSTRAP}</style>',
+        """
+        <style id="scoop-tablet-home-early">
+        @media (min-width: 744px) and (max-width: 1366px) {
+          html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] { padding-top: 0 !important; }
+          html:has(.scoop-home-landing) [data-testid="stImage"],
+          html:has(.scoop-home-landing) [data-testid="stFullScreenFrame"] {
+            width: 220px !important;
+            max-width: 220px !important;
+            height: 120px !important;
+            max-height: 120px !important;
+            min-height: 120px !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+          html:has(.scoop-home-landing) [data-testid="stImage"] img {
+            height: 120px !important;
+            max-height: 120px !important;
+            width: auto !important;
+            object-fit: contain !important;
+          }
+          html:has(.scoop-home-landing) #scoop-title,
+          html:has(.scoop-home-landing) .sidebar-brand-text {
+            font-size: 2.4rem !important;
+            line-height: 1.12 !important;
+          }
+          html:has(.scoop-home-landing) .scoop-home-landing p {
+            font-size: 1.25rem !important;
+            line-height: 1.4 !important;
+          }
+          html:has(.scoop-home-landing) [data-testid="stPageLink"] a {
+            font-size: 1.2rem !important;
+            line-height: 1.2 !important;
+            padding: 0.5rem 0.85rem !important;
+          }
+          html:has(.scoop-home-landing) [data-testid="stPageLink"] a p,
+          html:has(.scoop-home-landing) [data-testid="stPageLink"] a span {
+            font-size: 1.2rem !important;
+            line-height: 1.2 !important;
+            padding: 0 !important;
+          }
+        }
+        </style>
+        """
+        + f'<style id="scoop-responsive-tab-nav-css">{RESPONSIVE_TAB_NAV_BOOTSTRAP}</style>',
         unsafe_allow_javascript=True,
     )
     st.html(

@@ -4809,7 +4809,7 @@ def _inject_responsive_bootstrap_css() -> str:
         chromeEl.textContent = chromeHideCss;
         if (isMobileTablet) {{
             targetDoc.documentElement.setAttribute("data-scoop-tab-nav", "1");
-        }} else {{
+        }} else if (innerW > 1366) {{
             targetDoc.documentElement.removeAttribute("data-scoop-tab-nav");
         }}
         const hideTabNavSidebarControls = () => {{

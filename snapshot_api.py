@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
@@ -42,7 +43,7 @@ DISPLAY_META_FIELDS = (
 )
 
 HOST = "0.0.0.0"
-PORT = 8080
+PORT = int(os.environ.get("PORT", "8080"))
 SCREENER_KEYS = {defn.key for defn in SCREENER_DEFINITIONS}
 
 

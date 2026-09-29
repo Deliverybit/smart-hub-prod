@@ -1,0 +1,17 @@
+# Private snapshot API. Two always-on instances. Not the public site.
+services:
+  - type: web
+    name: scoop52-snapshot-api
+    runtime: python
+    plan: starter
+    numInstances: 2
+    buildCommand: pip install -r requirements.txt
+    startCommand: python snapshot_api.py
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: DATABASE_URL
+        sync: false

@@ -12,3 +12,4 @@ pandas>=2.3
 python-dateutil>=2.9
 # Postgres (consent logs and screener snapshots)
 psycopg[binary]>=3.2
+psycopg_pool>=3.2

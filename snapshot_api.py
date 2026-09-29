@@ -13,13 +13,13 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 from screener_engine import SCREENER_DEFINITIONS
 from screener_selection import _FULL_RESULTS_COLUMN_ORDER
-from screener_snapshots import _fetch_snapshot_uncached as fetch_snapshot
-from screener_snapshots import snapshot_is_fresh
+from screener_snapshots import snapshot_age_seconds, snapshot_max_age_seconds
 
 DISPLAY_ROW_LIMIT = 10
 DISPLAY_ROW_FIELDS = (
@@ -44,7 +44,10 @@ DISPLAY_META_FIELDS = (
 
 HOST = "0.0.0.0"
 PORT = int(os.environ.get("PORT", "8080"))
+POOL_MAX = 5
 SCREENER_KEYS = {defn.key for defn in SCREENER_DEFINITIONS}
+_pool = None
+_pool_lock = threading.Lock()
 
 
 def display_snapshot(payload: dict) -> dict:
@@ -62,14 +65,28 @@ def display_snapshot(payload: dict) -> dict:
     return body
 
 
+def get_pool():
+    """Reuse up to POOL_MAX Postgres connections for this process."""
+    global _pool
+    if _pool is not None:
+        return _pool
+    with _pool_lock:
+        if _pool is None:
+            from app_config import get_database_url
+            from psycopg_pool import ConnectionPool
+
+            _pool = ConnectionPool(
+                conninfo=get_database_url(required=True),
+                min_size=1,
+                max_size=POOL_MAX,
+                timeout=5,
+                open=True,
+            )
+        return _pool
+
+
 def fetch_display_snapshot(screener_key: str) -> dict | None:
     """Load snapshot fields for the top-10 table, skipping scan and analyze blobs."""
-    from app_config import get_database_url
-
-    database_url = get_database_url()
-    if not database_url:
-        return None
-
     meta_object = ", ".join(
         f"'{key}', payload->'{key}'" for key in DISPLAY_META_FIELDS
     )
@@ -92,9 +109,7 @@ def fetch_display_snapshot(screener_key: str) -> dict | None:
         WHERE screener_key = %s
     """
 
-    import psycopg
-
-    with psycopg.connect(database_url) as conn:
+    with get_pool().connection() as conn:
         with conn.cursor() as cur:
             cur.execute(query, (screener_key,))
             row = cur.fetchone()
@@ -120,12 +135,25 @@ def health_payload() -> tuple[int, dict]:
     """200 only when every screener snapshot exists and is fresh."""
     missing: list[str] = []
     stale: list[str] = []
+    max_age = snapshot_max_age_seconds()
+    with get_pool().connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT screener_key, updated_at
+                FROM screener_snapshots
+                WHERE screener_key = ANY(%s)
+                """,
+                (sorted(SCREENER_KEYS),),
+            )
+            found = {key: updated for key, updated in cur.fetchall()}
     for key in sorted(SCREENER_KEYS):
-        payload = fetch_snapshot(key)
-        if payload is None:
+        updated = found.get(key)
+        if updated is None:
             missing.append(key)
             continue
-        if not snapshot_is_fresh(payload):
+        age = snapshot_age_seconds({"updated_at": updated.isoformat()})
+        if age is None or age > max_age:
             stale.append(key)
     if missing or stale:
         return 503, {"ok": False, "missing": missing, "stale": stale}
@@ -158,6 +186,7 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Snapshot-Pool", str(POOL_MAX))
         self.end_headers()
         self.wfile.write(raw)
 

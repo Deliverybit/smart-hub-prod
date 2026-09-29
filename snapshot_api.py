@@ -167,25 +167,29 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         if path == "/health":
             status, body = health_payload()
+            cache_control = "no-store"
         elif path.startswith("/screeners/"):
             key = path.removeprefix("/screeners/").strip()
             if not key or "/" in key:
                 status, body = 404, {"error": "unknown screener"}
+                cache_control = "no-store"
             else:
                 status, body = screener_payload(key)
+                cache_control = "public, max-age=60" if status == 200 else "no-store"
         else:
             status, body = 404, {"error": "not found"}
-        self._send_json(status, body)
+            cache_control = "no-store"
+        self._send_json(status, body, cache_control)
 
     def log_message(self, fmt: str, *args) -> None:
         print(f"[snapshot-api] {self.address_string()} {fmt % args}")
 
-    def _send_json(self, status: int, body: dict) -> None:
+    def _send_json(self, status: int, body: dict, cache_control: str) -> None:
         raw = json.dumps(body).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(raw)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", cache_control)
         self.send_header("X-Snapshot-Pool", str(POOL_MAX))
         self.end_headers()
         self.wfile.write(raw)

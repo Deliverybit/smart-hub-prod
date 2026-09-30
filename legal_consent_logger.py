@@ -514,6 +514,42 @@ def _to_local_iso(utc_iso: str, tz_name: str) -> str:
         return dt_utc.isoformat()
 
 
+def record_public_consent(headers: dict[str, str], timezone_name: str = "") -> None:
+    """Append one click-wrap acceptance from the public site."""
+    normalized = {str(key).lower(): str(value) for key, value in headers.items()}
+    ip_address = _get_ip(normalized) or "0.0.0.0"
+    user_agent = normalized.get("user-agent", "unknown")
+    accept_language = normalized.get("accept-language", "unknown")
+    timezone_name = (timezone_name or _DEFAULT_TIMEZONE).strip() or _DEFAULT_TIMEZONE
+    timezone_offset = _resolve_timezone_offset(normalized, timezone_name)
+    gpc_raw = normalized.get("sec-gpc", "")
+    gpc_signal = gpc_raw == "1"
+    raw_fp = "|".join((user_agent, accept_language, "public"))
+    now = datetime.now(timezone.utc).isoformat()
+    is_vpn, vpn_service_provider = detect_vpn_proxy(ip_address)
+    record = {
+        "id": str(uuid.uuid4()),
+        "timestamp_utc": now,
+        "timezone_name": timezone_name,
+        "timezone_offset": timezone_offset,
+        "ip_address": ip_address,
+        "user_agent": user_agent,
+        "tos_version": "2026-03-16",
+        "fingerprint_hash": hashlib.sha256(raw_fp.encode("utf-8")).hexdigest(),
+        "consent_action": "click_wrap_accept",
+        "is_vpn": is_vpn,
+        "vpn_service_provider": vpn_service_provider,
+        "gpc_signal": gpc_signal,
+        "manual_opt_out": False,
+        "opt_out_effective": gpc_signal,
+        "opt_out_source": "gpc" if gpc_signal else "",
+        "tracking_mode": "limited" if gpc_signal else "standard",
+    }
+    record["timestamp_local"] = _to_local_iso(now, timezone_name)
+    if not _insert_postgres(record):
+        raise RuntimeError("consent was not stored")
+
+
 def log_terms_acceptance(
     st_module,
     consent_key: str,

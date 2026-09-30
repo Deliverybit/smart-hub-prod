@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consent — The Scoop 52</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header>
+    <p><a href="index.html">The Scoop 52</a></p>
+    <h1>Accept the terms</h1>
+    <p class="meta">Read the <a href="terms.html">Terms of Service</a> before you accept. This is the only public action that writes to the database.</p>
+  </header>
+  <main>
+    <form id="consent-form">
+      <label>
+        <input type="checkbox" id="accepted" required>
+        I agree to the Terms of Service and financial disclaimer (version 2026-03-16).
+      </label>
+      <p><button type="submit">Record acceptance</button></p>
+      <p id="consent-status" class="meta"></p>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector("#consent-form");
+    const status = document.querySelector("#consent-status");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      status.textContent = "Recording acceptance…";
+      const response = await fetch("https://data.thescoop52.com/consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accepted: true,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+        }),
+      });
+      status.textContent = response.ok
+        ? "Acceptance recorded."
+        : `Acceptance was not recorded (${response.status}).`;
+    });
+  </script>
+</body>
+</html>

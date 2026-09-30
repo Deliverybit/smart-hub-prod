@@ -249,10 +249,10 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         self._cors_headers()
         self.send_header("X-Snapshot-Pool", str(POOL_MAX))
         self.end_headers()
+        self.wfile.write(raw)
 
     def _cors_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.wfile.write(raw)
 
 
 def main() -> None:

@@ -2143,8 +2143,8 @@ _DESKTOP_MARKET_NAV_DARK_RULES = """
 
 _HOME_MAIN_SCOPE = 'html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"]'
 _HOME_SIDE_PADDING = "20px"
-_HOME_LOGO_MAX = "clamp(240px, 64vw, 340px)"
-_HOME_LOGO_TABLET_MAX = "clamp(360px, 50vw, 520px)"
+_HOME_LOGO_MAX = "clamp(7.5rem, 42vw, 11.5rem)"
+_HOME_LOGO_TABLET_MAX = "clamp(10rem, 26vw, 16rem)"
 _HOME_HEADER_CLEARANCE = "calc(4.75rem + env(safe-area-inset-top, 0px))"
 _MOBILE_TAB_MAIN = 'html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"]'
 # Do not prefix _MOBILE_TAB_MAIN with another html[...] — that becomes html html.
@@ -2644,6 +2644,9 @@ _HOME_LOGO_INNER = """
 """
 _HOME_LOGO_MOBILE_RULES = f"""
 @media (max-width: 768px) {{
+    html[data-scoop-home-page="1"] {{
+        --scoop-home-logo: {_HOME_LOGO_MAX};
+    }}
     {_HOME_MAIN_SCOPE} [data-testid="stElementContainer"]:has([data-testid="stImage"]),
     {_HOME_MAIN_SCOPE} [data-testid="element-container"]:has([data-testid="stImage"]) {{
 {_HOME_LOGO_BOX_CHROME}
@@ -2675,6 +2678,9 @@ _HOME_LOGO_MOBILE_RULES = f"""
 # Tablet home landing: same white card, larger centered mark.
 _HOME_LOGO_TABLET_RULES = f"""
 @media (min-width: 769px) and (max-width: 1366px) {{
+    html[data-scoop-home-page="1"] {{
+        --scoop-home-logo: {_HOME_LOGO_TABLET_MAX};
+    }}
     {_HOME_MAIN_SCOPE} [data-testid="stElementContainer"]:has([data-testid="stImage"]),
     {_HOME_MAIN_SCOPE} [data-testid="element-container"]:has([data-testid="stImage"]) {{
 {_HOME_LOGO_BOX_CHROME}
@@ -2733,9 +2739,10 @@ _HOME_LOGO_TOP_CLEARANCE_FINAL = f"""
     }}
     html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {{
         display: block !important;
-        width: auto !important;
+        width: var(--scoop-home-logo, {_HOME_LOGO_MAX}) !important;
+        max-width: var(--scoop-home-logo, {_HOME_LOGO_MAX}) !important;
         height: auto !important;
-        max-height: none !important;
+        max-height: var(--scoop-home-logo, {_HOME_LOGO_MAX}) !important;
         margin-left: auto !important;
         margin-right: auto !important;
         object-fit: contain !important;
@@ -3066,9 +3073,10 @@ _HOME_SIDEBAR_BRAND_AND_TYPE_RULES = f"""
         background: transparent !important;
     }}
     {_HOME_MAIN_SCOPE} [data-testid="stImage"] img {{
-        width: auto !important;
-        max-width: {_HOME_LOGO_MAX} !important;
+        width: var(--scoop-home-logo, {_HOME_LOGO_MAX}) !important;
+        max-width: var(--scoop-home-logo, {_HOME_LOGO_MAX}) !important;
         height: auto !important;
+        max-height: var(--scoop-home-logo, {_HOME_LOGO_MAX}) !important;
         display: block !important;
         object-fit: contain !important;
         object-position: center !important;

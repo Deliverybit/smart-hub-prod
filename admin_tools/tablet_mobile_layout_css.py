@@ -2143,8 +2143,8 @@ _DESKTOP_MARKET_NAV_DARK_RULES = """
 
 _HOME_MAIN_SCOPE = 'html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"]'
 _HOME_SIDE_PADDING = "20px"
-_HOME_LOGO_MAX = "clamp(7.5rem, 42vw, 11.5rem)"
-_HOME_LOGO_TABLET_MAX = "clamp(10rem, 26vw, 16rem)"
+_HOME_LOGO_MAX = "clamp(12rem, 68vw, 17rem)"
+_HOME_LOGO_TABLET_MAX = "clamp(16rem, 38vw, 22rem)"
 _HOME_HEADER_CLEARANCE = "calc(4.75rem + env(safe-area-inset-top, 0px))"
 _MOBILE_TAB_MAIN = 'html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"]'
 # Do not prefix _MOBILE_TAB_MAIN with another html[...] — that becomes html html.
@@ -2659,8 +2659,15 @@ _HOME_LOGO_MOBILE_RULES = f"""
     {_HOME_MAIN_SCOPE} [data-testid="stImage"] {{
 {_HOME_LOGO_INNER}
     }}
+    {_HOME_MAIN_SCOPE} [data-testid="stImage"] {{
+        width: {_HOME_LOGO_MAX} !important;
+        max-width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        align-self: center !important;
+    }}
     {_HOME_MAIN_SCOPE} [data-testid="stImage"] img {{
-        width: auto !important;
+        width: 100% !important;
         max-width: {_HOME_LOGO_MAX} !important;
         height: auto !important;
         display: block !important;
@@ -2693,8 +2700,15 @@ _HOME_LOGO_TABLET_RULES = f"""
     {_HOME_MAIN_SCOPE} [data-testid="stImage"] {{
 {_HOME_LOGO_INNER}
     }}
+    {_HOME_MAIN_SCOPE} [data-testid="stImage"] {{
+        width: {_HOME_LOGO_TABLET_MAX} !important;
+        max-width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        align-self: center !important;
+    }}
     {_HOME_MAIN_SCOPE} [data-testid="stImage"] img {{
-        width: auto !important;
+        width: 100% !important;
         max-width: {_HOME_LOGO_TABLET_MAX} !important;
         height: auto !important;
         display: block !important;
@@ -8301,13 +8315,23 @@ _MOBILE_HOME_ONE_SCREEN_CSS = """
         padding-top: 0 !important;
         padding-bottom: 0 !important;
     }
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
+    html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stImage"]) {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"] {
-        max-height: 52px !important;
+        max-height: none !important;
         min-height: 0 !important;
         height: auto !important;
+        width: min(68vw, 16rem) !important;
+        max-width: min(68vw, 16rem) !important;
         padding: 0 !important;
         margin: 0 auto !important;
+        align-self: center !important;
     }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]),
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stPageLink"]) {
@@ -8315,8 +8339,8 @@ _MOBILE_HOME_ONE_SCREEN_CSS = """
         height: auto !important;
     }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {
-        max-height: 48px !important;
-        width: auto !important;
+        max-height: none !important;
+        width: 100% !important;
         height: auto !important;
     }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
@@ -8380,10 +8404,14 @@ _MOBILE_HOME_ONE_SCREEN_CSS = """
     }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"] {
-        max-height: 48px !important;
+        max-height: none !important;
+        width: min(42vw, 8.5rem) !important;
+        max-width: min(42vw, 8.5rem) !important;
     }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {
-        max-height: 44px !important;
+        max-height: none !important;
+        width: 100% !important;
+        height: auto !important;
     }
     html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp .scoop-home-landing {
         padding: 0.35rem 0.55rem !important;
@@ -8645,19 +8673,34 @@ _TABLET_HOME_SIZE_LOCK_CSS = """
         padding-top: 0 !important;
     }
     html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has([data-testid="stImage"]),
+    html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="element-container"]:has([data-testid="stImage"]) {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
     html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
     html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stFullScreenFrame"],
     html[data-scoop-home-ipad-mini="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
     html[data-scoop-home-mini-type="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"],
     html[data-scoop-home-surface-pro10="1"]:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {
-        width: 220px !important;
-        max-width: 220px !important;
-        height: 120px !important;
-        max-height: 120px !important;
-        min-height: 120px !important;
-        margin: 0 auto !important;
+        width: min(42vw, 22rem) !important;
+        max-width: min(42vw, 22rem) !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        align-self: center !important;
         padding: 0 !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
     html:has(.scoop-home-landing) body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
     html[data-scoop-tab-nav="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
@@ -8665,9 +8708,9 @@ _TABLET_HOME_SIZE_LOCK_CSS = """
     html[data-scoop-home-mini-type="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img,
     html[data-scoop-home-surface-pro10="1"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {
         display: block !important;
-        width: auto !important;
-        height: 120px !important;
-        max-height: 120px !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
         object-fit: contain !important;
         margin: 0 auto !important;
     }

@@ -8,6 +8,7 @@ from headline_service import (
     fetch_news_items,
     headlines_from_news_items,
     polarity_from_headlines,
+    row_company_name,
 )
 from market_data import MarketData
 
@@ -70,11 +71,22 @@ def news_items_from_snapshot(ticker: str, screener_key: str) -> list[dict] | Non
         urls = list(row.get("_headline_urls") or [])
         if not texts:
             continue
-        items = []
-        for idx, title in enumerate(texts[:10]):
-            url = urls[idx] if idx < len(urls) else ""
-            items.append({"title": title, "url": url, "source": ""})
-        return items
+        company_name = row_company_name(row)
+        source = str(row.get("_source_ticker") or row.get("Ticker") or ticker)
+        headlines, headline_urls = headlines_from_news_items(
+            [
+                {"title": title, "url": urls[idx] if idx < len(urls) else ""}
+                for idx, title in enumerate(texts)
+            ],
+            ticker=source,
+            company_name=company_name,
+        )
+        if not headlines:
+            continue
+        return [
+            {"title": title, "url": headline_urls[idx] if idx < len(headline_urls) else "", "source": ""}
+            for idx, title in enumerate(headlines)
+        ]
     return None
 
 
@@ -114,36 +126,34 @@ def snapshot_quote_for_ticker(ticker: str, screener_key: str | None = None) -> d
 def _cached_news_items(
     ticker: str,
     screener_key: str | None = None,
+    company_name: str = "",
     _cache_version: int = SCREENER_CACHE_VERSION,
 ) -> tuple[tuple[str, str, str], ...]:
     """Fetch and cache headline payloads per ticker (matches screener refresh cadence)."""
     sym = normalize_screener_ticker(ticker)
-    snap_items = news_items_from_snapshot(sym, screener_key or "")
-    if snap_items:
-        return tuple(
-            (item.get("title", ""), item.get("url", ""), item.get("source", "") or "")
-            for item in snap_items[:10]
-        )
-
-    rows = []
-    for item in fetch_news_items(sym, fail_fast=True)[:10]:
-        rows.append((
-            item.get("title", ""),
-            item.get("url", ""),
-            item.get("source", "") or item.get("source_domain", "") or "",
-        ))
-    return tuple(rows)
+    matched, urls = headlines_from_news_items(
+        fetch_news_items(sym, fail_fast=True),
+        ticker=sym,
+        company_name=company_name,
+    )
+    return tuple((title, urls[idx] if idx < len(urls) else "", "") for idx, title in enumerate(matched))
 
 
 def get_cached_news_items(
     ticker: str,
     *,
     screener_key: str | None = None,
+    company_name: str = "",
     cache_version: int = SCREENER_CACHE_VERSION,
 ) -> list[dict]:
     """Return headline dicts from snapshot, shared cache, or API."""
     sym = normalize_screener_ticker(ticker)
-    cached_rows = _cached_news_items(sym, screener_key, _cache_version=cache_version)
+    cached_rows = _cached_news_items(
+        sym,
+        screener_key,
+        company_name,
+        _cache_version=cache_version,
+    )
     if not cached_rows:
         return [{"title": f"No current news found for {sym}", "url": "", "source": ""}]
     return [{"title": t, "url": u, "source": s} for t, u, s in cached_rows]
@@ -164,20 +174,18 @@ def enrich_headline_sentiment(
 
     enriched = df.copy()
     for idx, row in enriched.iterrows():
-        if row.get("_headline_texts"):
-            continue
-
         ticker = row.get(ticker_column) or row.get("Ticker")
         if not ticker:
             continue
-
+        company_name = row_company_name(row.to_dict() if hasattr(row, "to_dict") else row)
         cached_rows = _cached_news_items(
             ticker,
             screener_key,
+            company_name,
             _cache_version=cache_version,
         )
-        news_items = [{"title": t, "url": u, "source": s} for t, u, s in cached_rows]
-        headlines, urls = headlines_from_news_items(news_items)
+        headlines = [t for t, _u, _s in cached_rows]
+        urls = [u for _t, u, _s in cached_rows]
         polarity = polarity_from_headlines(headlines)
 
         enriched.at[idx, "Headline Sentiment"] = round(polarity, 3)

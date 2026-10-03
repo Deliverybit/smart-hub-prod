@@ -559,7 +559,7 @@ class MarketData:
         if cache_key in self._news_cache:
             return [dict(item) for item in self._news_cache[cache_key]]
 
-        params = {"function": "NEWS_SENTIMENT", "limit": 10}
+        params = {"function": "NEWS_SENTIMENT", "limit": 1000}
         if is_crypto:
             params["tickers"] = f"CRYPTO:{symbol}"
         elif symbol:
@@ -607,14 +607,22 @@ class MarketData:
             key = (title, url)
             if title and key not in seen:
                 seen.add(key)
+                relevance = 0.0
+                expected = f"CRYPTO:{symbol}" if is_crypto else symbol
+                for sentiment in item.get("ticker_sentiment") or []:
+                    if sentiment.get("ticker") != expected:
+                        continue
+                    try:
+                        relevance = max(relevance, float(sentiment.get("relevance_score") or 0))
+                    except (TypeError, ValueError):
+                        continue
                 headlines.append({
                     "title": title,
                     "url": url,
                     "source": source,
+                    "relevance": relevance,
                 })
-            if len(headlines) >= 10:
-                break
 
-        result = headlines[:10] if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]
+        result = headlines if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]
         self._news_cache[cache_key] = [dict(item) for item in result]
         return [dict(item) for item in result]

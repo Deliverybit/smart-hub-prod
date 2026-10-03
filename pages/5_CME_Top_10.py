@@ -3291,8 +3291,7 @@ else:
     else:
         df = pd.DataFrame(results)
         df = df.sort_values("% Above Low", ascending=True).reset_index(drop=True)
-        if not loaded.headlines_enriched:
-            df = enrich_headline_sentiment(df, get_market_data(), screener_key="CME")
+        df = enrich_headline_sentiment(df, get_market_data(), screener_key="CME")
         df["Headlines"] = df["Headlines"].clip(upper=10)
         df["_headline_texts"] = df["_headline_texts"].apply(lambda items: items[:10])
         df["_headline_urls"] = df["_headline_urls"].apply(lambda items: items[:10])

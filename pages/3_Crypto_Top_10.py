@@ -15,7 +15,7 @@ from branding import logo_path_str, render_environment_banner
 from theme_mode import install_theme_support
 from market_data import MarketData
 from app_config import get_screener_symbol_limit, SCREENER_CACHE_VERSION
-from screener_headlines import display_results_need_headlines, enrich_headline_sentiment
+from screener_headlines import enrich_headline_sentiment
 from screener_page_data import load_screener_page_data
 from screener_selection import (
     MAX_PAD_CAP_PCT,
@@ -3335,8 +3335,7 @@ else:
     else:
         df = pd.DataFrame(results)
         df = df.sort_values("% Above Low", ascending=True).reset_index(drop=True)
-        if not loaded.headlines_enriched and display_results_need_headlines(results):
-            df = enrich_headline_sentiment(df, get_market_data(), screener_key="CRYPTO")
+        df = enrich_headline_sentiment(df, get_market_data(), screener_key="CRYPTO")
         df["Headlines"] = df["Headlines"].clip(upper=10)
         df["_headline_texts"] = df["_headline_texts"].apply(lambda items: items[:10])
         df["_headline_urls"] = df["_headline_urls"].apply(lambda items: items[:10])

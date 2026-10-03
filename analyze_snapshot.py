@@ -19,14 +19,24 @@ from sentiment_engine import SentimentEngine
 
 
 def _news_from_row(row: dict[str, Any]) -> list[dict[str, str]]:
+    from headline_service import headlines_from_news_items, row_company_name
+
     texts = list(row.get("_headline_texts") or [])
     urls = list(row.get("_headline_urls") or [])
-    items = []
-    for idx, title in enumerate(texts[:10]):
-        if not title:
-            continue
-        url = urls[idx] if idx < len(urls) else ""
-        items.append({"title": str(title), "url": str(url), "source": ""})
+    ticker = str(row.get("_source_ticker") or row.get("Ticker") or "")
+    headlines, headline_urls = headlines_from_news_items(
+        [
+            {"title": title, "url": urls[idx] if idx < len(urls) else ""}
+            for idx, title in enumerate(texts)
+        ],
+        ticker=ticker,
+        company_name=row_company_name(row),
+    )
+    items = [
+        {"title": str(title), "url": str(headline_urls[idx] if idx < len(headline_urls) else ""), "source": ""}
+        for idx, title in enumerate(headlines)
+        if title
+    ]
     if not items:
         return [{"title": "No current news found", "url": "", "source": ""}]
     return items

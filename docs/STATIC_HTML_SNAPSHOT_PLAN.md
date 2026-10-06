@@ -53,6 +53,7 @@ Working on those copies since Oct 5:
 
 Still open before any live switch:
 
+- Redo the phone and tablet landing page so it matches the rest of the site. The current landing look is inconsistent with the market pages.
 - Port the saved-page behavior into the Streamlit app (theme persistence, tooltip open/close, header tip layout, toggle track). The live pages were not edited.
 - Disclaimer & Terms and Analyze still open Streamlit.
 - No 15-minute rebuild from the database. Logo and index-card images still depend on the running app.

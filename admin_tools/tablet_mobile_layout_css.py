@@ -6239,12 +6239,12 @@ RESPONSIVE_HOME_LANDING = (
         font-size: clamp(1rem, 4vw, 1.5rem) !important;
         line-height: 1.45 !important;
         margin: 0 !important;
-        color: #0f172a !important;
+        color: #31333f !important;
         width: 100% !important;
         max-width: 100% !important;
     }
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] .scoop-home-landing p {
-        color: #e2e8f0 !important;
+        color: #fafafa !important;
     }
 """
     + _HOME_SIDEBAR_BRAND_AND_TYPE_RULES
@@ -6487,19 +6487,13 @@ _HOME_LANDING_ATTRACT_CSS = f"""
     html[data-scoop-home-page="1"] .stApp,
     html[data-scoop-home-page="1"] [data-testid="stAppViewContainer"],
     html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] {{
-        background:
-            radial-gradient(ellipse 90% 42% at 50% -8%, rgba(14, 165, 233, 0.22), transparent 58%),
-            radial-gradient(ellipse 55% 36% at 92% 12%, rgba(249, 115, 22, 0.16), transparent 52%),
-            linear-gradient(180deg, #d7e6f7 0%, #f3f6fb 44%, #e8eef8 100%) !important;
+        background: #f0f2f6 !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] body,
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] .stApp,
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stAppViewContainer"],
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] {{
-        background:
-            radial-gradient(ellipse 90% 46% at 50% -8%, rgba(56, 189, 248, 0.32), transparent 58%),
-            radial-gradient(ellipse 58% 38% at 92% 10%, rgba(249, 115, 22, 0.22), transparent 52%),
-            linear-gradient(180deg, #081525 0%, #0f1c32 46%, #0b1526 100%) !important;
+        background: #0e1117 !important;
     }}
     {_HOME_MAIN_SCOPE} {{
         padding-top: 1.15rem !important;
@@ -6524,22 +6518,16 @@ _HOME_LANDING_ATTRACT_CSS = f"""
         max-width: min(100%, 18.5rem) !important;
         margin: 0.85rem auto 0 auto !important;
         padding: 0.95rem 1.05rem !important;
-        border-radius: 1.45rem !important;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
-        border: 1px solid rgba(14, 165, 233, 0.28) !important;
-        box-shadow:
-            0 18px 40px rgba(15, 23, 42, 0.16),
-            0 0 0 4px rgba(14, 165, 233, 0.10),
-            0 0 0 8px rgba(249, 115, 22, 0.07) !important;
+        border-radius: 0.5rem !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(49, 51, 63, 0.15) !important;
+        box-shadow: none !important;
         box-sizing: border-box !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {{
-        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
-        border-color: rgba(56, 189, 248, 0.55) !important;
-        box-shadow:
-            0 22px 48px rgba(0, 0, 0, 0.45),
-            0 0 0 4px rgba(56, 189, 248, 0.22),
-            0 0 0 9px rgba(249, 115, 22, 0.14) !important;
+        background: #ffffff !important;
+        border-color: rgba(250, 250, 250, 0.25) !important;
+        box-shadow: none !important;
     }}
     html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {{
         width: auto !important;
@@ -6563,19 +6551,19 @@ _HOME_LANDING_ATTRACT_CSS = f"""
     {_HOME_MAIN_SCOPE} #scoop-title {{
         font-weight: 800 !important;
         letter-spacing: -0.04em !important;
-        color: #0b1b33 !important;
-        text-decoration-color: #0284c7 !important;
+        color: #31333f !important;
+        text-decoration-color: #31333f !important;
         text-decoration-thickness: 3.5px !important;
         text-underline-offset: 8px !important;
-        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+        text-shadow: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] .sidebar-brand-text,
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] #scoop-title,
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] .sidebar-brand-text u,
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] #scoop-title u {{
-        color: #f8fafc !important;
-        text-decoration-color: #38bdf8 !important;
-        text-shadow: 0 10px 24px rgba(56, 189, 248, 0.38) !important;
+        color: #fafafa !important;
+        text-decoration-color: #fafafa !important;
+        text-shadow: none !important;
     }}
     {_HOME_MAIN_SCOPE} hr {{
         display: none !important;
@@ -6596,66 +6584,64 @@ _HOME_LANDING_ATTRACT_CSS = f"""
         margin: 0.45rem 0 1.05rem 0 !important;
         padding: 1.05rem 1.12rem 1.05rem 1.18rem !important;
         border-radius: 1.1rem !important;
-        background: rgba(255, 255, 255, 0.88) !important;
-        border: 1px solid rgba(14, 165, 233, 0.22) !important;
-        border-left: 4px solid #0ea5e9 !important;
-        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.10) !important;
-        backdrop-filter: blur(10px) !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(49, 51, 63, 0.2) !important;
+        border-left: 1px solid rgba(49, 51, 63, 0.2) !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] .scoop-home-landing {{
-        background: linear-gradient(180deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.88) 100%) !important;
-        border: 1px solid rgba(56, 189, 248, 0.38) !important;
-        border-left: 4px solid #38bdf8 !important;
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(56, 189, 248, 0.12) !important;
+        background: #262730 !important;
+        border: 1px solid rgba(250, 250, 250, 0.2) !important;
+        border-left: 1px solid rgba(250, 250, 250, 0.2) !important;
+        box-shadow: none !important;
     }}
     html[data-scoop-home-page="1"] .scoop-home-landing p {{
         font-size: clamp(0.98rem, 3.4vw, 1.14rem) !important;
         line-height: 1.58 !important;
-        color: #1e293b !important;
+        color: #31333f !important;
         font-weight: 500 !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] .scoop-home-landing p {{
-        color: #f1f5f9 !important;
+        color: #fafafa !important;
     }}
     {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]),
     {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
         border-radius: 1.05rem !important;
-        box-shadow:
-            0 10px 22px rgba(15, 23, 42, 0.10),
-            inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+        box-shadow: none !important;
         margin-top: 0 !important;
         transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease !important;
     }}
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]),
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
-        background: linear-gradient(180deg, #ffffff 0%, #f4f8fd 100%) !important;
-        border: 1.5px solid rgba(15, 39, 68, 0.22) !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(49, 51, 63, 0.2) !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]),
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
-        background: linear-gradient(180deg, #243449 0%, #152033 100%) !important;
-        border: 2px solid #38bdf8 !important;
-        box-shadow:
-            0 14px 28px rgba(0, 0, 0, 0.38),
-            inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+        background: #262730 !important;
+        border: 1px solid rgba(250, 250, 250, 0.2) !important;
+        box-shadow: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]) a,
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {{
         background: transparent !important;
-        color: #f8fafc !important;
+        color: #fafafa !important;
         text-decoration: none !important;
     }}
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover,
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover {{
-        transform: translateY(-1px) !important;
-        border-color: rgba(14, 165, 233, 0.55) !important;
-        box-shadow: 0 14px 26px rgba(14, 165, 233, 0.16) !important;
+        transform: none !important;
+        background: #e6eaf1 !important;
+        border-color: rgba(49, 51, 63, 0.35) !important;
+        box-shadow: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover,
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover {{
-        transform: translateY(-1px) !important;
-        border-color: rgba(56, 189, 248, 0.72) !important;
-        box-shadow: 0 16px 30px rgba(56, 189, 248, 0.18) !important;
+        transform: none !important;
+        background: #3d424d !important;
+        border-color: rgba(250, 250, 250, 0.35) !important;
+        box-shadow: none !important;
     }}
     {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]) a,
     {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) a {{

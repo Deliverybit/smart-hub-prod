@@ -30,6 +30,26 @@ for origin in ORIGINS:
 
 extra = """
 <style id="scoop-home-fit">
+@font-face {
+  font-family: "Source Sans";
+  font-weight: 100 900;
+  font-style: normal;
+  src: url("http://localhost:8501/static/media/SourceSansVF-Upright.ttf.BsWL4Kly.woff2") format("woff2");
+}
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"],
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] #scoop-title,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] .sidebar-brand-text,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] .scoop-home-landing,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] .scoop-home-landing p,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"],
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] p,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] span,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] label,
+html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stWidgetLabel"] p {
+  font-family: "Source Sans", sans-serif !important;
+  letter-spacing: 0 !important;
+}
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -83,10 +103,10 @@ html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid
   padding: 2px !important;
   box-sizing: border-box !important;
   cursor: pointer !important;
-  background: #94a3b8 !important;
+  background: #cbd5e1 !important;
 }
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
-  background: #38bdf8 !important;
+  background: #60a5fa !important;
 }
 html[data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div {
   margin-left: 0 !important;
@@ -108,18 +128,18 @@ html[data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"] {
   overflow-wrap: anywhere !important;
   background: #fff !important;
   color: #31333f !important;
-  border: 1px solid #60a5fa !important;
+  border: 1px solid #7dd3fc !important;
   border-radius: 0.5rem !important;
   padding: 0.45rem 0.8rem !important;
   margin: 0.3rem 0 !important;
 }
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"],
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"] p {
-  background: #0f172a !important;
-  color: #f8fafc !important;
+  background: #262730 !important;
+  color: #fafafa !important;
 }
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"] {
-  border: 1px solid #60a5fa !important;
+  border: 1px solid #7dd3fc !important;
 }
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"] p {
   border: none !important;
@@ -134,8 +154,8 @@ html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"]:active,
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"][aria-current="page"] p,
 html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stPageLink-NavLink"]:active p {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
+  background: #3d424d !important;
+  color: #fafafa !important;
 }
 html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a,
 html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a span,

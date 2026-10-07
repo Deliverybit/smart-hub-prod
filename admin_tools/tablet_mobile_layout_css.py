@@ -2331,7 +2331,7 @@ _MOBILE_TABLET_TOGGLE_RULES = f"""
 {_MOBILE_TABLET_DARK_MODE_TOGGLE_TIP}
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-baseweb="switch"] {{
-        background-color: #334155 !important;
+        background-color: #60a5fa !important;
     }}
     html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="stToggle"] [data-baseweb="switch"] {{
         background-color: #cbd5e1 !important;
@@ -2507,7 +2507,7 @@ _MOBILE_TABLET_DARK_MODE_PILL_LAYOUT_FINAL = f"""
 {_MOBILE_TABLET_DARK_MODE_TOGGLE_LABEL}
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="stToggle"] [data-baseweb="switch"] {{
-        background-color: #334155 !important;
+        background-color: #60a5fa !important;
     }}
     html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="stToggle"] [data-baseweb="switch"] {{
         background-color: #cbd5e1 !important;
@@ -5875,13 +5875,13 @@ MOBILE_BACK_HOME_BAR = """
         transition: left 0.15s ease !important;
     }
     .scoop-mobile-fixed-dark-cb:checked + .scoop-mobile-fixed-dark-switch {
-        background: #334155 !important;
+        background: #60a5fa !important;
     }
     .scoop-mobile-fixed-dark-cb:checked + .scoop-mobile-fixed-dark-switch::after {
         left: 1.2rem !important;
     }
     html[data-scoop-theme="dark"] .scoop-mobile-fixed-dark-switch {
-        background: #334155 !important;
+        background: #60a5fa !important;
         box-shadow: inset 0 0 0 1px #94a3b8 !important;
     }
     html[data-scoop-theme="dark"] .scoop-mobile-fixed-dark-switch::after {
@@ -6520,13 +6520,13 @@ _HOME_LANDING_ATTRACT_CSS = f"""
         padding: 0.95rem 1.05rem !important;
         border-radius: 0.5rem !important;
         background: #ffffff !important;
-        border: 1px solid rgba(49, 51, 63, 0.15) !important;
+        border: none !important;
         box-shadow: none !important;
         box-sizing: border-box !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] {{
         background: #ffffff !important;
-        border-color: rgba(250, 250, 250, 0.25) !important;
+        border: none !important;
         box-shadow: none !important;
     }}
     html[data-scoop-home-page="1"] body .stApp [data-testid="stMainBlockContainer"] [data-testid="stImage"] img {{
@@ -6585,15 +6585,15 @@ _HOME_LANDING_ATTRACT_CSS = f"""
         padding: 1.05rem 1.12rem 1.05rem 1.18rem !important;
         border-radius: 1.1rem !important;
         background: #ffffff !important;
-        border: 1px solid rgba(49, 51, 63, 0.2) !important;
-        border-left: 1px solid rgba(49, 51, 63, 0.2) !important;
+        border: 1px solid #7dd3fc !important;
+        border-left: 1px solid #7dd3fc !important;
         box-shadow: none !important;
         backdrop-filter: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-home-page="1"] .scoop-home-landing {{
         background: #262730 !important;
-        border: 1px solid rgba(250, 250, 250, 0.2) !important;
-        border-left: 1px solid rgba(250, 250, 250, 0.2) !important;
+        border: 1px solid #7dd3fc !important;
+        border-left: 1px solid #7dd3fc !important;
         box-shadow: none !important;
     }}
     html[data-scoop-home-page="1"] .scoop-home-landing p {{
@@ -6615,12 +6615,12 @@ _HOME_LANDING_ATTRACT_CSS = f"""
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]),
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
         background: #ffffff !important;
-        border: 1px solid rgba(49, 51, 63, 0.2) !important;
+        border: 1px solid #7dd3fc !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]),
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]) {{
         background: #262730 !important;
-        border: 1px solid rgba(250, 250, 250, 0.2) !important;
+        border: 1px solid #7dd3fc !important;
         box-shadow: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]) a,
@@ -6633,14 +6633,14 @@ _HOME_LANDING_ATTRACT_CSS = f"""
     html:not([data-scoop-theme="dark"]) {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover {{
         transform: none !important;
         background: #e6eaf1 !important;
-        border-color: rgba(49, 51, 63, 0.35) !important;
+        border-color: #7dd3fc !important;
         box-shadow: none !important;
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Top_10"]):hover,
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"]:has(a[href*="Terms_of_Service"]):hover {{
         transform: none !important;
         background: #3d424d !important;
-        border-color: rgba(250, 250, 250, 0.35) !important;
+        border-color: #7dd3fc !important;
         box-shadow: none !important;
     }}
     {_HOME_MAIN_SCOPE} [data-testid="stPageLink"]:has(a[href*="Top_10"]) a,
@@ -8508,10 +8508,10 @@ _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
         box-sizing: border-box !important;
     }
     html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
-        background: #64748b !important;
+        background: #cbd5e1 !important;
     }
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
-        background: #38bdf8 !important;
+        background: #60a5fa !important;
     }
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div {
         width: 18px !important;

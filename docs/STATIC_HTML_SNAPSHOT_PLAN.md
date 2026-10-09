@@ -63,10 +63,22 @@ Done Oct 8:
 
 Done Oct 8 (saved copies):
 
-- `preview/terms.html` and `preview/analyze.html` exist. The gating snapshots were left unchanged, so their Disclaimer & Terms and Analyze links still open Streamlit.
+- `preview/terms.html` and `preview/analyze.html` exist.
+
+Done Oct 9 (saved copies, commit `1362f05`):
+
+- One Analyze page for every listed stock and commodity. The Analyze control opens `analyze.html?ticker=…` on desktop, tablet, and phone. Data is in `preview/analyze-assets.json`. PEP keeps the long price series; the other symbols have 100 daily bars. The chart is a canvas.
+- Selected asset shows the company name and ticker. The longer description is a tooltip on the name (`.scoop-selected-name-tip`), with the same hover, tap, scroll, and outside-click behavior as the other Analyze tips.
+- Phone and tablet show Live Price and the four 52-week cards, with a thin green border, a small even gap, and full width under 1366px.
+- Landing page on phone and tablet has even spacing and a rounded logo box. Logo, title, and dark-mode toggle were left as they were.
+- “I agree to the Disclaimer & Terms” is slightly smaller on desktop and tablet. Phone size is unchanged.
+- Consent on the saved market pages posts to local `POST /consent` and stays hidden until that write succeeds. `snapshot_api.serve_preview()` on port 8766 serves `preview/` and that route. Plain `python -m http.server` does not.
+- A push does not update production. The live site stays on Streamlit.
 
 Still open before any live switch:
 
 - No 15-minute rebuild from the database. Logo and index-card images still depend on the running app.
+- Production consent (`https://data.thescoop52.com/consent`) rejected a write from the local preview. The checkbox only succeeds against the local preview server.
 - Market-page dark-mode click handling on the live app still differs from the saved pages.
 - Cut over only if the saved pages still match. The live site stays on Streamlit until then.
+- Left uncommitted on purpose: `admin_tools/_*.py` scratch scripts and `.wrangler/`.

@@ -391,6 +391,7 @@ def render_desktop_sidebar_nav() -> None:
     from branding import logo_path_str
     from theme_mode import render_dark_mode_toggle
 
+    _show_landing_screenshots("desktop")
     st.sidebar.image(logo_path_str(), use_container_width=True)
     st.sidebar.markdown(
         """
@@ -456,7 +457,10 @@ def render_mobile_back_home_bar(*, current_page: str | None) -> None:
     }
     function readDark() {
         try {
-            return (win.sessionStorage || sessionStorage).getItem(STORAGE) === "dark";
+            const session = win.sessionStorage || sessionStorage;
+            if (session.getItem(STORAGE) === "dark") return true;
+            const local = win.localStorage || localStorage;
+            return local.getItem(STORAGE) === "dark";
         } catch (e) {
             return false;
         }
@@ -650,11 +654,121 @@ def prepare_mobile_home_landing() -> None:
     )
 
 
+def _show_landing_screenshots(kind: str) -> None:
+    """Paint a landing image before the live widgets, then remove it.
+
+    Phone, tablet, and desktop each have a light and dark image. The image
+    never receives clicks. It is removed once the real title or sidebar links
+    are in the page, so the dark-mode toggle, link highlight, and consent
+    checkbox stay the live controls.
+    """
+    import base64
+    from pathlib import Path
+
+    if kind == "desktop":
+        names = (
+            ("desktop-light", "landing-desktop-light.jpg"),
+            ("desktop-dark", "landing-desktop-dark.jpg"),
+        )
+        hide = """
+        html:has([data-testid="stSidebar"] [data-testid="stPageLink"]) .scoop-landing-shot-wrap {
+            display: none !important;
+        }
+        """
+        show = """
+        @media (min-width: 1367px) {
+            html:not([data-scoop-theme="dark"]) .scoop-landing-shot-wrap[data-shot="desktop-light"],
+            html[data-scoop-theme="dark"] .scoop-landing-shot-wrap[data-shot="desktop-dark"] {
+                display: block;
+                width: var(--scoop-sidebar-width, 288px);
+                height: 100vh;
+                overflow: hidden;
+            }
+            .scoop-landing-shot-wrap img {
+                width: 100%;
+                height: 100%;
+                object-fit: fill;
+                object-position: top left;
+            }
+        }
+        """
+    else:
+        names = (
+            ("phone-light", "landing-phone-light.jpg"),
+            ("phone-dark", "landing-phone-dark.jpg"),
+            ("tablet-light", "landing-tablet-light.jpg"),
+            ("tablet-dark", "landing-tablet-dark.jpg"),
+        )
+        hide = """
+        html:has(#scoop-title) .scoop-landing-shot-wrap,
+        html:has(.scoop-home-landing) .scoop-landing-shot-wrap {
+            display: none !important;
+        }
+        """
+        show = """
+        @media (max-width: 743px) {
+            html:not([data-scoop-theme="dark"]) .scoop-landing-shot-wrap[data-shot="phone-light"],
+            html[data-scoop-theme="dark"] .scoop-landing-shot-wrap[data-shot="phone-dark"] {
+                display: block;
+                width: 100vw;
+            }
+        }
+        @media (min-width: 744px) and (max-width: 1366px) {
+            html:not([data-scoop-theme="dark"]) .scoop-landing-shot-wrap[data-shot="tablet-light"],
+            html[data-scoop-theme="dark"] .scoop-landing-shot-wrap[data-shot="tablet-dark"] {
+                display: block;
+                width: 100vw;
+            }
+        }
+        """
+
+    root = Path(__file__).resolve().parent / "assets"
+    images: list[str] = []
+    for shot, filename in names:
+        path = root / filename
+        if not path.is_file():
+            continue
+        encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+        images.append(
+            f'<div class="scoop-landing-shot-wrap" data-shot="{shot}" aria-hidden="true">'
+            f'<img src="data:image/jpeg;base64,{encoded}" alt="">'
+            f"</div>"
+        )
+    if not images:
+        return
+    st.html(
+        """
+        <style>
+        .scoop-landing-shot-wrap {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .scoop-landing-shot-wrap img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        """
+        + show
+        + hide
+        + """
+        </style>
+        """
+        + "".join(images),
+        unsafe_allow_javascript=True,
+    )
+
+
 def render_mobile_tablet_home() -> None:
     """Mobile/tablet home: sidebar-style landing (logo, title, dark mode, description, nav)."""
     from branding import logo_path_str
     from theme_mode import inject_dark_mode_styles, render_dark_mode_toggle_main
 
+    _show_landing_screenshots("home")
     # Gating sequence only — does not change landing layout.
     mark_mobile_home_seen()
     inject_dark_mode_styles()

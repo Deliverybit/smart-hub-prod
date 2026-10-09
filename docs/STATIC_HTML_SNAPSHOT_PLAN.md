@@ -28,7 +28,7 @@ Only these three controls are active:
 
 ## Bookmark — Oct 7, 2026 (not ready to go live)
 
-Stop here. The live site stays on Streamlit. Saved copies are in `preview/` only. Tomorrow starts by porting the saved-page behavior into the live Streamlit app.
+Stop here. The live site stays on Streamlit. Saved copies are in `preview/` only. The saved-page behavior is now in the live Streamlit app.
 
 Review copies (local only):
 
@@ -38,6 +38,8 @@ Review copies (local only):
 - http://127.0.0.1:8766/crypto.html
 - http://127.0.0.1:8766/cme.html
 - http://127.0.0.1:8766/ice.html
+- http://127.0.0.1:8766/terms.html
+- http://127.0.0.1:8766/analyze.html
 
 Files are in `preview/`. Rebuild with `admin_tools/build_consent_snapshot.py` from the saved browser dumps. Streamlit on port 8501 still supplies the logo and index-card images.
 
@@ -55,11 +57,16 @@ Done Oct 7:
 
 - Phone and tablet landing page uses the desktop light and dark colors. Logo has no blue outline. Description and links keep a light blue outline. Dark-mode track turns blue when on. Landing text uses Source Sans.
 
+Done Oct 8:
+
+- Live Streamlit app keeps the landing theme on later pages, closes an open tip when another opens or the page scrolls, shows the column name in the desktop header tip box, and turns the dark-mode track blue when it is on.
+
+Done Oct 8 (saved copies):
+
+- `preview/terms.html` and `preview/analyze.html` exist. The gating snapshots were left unchanged, so their Disclaimer & Terms and Analyze links still open Streamlit.
+
 Still open before any live switch:
 
-- Port the saved-page behavior into the Streamlit app (theme persistence, tooltip open/close, header tip layout, toggle track). The live pages were not edited.
-- Analyze does not have a saved copy yet, so that link still opens Streamlit.
-- Disclaimer & Terms does not have a saved copy yet, so that link still opens Streamlit.
 - No 15-minute rebuild from the database. Logo and index-card images still depend on the running app.
 - Market-page dark-mode click handling on the live app still differs from the saved pages.
 - Cut over only if the saved pages still match. The live site stays on Streamlit until then.

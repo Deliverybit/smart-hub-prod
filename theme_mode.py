@@ -32,14 +32,25 @@ def _theme_known_in_session() -> bool:
 
 
 def _parent_theme_store_js() -> str:
-    """Read/write the parent tab's sessionStorage (shared across Streamlit iframes)."""
+    """Read/write the parent tab's sessionStorage (shared across Streamlit iframes).
+
+    Copies a saved dark choice into sessionStorage, then localStorage.removeItem.
+    """
     storage = json.dumps(STORAGE_KEY)
     return (
         "function scoopThemeStore() {"
         "  var win = window;"
         "  try { if (window.parent && window.parent !== window) win = window.parent; } catch (e) {}"
-        "  try { win.localStorage.removeItem(" + storage + "); } catch (e) {}"
-        "  try { return win.sessionStorage || sessionStorage; } catch (e) { return sessionStorage; }"
+        "  var session;"
+        "  try { session = win.sessionStorage || sessionStorage; } catch (e) { session = sessionStorage; }"
+        "  try {"
+        "    var local = win.localStorage || localStorage;"
+        "    if (local.getItem(" + storage + ") === \"dark\" && session.getItem(" + storage + ") !== \"dark\") {"
+        "      session.setItem(" + storage + ", \"dark\");"
+        "    }"
+        "    (win.localStorage || localStorage).removeItem(" + storage + ");"
+        "  } catch (e) {}"
+        "  return session;"
         "}"
     )
 
@@ -309,9 +320,55 @@ def apply_theme_early() -> None:
     _apply_current_theme()
 
 
+def _inject_dark_mode_track() -> None:
+    """On-state track matches the saved pages: slate off, sky blue on."""
+    st.html(
+        """
+<style id="scoop-desktop-toggle">
+html:not([data-scoop-theme="dark"]) body [data-testid="stSidebar"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
+html:not([data-scoop-theme="dark"]) body [data-testid="stSidebar"] [data-baseweb="switch"],
+html:not([data-scoop-theme="dark"]) [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
+html:not([data-scoop-theme="dark"]) [data-testid="stMainBlockContainer"] [data-baseweb="switch"] {
+  background: #94a3b8 !important;
+  border-radius: 999px !important;
+}
+html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
+html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-baseweb="switch"],
+html[data-scoop-theme="dark"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
+html[data-scoop-theme="dark"] [data-testid="stMainBlockContainer"] [data-baseweb="switch"] {
+  background: #38bdf8 !important;
+  border-radius: 999px !important;
+}
+[data-testid="stSidebar"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
+[data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 2px !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+}
+[data-testid="stSidebar"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div,
+[data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  transform: none !important;
+  transition: margin 0.15s ease !important;
+}
+html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div,
+html[data-scoop-theme="dark"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+</style>
+""",
+    )
+
+
 def install_theme_support() -> None:
     """Hydrate saved preference early; CSS is injected last via inject_dark_mode_styles()."""
     _early_theme_bootstrap_script()
+    _inject_dark_mode_track()
     _inject_static_dark_mode_css()
     apply_theme_early()
     from tooltip_scroll import inject_streamlit_chrome_hide, install_responsive_layout_bootstrap

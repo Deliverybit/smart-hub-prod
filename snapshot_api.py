@@ -255,6 +255,37 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
 
 
+def serve_preview(port: int = 8766) -> None:
+    """Serve preview HTML and record consent at POST /consent."""
+    from http.server import SimpleHTTPRequestHandler
+
+    preview = os.path.join(os.path.dirname(os.path.abspath(__file__)), "preview")
+
+    class PreviewHandler(SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=preview, **kwargs)
+
+        def do_OPTIONS(self):  # noqa: N802
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
+
+        def do_POST(self):  # noqa: N802
+            SnapshotHandler.do_POST(self)
+
+        def end_headers(self):
+            self.send_header("Access-Control-Allow-Origin", "*")
+            super().end_headers()
+
+    PreviewHandler._send_json = SnapshotHandler._send_json
+    PreviewHandler._cors_headers = SnapshotHandler._cors_headers
+
+    server = ThreadingHTTPServer(("127.0.0.1", port), PreviewHandler)
+    print(f"Preview with consent on http://127.0.0.1:{port}")
+    server.serve_forever()
+
+
 def main() -> None:
     server = ThreadingHTTPServer((HOST, PORT), SnapshotHandler)
     print(f"Snapshot API on http://{HOST}:{PORT}")

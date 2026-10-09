@@ -1275,7 +1275,7 @@ TABLET_SCREENER_MOBILE_LAYOUT = (
             pointer-events: auto !important;
             -webkit-tap-highlight-color: rgba(34, 197, 94, 0.2) !important;
             text-decoration: none !important;
-            font-size: clamp(1.08rem, 2.3vw, 1.28rem) !important;
+            font-size: inherit !important;
         }
         .stMarkdown .tip-wrap.headlines-tip .hl-tip-backdrop { display: none !important; }
         .stMarkdown .tip-wrap.headlines-tip:has(.hl-tip-cb:checked) .hl-tip-backdrop {
@@ -2331,7 +2331,7 @@ _MOBILE_TABLET_TOGGLE_RULES = f"""
 {_MOBILE_TABLET_DARK_MODE_TOGGLE_TIP}
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-baseweb="switch"] {{
-        background-color: #60a5fa !important;
+        background-color: #38bdf8 !important;
     }}
     html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="stToggle"] [data-baseweb="switch"] {{
         background-color: #cbd5e1 !important;
@@ -2507,7 +2507,7 @@ _MOBILE_TABLET_DARK_MODE_PILL_LAYOUT_FINAL = f"""
 {_MOBILE_TABLET_DARK_MODE_TOGGLE_LABEL}
     }}
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="stToggle"] [data-baseweb="switch"] {{
-        background-color: #60a5fa !important;
+        background-color: #38bdf8 !important;
     }}
     html:not([data-scoop-theme="dark"])[data-scoop-tab-nav="1"] {_MOBILE_TAB_DARK_MODE_SCOPE} [data-testid="stToggle"] [data-baseweb="switch"] {{
         background-color: #cbd5e1 !important;
@@ -5875,13 +5875,13 @@ MOBILE_BACK_HOME_BAR = """
         transition: left 0.15s ease !important;
     }
     .scoop-mobile-fixed-dark-cb:checked + .scoop-mobile-fixed-dark-switch {
-        background: #60a5fa !important;
+        background: #38bdf8 !important;
     }
     .scoop-mobile-fixed-dark-cb:checked + .scoop-mobile-fixed-dark-switch::after {
         left: 1.2rem !important;
     }
     html[data-scoop-theme="dark"] .scoop-mobile-fixed-dark-switch {
-        background: #60a5fa !important;
+        background: #38bdf8 !important;
         box-shadow: inset 0 0 0 1px #94a3b8 !important;
     }
     html[data-scoop-theme="dark"] .scoop-mobile-fixed-dark-switch::after {
@@ -8511,7 +8511,7 @@ _MOBILE_TABLET_CLOUD_DARK_TOGGLE_CSS = """
         background: #cbd5e1 !important;
     }
     html[data-scoop-theme="dark"][data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type {
-        background: #60a5fa !important;
+        background: #38bdf8 !important;
     }
     html[data-scoop-tab-nav="1"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type > div {
         width: 18px !important;

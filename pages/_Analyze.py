@@ -503,7 +503,7 @@ st.markdown(
         top: auto;
         transform: translateX(-50%);
         line-height: 1.45;
-        font-size: 1.08rem !important;
+        font-size: 1.35rem !important;
         font-weight: 500;
         text-transform: none;
         letter-spacing: normal;
@@ -540,7 +540,7 @@ st.markdown(
             outline-offset: 2px;
         }
         .scoop-mood-summary .scoop-analyze-desktop-tip .tip-text {
-            font-size: 1.02rem !important;
+            font-size: 1.35rem !important;
             width: min(22rem, calc(100% - 1rem));
             max-width: calc(100% - 1rem);
             bottom: calc(100% + 0.4rem);

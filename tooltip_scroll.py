@@ -150,7 +150,7 @@ _RESPONSIVE_GENERIC_TOOLTIP_CSS = f"""
 
 _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
 (() => {
-    const VERSION = 22;
+    const VERSION = 23;
     let appDoc = document;
     let appWin = window;
     try {
@@ -367,6 +367,12 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
             if (!wrap) {
                 return;
             }
+            appDoc.querySelectorAll(".tip-wrap.headlines-tip .hl-tip-cb:checked").forEach((box) => {
+                box.checked = false;
+            });
+            appDoc.querySelectorAll(".tip-wrap.headlines-tip.hl-tip-desktop-open").forEach((other) => {
+                other.classList.remove("hl-tip-desktop-open");
+            });
             if (isDesktopNameTip(wrap)) {
                 openDesktopNameTip(wrap);
                 return;
@@ -374,6 +380,23 @@ _GENERIC_TOOLTIP_DESKTOP_HOVER_RESET_JS = """
             wrap.classList.add(GENERIC_OPEN);
             if (isDesktopHeaderTip(wrap)) {
                 wrap.classList.add(HEADER_OPEN);
+                const tip = wrap.querySelector(":scope > .tip-text");
+                if (tip) {
+                    ["position", "left", "top", "right", "bottom", "width", "max-width", "min-width", "height", "max-height", "transform", "white-space", "overflow"].forEach((prop) => {
+                        tip.style.removeProperty(prop);
+                    });
+                    let title = tip.querySelector(":scope > .scoop-tip-title");
+                    if (!title) {
+                        title = appDoc.createElement("div");
+                        title.className = "scoop-tip-title";
+                        tip.insertBefore(title, tip.firstChild);
+                    }
+                    let text = "";
+                    wrap.childNodes.forEach((node) => {
+                        if (node.nodeType === 3) text += node.textContent || "";
+                    });
+                    title.textContent = text.replace(/[ \t\n\r]+/g, " ").trim();
+                }
             }
         };
         const onOut = (event) => {
@@ -880,6 +903,15 @@ _DESKTOP_TOOLTIP_TYPE_CSS = """
         max-height: none !important;
         overflow: visible !important;
         z-index: 2147483000 !important;
+    }
+    html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead .tip-wrap .tip-text > .scoop-tip-title {
+        display: block !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
+        margin: 0 0 0.35rem 0 !important;
+        padding: 0 0 0.3rem 0 !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.45) !important;
+        color: #f8fafc !important;
     }
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead,
     html body .stApp [data-testid="stAppViewContainer"] .stMarkdown .full-results-wrap .full-results-table thead tr,

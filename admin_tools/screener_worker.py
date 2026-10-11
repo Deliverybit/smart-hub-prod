@@ -12,6 +12,7 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -58,11 +59,25 @@ def _publish_saved_pages(written: list[str]) -> None:
         print("Saved pages match master. Nothing to push.", flush=True)
         return
     subprocess.run(
-        ["git", "commit", "-m", "Publish the latest screener snapshots."],
+        [
+            "git",
+            "-c",
+            "user.name=Scoop Snapshot",
+            "-c",
+            "user.email=snapshots@thescoop52.com",
+            "commit",
+            "-m",
+            "Publish the latest screener snapshots.",
+        ],
         cwd=ROOT,
         check=True,
     )
-    subprocess.run(["git", "push", "prod", "HEAD:master"], cwd=ROOT, check=True)
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        remote = f"https://x-access-token:{token}@github.com/Deliverybit/smart-hub-prod.git"
+        subprocess.run(["git", "push", remote, "HEAD:master"], cwd=ROOT, check=True)
+    else:
+        subprocess.run(["git", "push", "prod", "HEAD:master"], cwd=ROOT, check=True)
     print("Pushed saved pages to master.", flush=True)
 
 

@@ -3488,12 +3488,10 @@ else:
             """
             #### 🧠 Why these assets were selected
 
-            | Criterion | Check |
-            |-----------|-------|
-            | **Near 52-week low** | Price is within 30% of the lowest price in the past year (15% preferred) |
-            | **No scandal headlines** | Sentiment screening filters negative keywords—including scandal, bankruptcy, manipulation, sanctions, and contamination |
-            | **Headline context** | Click **Analyze** for detailed headline sentiment and charts |
-            | **CME Group listed** | All futures are traded on CME, CBOT, NYMEX, or COMEX |
+            - **Near 52-week low.** Price is within 30% of the lowest price in the past year (15% preferred).
+            - **No scandal headlines.** Sentiment screening filters negative keywords—including scandal, bankruptcy, manipulation, sanctions, and contamination.
+            - **Headline context.** Click **Analyze** for detailed headline sentiment and charts.
+            - **CME Group listed.** All futures are traded on CME, CBOT, NYMEX, or COMEX.
 
             > **Disclaimer:** Commodity futures involve substantial risk. This is an automated
             > screen — not financial advice. Always do your own due diligence before trading.

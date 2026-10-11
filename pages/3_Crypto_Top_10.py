@@ -3538,12 +3538,10 @@ else:
             """
             #### 🧠 Why these assets were selected
 
-            | Criterion | Check |
-            |-----------|-------|
-            | **Near 52-week low** | Price is within 30% of the lowest price in the past year (15% preferred) |
-            | **No scandal headlines** | Sentiment screening filters negative keywords—including scandal, bankruptcy, fraud, scams, rug-pulls, and hacks |
-            | **Headline context** | Click **Analyze** for detailed headline sentiment and charts |
-            | **Coinbase listed** | All cryptos in this screen are available for purchase on Coinbase |
+            - **Near 52-week low.** Price is within 30% of the lowest price in the past year (15% preferred).
+            - **No scandal headlines.** Sentiment screening filters negative keywords—including scandal, bankruptcy, fraud, scams, rug-pulls, and hacks.
+            - **Headline context.** Click **Analyze** for detailed headline sentiment and charts.
+            - **Coinbase listed.** All cryptos in this screen are available for purchase on Coinbase.
 
             > **Disclaimer:** This is an automated screen — not financial advice.
             > Always do your own due diligence before investing.

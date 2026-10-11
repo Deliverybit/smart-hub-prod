@@ -3483,12 +3483,10 @@ else:
             """
             #### 🧠 Why these assets were selected
 
-            | Criterion | Check |
-            |-----------|-------|
-            | **Near 52-week low** | Price is within 30% of the lowest price in the past year (15% preferred) |
-            | **No scandal headlines** | Sentiment screening filters negative keywords—including scandal, bankruptcy, manipulation, sanctions, and contamination |
-            | **Headline context** | Click **Analyze** for detailed headline sentiment and charts |
-            | **ICE listed** | All futures / ETFs trade on or track ICE-listed commodity contracts |
+            - **Near 52-week low.** Price is within 30% of the lowest price in the past year (15% preferred).
+            - **No scandal headlines.** Sentiment screening filters negative keywords—including scandal, bankruptcy, manipulation, sanctions, and contamination.
+            - **Headline context.** Click **Analyze** for detailed headline sentiment and charts.
+            - **ICE listed.** All futures / ETFs trade on or track ICE-listed commodity contracts.
 
             > **Disclaimer:** Commodity futures and ETFs involve substantial risk. This is an
             > automated screen — not financial advice. Always do your own due diligence before trading.

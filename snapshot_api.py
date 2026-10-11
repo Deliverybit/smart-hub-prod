@@ -20,7 +20,6 @@ from urllib.parse import urlparse
 
 from screener_engine import SCREENER_DEFINITIONS
 from screener_selection import _FULL_RESULTS_COLUMN_ORDER
-from screener_snapshots import snapshot_age_seconds, snapshot_max_age_seconds
 
 DISPLAY_ROW_LIMIT = 10
 DISPLAY_ROW_FIELDS = (
@@ -149,32 +148,12 @@ def screener_payload(screener_key: str) -> tuple[int, dict]:
 
 
 def health_payload() -> tuple[int, dict]:
-    """200 only when every screener snapshot exists and is fresh."""
-    missing: list[str] = []
-    stale: list[str] = []
-    max_age = snapshot_max_age_seconds()
-    with get_pool().connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT screener_key, updated_at
-                FROM screener_snapshots
-                WHERE screener_key = ANY(%s)
-                """,
-                (sorted(SCREENER_KEYS),),
-            )
-            found = {key: updated for key, updated in cur.fetchall()}
-    for key in sorted(SCREENER_KEYS):
-        updated = found.get(key)
-        if updated is None:
-            missing.append(key)
-            continue
-        age = snapshot_age_seconds({"updated_at": updated.isoformat()})
-        if age is None or age > max_age:
-            stale.append(key)
-    if missing or stale:
-        return 503, {"ok": False, "missing": missing, "stale": stale}
-    return 200, {"ok": True, "screeners": sorted(SCREENER_KEYS)}
+    """200 when this process can accept requests.
+
+    Render restarts the service on any other status. Consent logging must stay
+    up even when a market snapshot is missing or stale.
+    """
+    return 200, {"ok": True}
 
 
 class SnapshotHandler(BaseHTTPRequestHandler):

@@ -12,6 +12,7 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 import time
 import traceback
@@ -41,6 +42,28 @@ def _print_payloads(payloads: list[dict], *, dry_run: bool) -> None:
             f"mode={payload.get('selection_mode')} "
             f"updated={payload.get('last_updated_display')}"
         )
+
+
+def _publish_saved_pages(written: list[str]) -> None:
+    """Commit the refreshed preview files and push them to production master."""
+    if not written:
+        return
+    paths = [str(ROOT / "preview" / name) for name in written]
+    assets = ROOT / "preview" / "analyze-assets.json"
+    if assets.exists():
+        paths.append(str(assets))
+    subprocess.run(["git", "add", "--", *paths], cwd=ROOT, check=True)
+    staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT)
+    if staged.returncode == 0:
+        print("Saved pages match master. Nothing to push.", flush=True)
+        return
+    subprocess.run(
+        ["git", "commit", "-m", "Publish the latest screener snapshots."],
+        cwd=ROOT,
+        check=True,
+    )
+    subprocess.run(["git", "push", "prod", "HEAD:master"], cwd=ROOT, check=True)
+    print("Pushed saved pages to master.", flush=True)
 
 
 def run_once(*, screener: str | None, persist: bool) -> list[dict]:
@@ -85,6 +108,19 @@ def main() -> int:
             continue
 
         _print_payloads(payloads, dry_run=args.dry_run)
+        if persist and payloads:
+            from preview_tables import refresh_preview_from_payloads
+
+            written = refresh_preview_from_payloads(payloads)
+            print(
+                "Saved pages updated: " + (", ".join(written) if written else "none"),
+                flush=True,
+            )
+            try:
+                _publish_saved_pages(written)
+            except Exception:
+                traceback.print_exc()
+                print("Saved pages were not pushed.", flush=True)
         if not payloads:
             print("Full scan finished with no screener saved.", flush=True)
             if not args.loop:

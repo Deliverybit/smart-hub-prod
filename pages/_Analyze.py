@@ -1886,6 +1886,11 @@ button.scoop-range-dot.scoop-range-dot-on {
 [data-testid="stMarkdownContainer"]:has(.scoop-mood-summary) {
   margin-bottom: 0.85rem !important;
 }
+@media (min-width: 1367px) {
+  [data-testid="stMarkdownContainer"]:has(.scoop-mood-summary) {
+    margin-bottom: 20px !important;
+  }
+}
 [data-testid="stMarkdownContainer"]:has(.mood-feed) {
   margin-bottom: 0.75rem !important;
 }
@@ -2050,6 +2055,23 @@ button.scoop-range-dot.scoop-range-dot-on {
   }
   function fitFeed() {
     var feed = doc.querySelector(".mood-feed");
+    if (feed && (win.innerWidth || 0) >= 1367) {
+      var mood = doc.querySelector(".scoop-mood-summary");
+      var chart = doc.querySelector("canvas.scoop-price-canvas") || doc.querySelector('[data-testid="stPlotlyChart"]');
+      if (!mood || !chart) return;
+      feed.style.setProperty("margin-top", "0px", "important");
+      feed.style.setProperty("margin-bottom", "0px", "important");
+      var gapNow = feed.getBoundingClientRect().top - mood.getBoundingClientRect().bottom;
+      feed.style.setProperty("margin-top", (20 - gapNow) + "px", "important");
+      var top = mood.getBoundingClientRect().bottom + 20;
+      var h = Math.round(chart.getBoundingClientRect().bottom - top);
+      if (h < 220) h = 220;
+      var px = h + "px";
+      feed.style.setProperty("height", px, "important");
+      feed.style.setProperty("max-height", px, "important");
+      feed.style.setProperty("overflow-y", "auto", "important");
+      return;
+    }
     var foot = doc.querySelector(".disclaimer-footer");
     if (!feed || !foot) return;
     var gap = 16;

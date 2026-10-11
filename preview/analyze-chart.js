@@ -8,6 +8,7 @@
       "html[data-scoop-analyze-active='1'] [data-testid='stMarkdownContainer']:has(.scoop-mood-summary) { margin-bottom: 0.85rem !important; }",
       "html[data-scoop-analyze-active='1'] [data-testid='stMarkdownContainer']:has(.mood-feed) { margin-bottom: 0.75rem !important; }",
       "html[data-scoop-analyze-active='1'] .mood-feed { margin-top: 0 !important; margin-bottom: 0 !important; overflow-x: hidden !important; overflow-y: auto !important; max-height: none !important; }",
+      "@media (min-width: 1367px) { html[data-scoop-analyze-active='1'] [data-testid='stMarkdownContainer']:has(.scoop-mood-summary) { margin-bottom: 20px !important; } html[data-scoop-analyze-active='1'] .mood-feed { margin-top: 0 !important; margin-bottom: 0 !important; overflow-y: auto !important; } }",
       "html[data-scoop-analyze-active='1'] .mood-feed table { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }",
       "html[data-scoop-analyze-active='1'] .mood-feed thead th { position: sticky !important; top: 0 !important; z-index: 4 !important; background: #0f172a !important; color: #f8fafc !important; }"
     ].join("\n");
@@ -122,6 +123,24 @@
 
   function fitHeadlines() {
     var feed = document.querySelector(".mood-feed");
+    if (window.innerWidth >= 1367) {
+      if (!feed) return;
+      var mood = document.querySelector(".scoop-mood-summary");
+      var chart = document.querySelector("canvas.scoop-price-canvas") || document.querySelector('[data-testid="stPlotlyChart"]');
+      if (!mood || !chart) return;
+      feed.style.setProperty("margin-top", "0px", "important");
+      feed.style.setProperty("margin-bottom", "0px", "important");
+      var gapNow = feed.getBoundingClientRect().top - mood.getBoundingClientRect().bottom;
+      feed.style.setProperty("margin-top", (20 - gapNow) + "px", "important");
+      var top = mood.getBoundingClientRect().bottom + 20;
+      var h = Math.round(chart.getBoundingClientRect().bottom - top);
+      if (h < 220) h = 220;
+      var px = h + "px";
+      feed.style.setProperty("height", px, "important");
+      feed.style.setProperty("max-height", px, "important");
+      feed.style.setProperty("overflow-y", "auto", "important");
+      return;
+    }
     var foot = document.querySelector(".disclaimer-footer");
     if (!feed || !foot) return;
     var gap = 16;

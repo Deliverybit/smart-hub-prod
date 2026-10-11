@@ -50,7 +50,8 @@ STRAY_RESULT_ROW = re.compile(
     re.S,
 )
 STATUS_PARAGRAPH = re.compile(
-    r"<p>(?:<strong>\d+</strong>|No) [^<]{0,80}within <strong>\d+%</strong>.*?</p>",
+    r"<p>(?:Found <strong>\d+</strong> [^<.]{1,40} from \d+ of \d+ scanned\.|"
+    r"(?:<strong>\d+</strong>|No) [^<]{0,80}within <strong>\d+%</strong>.*?)</p>",
     re.S,
 )
 NOUNS = {
@@ -230,7 +231,13 @@ def _markdown_to_alert_html(text: str) -> str:
     return "<p>" + re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text) + "</p>"
 
 
-def selection_status_html(rows: list[dict], asset_noun: str) -> str:
+def selection_status_html(
+    rows: list[dict],
+    asset_noun: str,
+    *,
+    scanned_count: int,
+    universe_size: int,
+) -> str:
     """Status line for the rows actually written into the saved table."""
     from screener_selection import select_proximity_results, selection_status_message
 
@@ -246,20 +253,33 @@ def selection_status_html(rows: list[dict], asset_noun: str) -> str:
     _level, message = selection_status_message(
         selection,
         asset_noun=asset_noun,
-        scanned_count=0,
-        universe_size=0,
+        scanned_count=scanned_count,
+        universe_size=universe_size,
     )
     return _markdown_to_alert_html(message)
 
 
-def stamp_selection_status(page_html: str, rows: list[dict], asset_noun: str) -> str:
+def stamp_selection_status(
+    page_html: str,
+    rows: list[dict],
+    asset_noun: str,
+    *,
+    scanned_count: int = 0,
+    universe_size: int = 0,
+) -> str:
     """Keep the count line aligned with the saved table. Leave other alerts alone."""
-    if not rows or not asset_noun:
+    if not rows or not asset_noun or not universe_size:
         return page_html
     match = STATUS_PARAGRAPH.search(page_html)
     if match is None:
         return page_html
-    return page_html[: match.start()] + selection_status_html(rows, asset_noun) + page_html[match.end() :]
+    replacement = selection_status_html(
+        rows,
+        asset_noun,
+        scanned_count=scanned_count,
+        universe_size=universe_size,
+    )
+    return page_html[: match.start()] + replacement + page_html[match.end() :]
 
 
 def drop_stray_result_rows(page_html: str) -> str:
@@ -281,6 +301,8 @@ def refill_page(
     crypto: bool = False,
     tips: dict[str, str] | None = None,
     asset_noun: str = "",
+    scanned_count: int = 0,
+    universe_size: int = 0,
 ) -> str:
     """Replace the Full Results tbody. The legend under the table stays as it is."""
     page_html = drop_stray_result_rows(page_html)
@@ -295,7 +317,13 @@ def refill_page(
         crypto=crypto,
     )
     updated = page_html[: match.start()] + match.group(1) + tbody[len("<tbody>") : -len("</tbody>")] + match.group(2) + page_html[match.end() :]
-    return stamp_selection_status(updated, rows, asset_noun)
+    return stamp_selection_status(
+        updated,
+        rows,
+        asset_noun,
+        scanned_count=scanned_count,
+        universe_size=universe_size,
+    )
 
 
 def _bundle_for_row(payload: dict, row: dict) -> dict | None:
@@ -344,6 +372,8 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
             from_path=from_path,
             crypto=payload.get("screener_key") == "CRYPTO",
             asset_noun=str(payload.get("asset_noun") or NOUNS.get(str(payload.get("screener_key") or ""), "")),
+            scanned_count=int(payload.get("scanned_count") or 0),
+            universe_size=int(payload.get("universe_size") or 0),
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
         path.write_text(updated, encoding="utf-8")

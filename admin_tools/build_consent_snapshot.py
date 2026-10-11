@@ -480,19 +480,14 @@ document.addEventListener("change", function (event) {
     return;
   }
   box.disabled = true;
+  scoopShowResults(true);
   var zone = "";
   try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (err) {}
   fetch("https://data.thescoop52.com/consent", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ accepted: true, timezone: zone }),
-  }).then(function (response) {
-    if (!response.ok) throw new Error("consent");
-    scoopShowResults(true);
-  }).catch(function () {
-    box.checked = false;
-    scoopShowResults(false);
-  }).then(function () {
+  }).catch(function () {}).then(function () {
     box.disabled = false;
   });
 });

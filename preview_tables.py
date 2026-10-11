@@ -380,11 +380,20 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         written.append(filename)
     if written:
         refresh_analyze_catalog(ready)
+        stamp = next(
+            (str(payload.get("last_updated_display") or "") for payload in ready if payload.get("last_updated_display")),
+            "",
+        )
+        if stamp_analyze_caption(stamp):
+            written.append("analyze.html")
     return written
 
 
 LAST_UPDATED = re.compile(
     r'(class="scoop-screener-last-updated">Last updated: <b>)[^<]*'
+)
+ANALYZE_CAPTION = re.compile(
+    r'(data-testid="stCaptionContainer"[^>]*>\s*<p>)Last updated [^<]*'
 )
 ASSETS_PATH = PREVIEW / "analyze-assets.json"
 MARKETS = {
@@ -400,6 +409,23 @@ def stamp_last_updated(page_html: str, stamp: str) -> str:
     if not stamp:
         return page_html
     return LAST_UPDATED.sub(lambda match: match.group(1) + stamp, page_html)
+
+
+def stamp_analyze_caption(stamp: str) -> bool:
+    """Write the snapshot clock into the saved Analyze page."""
+    path = PREVIEW / "analyze.html"
+    if not stamp or not path.exists():
+        return False
+    text = path.read_text(encoding="utf-8")
+    updated, count = ANALYZE_CAPTION.subn(
+        lambda match: match.group(1) + "Last updated " + stamp,
+        text,
+        count=1,
+    )
+    if not count or updated == text:
+        return False
+    path.write_text(updated, encoding="utf-8")
+    return True
 
 
 def _row_name(row: dict) -> str:
@@ -442,6 +468,7 @@ def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None
         "headlines": headlines,
         "series": series,
         "description": previous.get("description") or resolve_asset_summary(ticker),
+        "updated": str(payload.get("last_updated_display") or ""),
     }
 
 

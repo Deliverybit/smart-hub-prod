@@ -4,7 +4,7 @@ Analyze deep-dive page (hidden from navigation).
 Opened from Top 10 **Analyze** links with ?ticker=.
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 import json
 
@@ -1501,6 +1501,7 @@ def _cached_analyze_bundle(ticker: str, days, screener_key: str | None, _hist_sp
         "week52_high": price["week52_high"],
         "low_date": price["low_date"],
         "high_date": price["high_date"],
+        "cached_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -1778,24 +1779,18 @@ def _render_week52_metrics(
                 )
 
 
-_UPDATED_MONTHS = (
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-)
+def snapshot_last_updated(cached_at) -> str:
+    """Clock time the Analyze snapshot was taken, in Central time."""
+    from screener_engine import format_scan_display
 
-
-def snapshot_last_updated(history) -> str:
-    """Same stamp the saved Analyze page shows on every viewport."""
-    if not history:
+    raw = str(cached_at or "").strip()
+    if not raw:
         return "Last updated"
-    raw = str(history[-1].get("date") or "")[:10]
-    parts = raw.split("-")
-    if len(parts) != 3 or not all(part.isdigit() for part in parts):
+    try:
+        moment = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
         return "Last updated"
-    year, month, day = (int(part) for part in parts)
-    if not 1 <= month <= 12:
-        return "Last updated"
-    return f"Last updated {_UPDATED_MONTHS[month - 1]} {day}, {year}, 4:00 PM ET"
+    return f"Last updated {format_scan_display(moment)}"
 
 
 def _install_snapshot_price_chart(history, range_label: str) -> None:
@@ -2205,7 +2200,7 @@ def _render_search_dashboard(ticker: str) -> None:
         unsafe_allow_html=True,
     )
 
-    st.caption(snapshot_last_updated(history))
+    st.caption(snapshot_last_updated(bundle.get("cached_at")))
 
     dir_inner = (
         f'<span style="font-size:4rem;">{arrow}</span>'

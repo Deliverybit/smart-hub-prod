@@ -244,12 +244,12 @@
     }
   }
 
+  var snapshotUpdated = "";
+
   function noteLastUpdate() {
     var caps = document.querySelectorAll('[data-testid="stCaptionContainer"] p');
-    if (!caps.length || !series.length) return;
-    var parts = series[series.length - 1].d.slice(0, 10).split("-");
-    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    var stamp = "Last updated " + months[Number(parts[1]) - 1] + " " + Number(parts[2]) + ", " + parts[0] + ", 4:00 PM ET";
+    if (!caps.length || !snapshotUpdated) return;
+    var stamp = "Last updated " + snapshotUpdated;
     caps.forEach(function (cap) {
       if (!cap.dataset.scoopOriginal) cap.dataset.scoopOriginal = cap.textContent;
       cap.textContent = stamp;
@@ -361,9 +361,10 @@
       }
     }
     series = asset.series || [];
+    snapshotUpdated = asset.updated || "";
   }
 
-  fetch("analyze-assets.json?v=4")
+  fetch("analyze-assets.json?v=5")
     .then(function (res) { return res.json(); })
     .then(function (catalog) {
       var ticker = assetTicker();

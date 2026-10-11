@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import inspect
 import sys
 from pathlib import Path
 
@@ -214,6 +215,18 @@ def test_set_theme_session_syncs_main_toggle() -> None:
     assert ss[theme_mode.MAIN_TOGGLE_KEY] is True
 
 
+def test_market_dark_mode_click_matches_snapshot() -> None:
+    click = inspect.getsource(theme_mode._inject_snapshot_dark_mode_click)
+    track = inspect.getsource(theme_mode._inject_dark_mode_track)
+    assert 'input.getAttribute("aria-label") === "Dark mode"' in click
+    assert "scoopSetTheme(!!input.checked)" in click
+    assert "preventDefault" not in click
+    assert "#60a5fa" in track
+    assert inspect.getsource(theme_mode.install_theme_support).find(
+        "_inject_snapshot_dark_mode_click"
+    ) >= 0
+
+
 def test_static_css_requires_dark_attribute() -> None:
     from admin_tools.dark_mode_css import DARK_MODE_CSS
 
@@ -241,6 +254,7 @@ def main() -> int:
         test_hydrate_reads_parent_session_storage,
         test_set_theme_session_syncs_main_toggle,
         test_static_css_requires_dark_attribute,
+        test_market_dark_mode_click_matches_snapshot,
     ]
     for fn in tests:
         fn()

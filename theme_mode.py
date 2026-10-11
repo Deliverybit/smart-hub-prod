@@ -336,7 +336,7 @@ html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-testid="stChe
 html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-baseweb="switch"],
 html[data-scoop-theme="dark"] [data-testid="stMainBlockContainer"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
 html[data-scoop-theme="dark"] [data-testid="stMainBlockContainer"] [data-baseweb="switch"] {
-  background: #38bdf8 !important;
+  background: #60a5fa !important;
   border-radius: 999px !important;
 }
 [data-testid="stSidebar"] [data-testid="stCheckbox"]:has(input[aria-label="Dark mode"]) label > div:first-of-type,
@@ -365,9 +365,51 @@ html[data-scoop-theme="dark"] [data-testid="stMainBlockContainer"] [data-testid=
     )
 
 
+def _inject_snapshot_dark_mode_click() -> None:
+    """Flip the theme on the switch change, the same way the saved pages do."""
+    storage = json.dumps(STORAGE_KEY)
+    st.html(
+        f"""
+<script>
+(function() {{
+    {_parent_theme_store_js()}
+    var win = window;
+    try {{ if (window.parent && window.parent !== window) win = window.parent; }} catch (e) {{}}
+    if (win.__scoopDarkClick) return;
+    win.__scoopDarkClick = true;
+    var doc = win.document;
+    function scoopSetTheme(next) {{
+        var mode = next ? "dark" : "light";
+        var root = doc.documentElement;
+        root.setAttribute("data-scoop-theme", mode);
+        root.classList.toggle("scoop-dark", mode === "dark");
+        try {{
+            var store = scoopThemeStore();
+            if (mode === "dark") store.setItem({storage}, "dark");
+            else store.removeItem({storage});
+        }} catch (err) {{}}
+        doc.querySelectorAll("#scoop-mobile-dark-cb, input[aria-label='Dark mode']").forEach(function (input) {{
+            input.checked = next;
+        }});
+    }}
+    doc.addEventListener("change", function (event) {{
+        var input = event.target;
+        if (!input) return;
+        if (input.id === "scoop-mobile-dark-cb" || input.getAttribute("aria-label") === "Dark mode") {{
+            scoopSetTheme(!!input.checked);
+        }}
+    }});
+}})();
+</script>
+""",
+        unsafe_allow_javascript=True,
+    )
+
+
 def install_theme_support() -> None:
     """Hydrate saved preference early; CSS is injected last via inject_dark_mode_styles()."""
     _early_theme_bootstrap_script()
+    _inject_snapshot_dark_mode_click()
     _inject_dark_mode_track()
     _inject_static_dark_mode_css()
     apply_theme_early()

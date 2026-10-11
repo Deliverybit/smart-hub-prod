@@ -1,4 +1,18 @@
 (function () {
+  var face = document.getElementById("scoop-mood-feed-face");
+  if (!face) {
+    face = document.createElement("style");
+    face.id = "scoop-mood-feed-face";
+    face.textContent = [
+      "html[data-scoop-analyze-active='1'] .scoop-mood-summary { margin-bottom: 0 !important; }",
+      "html[data-scoop-analyze-active='1'] [data-testid='stMarkdownContainer']:has(.scoop-mood-summary) { margin-bottom: 0.85rem !important; }",
+      "html[data-scoop-analyze-active='1'] [data-testid='stMarkdownContainer']:has(.mood-feed) { margin-bottom: 0.75rem !important; }",
+      "html[data-scoop-analyze-active='1'] .mood-feed { margin-top: 0 !important; margin-bottom: 0 !important; overflow-x: hidden !important; overflow-y: auto !important; max-height: none !important; }",
+      "html[data-scoop-analyze-active='1'] .mood-feed table { border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important; }",
+      "html[data-scoop-analyze-active='1'] .mood-feed thead th { position: sticky !important; top: 0 !important; z-index: 4 !important; background: #0f172a !important; color: #f8fafc !important; }"
+    ].join("\n");
+    document.body.appendChild(face);
+  }
   var LABELS = ["7 days", "30 days", "90 days", "180 days", "1 year", "2 years"];
   var DAYS = [7, 30, 90, 180, 365, 730];
   var series = [];
@@ -108,17 +122,34 @@
 
   function fitHeadlines() {
     var feed = document.querySelector(".mood-feed");
-    var chart = document.querySelector("canvas.scoop-price-canvas");
-    if (!feed) return;
-    if (window.innerWidth < 1367 || !chart) {
-      feed.style.height = "";
-      feed.style.maxHeight = "";
-      return;
+    var foot = document.querySelector(".disclaimer-footer");
+    if (!feed || !foot) return;
+    var gap = 16;
+    var rect = feed.getBoundingClientRect();
+    var footRect = foot.getBoundingClientRect();
+    var padNow = footRect.top - rect.bottom;
+    if (padNow > gap - 4 && padNow < gap + 28 && rect.height > 200) return;
+    var footH = footRect.height || 72;
+    var anchor = rect.top < 8 ? 8 : rect.top;
+    var h = window.innerHeight - footH - gap - anchor;
+    if (h < 220) h = 220;
+    var slack = footRect.top - rect.bottom - gap;
+    if (feed.dataset.scoopSlack !== "skip" && slack > 12) {
+      var trial = rect.height + slack;
+      var before = footRect.top;
+      feed.style.setProperty("height", Math.round(trial) + "px", "important");
+      feed.style.setProperty("max-height", Math.round(trial) + "px", "important");
+      if (foot.getBoundingClientRect().top - before > 4) {
+        feed.dataset.scoopSlack = "skip";
+      } else {
+        h = trial;
+      }
     }
-    var gap = chart.getBoundingClientRect().bottom - feed.getBoundingClientRect().top;
-    if (gap < 240) return;
-    feed.style.setProperty("height", Math.round(gap) + "px", "important");
-    feed.style.setProperty("max-height", Math.round(gap) + "px", "important");
+    var px = Math.round(h) + "px";
+    if (feed.style.height === px) return;
+    feed.style.setProperty("height", px, "important");
+    feed.style.setProperty("max-height", px, "important");
+    feed.style.setProperty("overflow-y", "auto", "important");
   }
 
   function setIndex(i) {
@@ -202,7 +233,7 @@
     var stamp = "Last updated " + months[Number(parts[1]) - 1] + " " + Number(parts[2]) + ", " + parts[0] + ", 4:00 PM ET";
     caps.forEach(function (cap) {
       if (!cap.dataset.scoopOriginal) cap.dataset.scoopOriginal = cap.textContent;
-      cap.textContent = window.innerWidth >= 1367 ? cap.dataset.scoopOriginal : stamp;
+      cap.textContent = stamp;
     });
   }
 
@@ -328,6 +359,8 @@
         draw(DAYS[input ? Number(input.value) : 0]);
         fitHeadlines();
       });
+      window.addEventListener("scroll", fitHeadlines, true);
+      fitHeadlines();
       new MutationObserver(function () {
         var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');
         draw(DAYS[input ? Number(input.value) : 0]);

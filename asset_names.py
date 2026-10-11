@@ -100,3 +100,57 @@ def resolve_asset_display_name(ticker: str) -> str:
         if alt in lookup:
             return lookup[alt]
     return normalized
+
+
+_SUMMARY_SOURCES: tuple[_NameSource, ...] = (
+    _NameSource("1_NYSE_Top_10.py", ("COMPANY_SUMMARIES",), "COMPANY_SUMMARIES", "stock"),
+    _NameSource("2_NASDAQ_Top_10.py", ("COMPANY_SUMMARIES",), "COMPANY_SUMMARIES", "stock"),
+    _NameSource("3_Crypto_Top_10.py", ("CRYPTO_SUMMARIES",), "CRYPTO_SUMMARIES", "crypto"),
+    _NameSource("5_CME_Top_10.py", ("COMMODITY_SUMMARIES",), "COMMODITY_SUMMARIES", "commodity"),
+    _NameSource("6_ICE_Top_10.py", ("COMMODITY_SUMMARIES",), "COMMODITY_SUMMARIES", "commodity"),
+)
+
+
+@lru_cache(maxsize=1)
+def asset_summary_lookup() -> dict[str, str]:
+    """Map tickers to the same one-line descriptions shown on the saved pages."""
+    lookup: dict[str, str] = {}
+    for source in _SUMMARY_SOURCES:
+        env = _load_names_env(source)
+        summaries = env.get(source.names_key)
+        if not isinstance(summaries, dict):
+            continue
+        for key, text in summaries.items():
+            key_u = str(key).strip().upper()
+            text_s = str(text).strip()
+            if not key_u or not text_s:
+                continue
+            lookup[key_u] = text_s
+            if source.kind == "crypto":
+                lookup[f"{key_u}-USD"] = text_s
+            elif source.kind == "commodity":
+                lookup[f"{key_u}=F"] = text_s
+    return lookup
+
+
+def resolve_asset_summary(ticker: str) -> str:
+    """Return the saved-page description for a ticker, or blank if unknown."""
+    normalized = (ticker or "").strip().upper()
+    if not normalized:
+        return ""
+    lookup = asset_summary_lookup()
+    if normalized in lookup:
+        return lookup[normalized]
+    if normalized.endswith("-USD"):
+        base = normalized[:-4]
+        if base in lookup:
+            return lookup[base]
+    if normalized.endswith("=F"):
+        base = normalized[:-2]
+        if base in lookup:
+            return lookup[base]
+    if not normalized.endswith("=F"):
+        alt = f"{normalized}=F"
+        if alt in lookup:
+            return lookup[alt]
+    return ""

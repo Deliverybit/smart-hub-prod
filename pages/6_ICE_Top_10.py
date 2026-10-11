@@ -547,6 +547,9 @@ st.markdown(
     .full-results-wrap .full-results-table .fr-label {
         display: none !important;
     }
+    table:not(.full-results-table) tr:has([data-label]) {
+        display: none !important;
+    }
     .full-results-mobile-legend {
         display: none !important;
     }

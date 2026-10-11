@@ -124,9 +124,11 @@ def main() -> int:
 
         _print_payloads(payloads, dry_run=args.dry_run)
         if persist and payloads:
-            from preview_tables import refresh_preview_from_payloads
+            import importlib
+            import preview_tables
 
-            written = refresh_preview_from_payloads(payloads)
+            importlib.reload(preview_tables)
+            written = preview_tables.refresh_preview_from_payloads(payloads)
             print(
                 "Saved pages updated: " + (", ".join(written) if written else "none"),
                 flush=True,

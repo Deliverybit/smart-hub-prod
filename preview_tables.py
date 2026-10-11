@@ -41,7 +41,25 @@ COLUMN_TIPS = {
     ),
 }
 
-TBODY = re.compile(r"<tbody>.*?</tbody>", re.S)
+TBODY = re.compile(
+    r'(<table class="full-results-table">.*?<tbody>).*?(</tbody>)',
+    re.S,
+)
+STRAY_RESULT_ROW = re.compile(
+    r"<table(?![^>]*full-results-table)[^>]*>.*?</table>",
+    re.S,
+)
+STATUS_PARAGRAPH = re.compile(
+    r"<p>(?:<strong>\d+</strong>|No) [^<]{0,80}within <strong>\d+%</strong>.*?</p>",
+    re.S,
+)
+NOUNS = {
+    "NYSE": "stocks",
+    "NASDAQ": "stocks",
+    "CRYPTO": "cryptos",
+    "CME": "CME commodities",
+    "ICE": "ICE commodities",
+}
 ROW = re.compile(r"<tr>(.*?)</tr>", re.S)
 TICKER_CELL = re.compile(
     r'data-label="Ticker">(?:(?!</td>).)*<span class="fr-val">([^<]+)',
@@ -208,6 +226,52 @@ def build_tbody(rows: list[dict], *, label_field: str, from_path: str, tips: dic
     return "<tbody>" + "".join(body) + "</tbody>"
 
 
+def _markdown_to_alert_html(text: str) -> str:
+    return "<p>" + re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text) + "</p>"
+
+
+def selection_status_html(rows: list[dict], asset_noun: str) -> str:
+    """Status line for the rows actually written into the saved table."""
+    from screener_selection import select_proximity_results, selection_status_message
+
+    prepared = []
+    for row in rows:
+        raw = str(row.get("% Above Low", "")).replace("%", "").strip()
+        try:
+            pct = float(raw)
+        except ValueError:
+            continue
+        prepared.append({"Ticker": str(row.get("Ticker") or len(prepared)), "% Above Low": pct})
+    selection = select_proximity_results(prepared)
+    _level, message = selection_status_message(
+        selection,
+        asset_noun=asset_noun,
+        scanned_count=0,
+        universe_size=0,
+    )
+    return _markdown_to_alert_html(message)
+
+
+def stamp_selection_status(page_html: str, rows: list[dict], asset_noun: str) -> str:
+    """Keep the count line aligned with the saved table. Leave other alerts alone."""
+    if not rows or not asset_noun:
+        return page_html
+    match = STATUS_PARAGRAPH.search(page_html)
+    if match is None:
+        return page_html
+    return page_html[: match.start()] + selection_status_html(rows, asset_noun) + page_html[match.end() :]
+
+
+def drop_stray_result_rows(page_html: str) -> str:
+    """Drop result rows that were written into the explanation table."""
+
+    def _clean(match: re.Match) -> str:
+        table = match.group(0)
+        return re.sub(r"<tr>\s*<td data-label=.*?</tr>", "", table, flags=re.S)
+
+    return STRAY_RESULT_ROW.sub(_clean, page_html)
+
+
 def refill_page(
     page_html: str,
     rows: list[dict],
@@ -216,9 +280,12 @@ def refill_page(
     from_path: str,
     crypto: bool = False,
     tips: dict[str, str] | None = None,
+    asset_noun: str = "",
 ) -> str:
-    """Replace every Full Results tbody. The header, CSS, and surrounding page stay as they are."""
-    if not rows or "<tbody>" not in page_html:
+    """Replace the Full Results tbody. The legend under the table stays as it is."""
+    page_html = drop_stray_result_rows(page_html)
+    match = TBODY.search(page_html)
+    if not rows or match is None:
         return page_html
     tbody = build_tbody(
         rows,
@@ -227,7 +294,8 @@ def refill_page(
         tips=_existing_tips(page_html) if tips is None else tips,
         crypto=crypto,
     )
-    return TBODY.sub(tbody, page_html)
+    updated = page_html[: match.start()] + match.group(1) + tbody[len("<tbody>") : -len("</tbody>")] + match.group(2) + page_html[match.end() :]
+    return stamp_selection_status(updated, rows, asset_noun)
 
 
 def _bundle_for_row(payload: dict, row: dict) -> dict | None:
@@ -275,6 +343,7 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
             label_field=label_field,
             from_path=from_path,
             crypto=payload.get("screener_key") == "CRYPTO",
+            asset_noun=str(payload.get("asset_noun") or NOUNS.get(str(payload.get("screener_key") or ""), "")),
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
         path.write_text(updated, encoding="utf-8")
@@ -367,6 +436,39 @@ def refresh_analyze_catalog(payloads: list[dict]) -> int:
             written += 1
     ASSETS_PATH.write_text(json.dumps(catalog, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return written
+
+
+PCT_CELL = re.compile(
+    r'data-label="% Above Low">(?:(?!</td>).)*<span class="fr-val">([^<]+)',
+    re.S,
+)
+HIDE_DUPLICATE = (
+    '<style id="scoop-no-duplicate-table">'
+    "table:not(.full-results-table) tr:has([data-label]){display:none !important}"
+    "</style>"
+)
+
+
+def _saved_rows(page_html: str) -> list[dict]:
+    match = TBODY.search(page_html)
+    if match is None:
+        return []
+    rows = []
+    for row in ROW.findall(match.group(0)):
+        ticker = TICKER_CELL.search(row)
+        pct = PCT_CELL.search(row)
+        if ticker and pct:
+            rows.append({"Ticker": html.unescape(ticker.group(1)), "% Above Low": html.unescape(pct.group(1))})
+    return rows
+
+
+def sync_saved_market_page(page_html: str, asset_noun: str) -> str:
+    """Hide stray result rows and match the status line to the saved table."""
+    updated = drop_stray_result_rows(page_html)
+    updated = stamp_selection_status(updated, _saved_rows(updated), asset_noun)
+    if "scoop-no-duplicate-table" not in updated:
+        updated = updated.replace("</head>", HIDE_DUPLICATE + "</head>", 1)
+    return updated
 
 
 def refresh_preview_from_database() -> list[str]:

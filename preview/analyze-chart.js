@@ -247,12 +247,19 @@
   var snapshotUpdated = "";
 
   function noteLastUpdate() {
-    var caps = document.querySelectorAll('[data-testid="stCaptionContainer"] p');
+    var caps = document.querySelectorAll('[data-testid="stMain"] [data-testid="stCaptionContainer"] p');
     if (!caps.length || !snapshotUpdated) return;
-    var stamp = "Last updated " + snapshotUpdated;
+    var dark = document.documentElement.getAttribute("data-scoop-theme") === "dark";
     caps.forEach(function (cap) {
       if (!cap.dataset.scoopOriginal) cap.dataset.scoopOriginal = cap.textContent;
-      cap.textContent = stamp;
+      if (cap.dataset.scoopOriginal.indexOf("Last updated") !== 0) return;
+      cap.innerHTML = "Last updated: <b>" + snapshotUpdated + "</b>";
+      cap.style.textAlign = "right";
+      cap.style.display = "block";
+      cap.style.width = "100%";
+      cap.style.color = dark ? "#94a3b8" : "#64748b";
+      var box = cap.closest('[data-testid="stCaptionContainer"]');
+      if (box) box.style.textAlign = "right";
     });
   }
 
@@ -265,8 +272,10 @@
 
   function lookupAsset(catalog, ticker) {
     var upper = String(ticker || "").toUpperCase();
+    var exact = catalog[ticker] || catalog[upper];
+    if (exact) return exact;
     var bare = upper.replace(/-USD$/, "").replace(/=F$/, "");
-    var keys = [ticker, upper, bare, bare + "-USD", bare + "=F"];
+    var keys = [bare, bare + "-USD", bare + "=F"];
     var best = null;
     keys.forEach(function (key) {
       var asset = key && catalog[key];
@@ -377,7 +386,7 @@
     snapshotUpdated = asset.updated || "";
   }
 
-  fetch("analyze-assets.json?v=6")
+  fetch("analyze-assets.json?v=89")
     .then(function (res) { return res.json(); })
     .then(function (catalog) {
       var ticker = assetTicker();
@@ -395,6 +404,7 @@
       window.addEventListener("scroll", fitHeadlines, true);
       fitHeadlines();
       new MutationObserver(function () {
+        noteLastUpdate();
         var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');
         draw(DAYS[input ? Number(input.value) : 0]);
       }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-scoop-theme"] });

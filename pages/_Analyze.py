@@ -360,6 +360,15 @@ st.markdown(
     }
     /* Captions */
     .stCaption p, [data-testid="stCaptionContainer"] p { font-size: 1.4rem !important; }
+    .scoop-analyze-last-updated {
+        text-align: right;
+        color: #64748b;
+        font-size: 1.1rem;
+        margin: 0 0 0.85rem 0;
+    }
+    html[data-scoop-theme="dark"] .scoop-analyze-last-updated {
+        color: #94a3b8;
+    }
     /* Subheaders inside columns */
     [data-testid="stHorizontalBlock"] h2,
     [data-testid="stHorizontalBlock"] h3 { font-size: 2.2rem !important; }
@@ -2200,7 +2209,13 @@ def _render_search_dashboard(ticker: str) -> None:
         unsafe_allow_html=True,
     )
 
-    st.caption(snapshot_last_updated(bundle.get("cached_at")))
+    scan_stamp = str(bundle.get("scan_updated_display") or "").strip()
+    if not scan_stamp:
+        scan_stamp = snapshot_last_updated(bundle.get("scan_updated_at") or bundle.get("cached_at"))
+    st.markdown(
+        f'<div class="scoop-analyze-last-updated">Last updated: <b>{html.escape(scan_stamp.replace("Last updated ", ""))}</b></div>',
+        unsafe_allow_html=True,
+    )
 
     dir_inner = (
         f'<span style="font-size:4rem;">{arrow}</span>'

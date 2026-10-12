@@ -226,7 +226,12 @@ def ensure_analyze_bundle(
             payload = None
         raw = _raw_bundle_from_payload(payload, ticker)
         if raw:
-            return {**raw, "history": _slice_history(raw.get("history"), days)}
+            return {
+                **raw,
+                "history": _slice_history(raw.get("history"), days),
+                "scan_updated_at": (payload or {}).get("updated_at"),
+                "scan_updated_display": (payload or {}).get("last_updated_display") or "",
+            }
 
     row = _row_for_ticker(payload, ticker)
     computed = build_one_analyze_bundle(ticker, row, market_data)

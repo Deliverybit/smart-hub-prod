@@ -206,8 +206,6 @@ document.addEventListener("click", function (event) {
   if (!dark || (dark.innerText || "").indexOf("Dark mode") === -1) return;
   var input = dark.querySelector("input");
   if (!input) return;
-  event.preventDefault();
-  scoopSetTheme(!input.checked);
 });
 document.addEventListener("change", function (event) {
   var input = event.target;

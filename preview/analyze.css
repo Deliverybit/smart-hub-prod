@@ -2573,6 +2573,7 @@ html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] {
   html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-selected-asset-card { background: linear-gradient(rgb(30, 41, 59) 0%, rgb(15, 23, 42) 100%) !important; border-color: rgba(56, 189, 248, 0.28) !important; box-shadow: rgba(0, 0, 0, 0.28) 0px 14px 28px !important; }
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted { letter-spacing: 0.06em !important; }
   html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p { color: rgb(100, 116, 139) !important; margin: 0px 0px 0.85rem !important; }
+  html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p { color: rgb(148, 163, 184) !important; }
   html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner { padding: 0.75rem 1.15rem !important; border-radius: 16px !important; margin-bottom: 1rem !important; box-shadow: rgba(15, 23, 42, 0.12) 0px 12px 24px !important; }
   html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div { gap: 0.85rem !important; }
   html[data-scoop-analyze-active="1"] [data-testid="stMetric"] { background: linear-gradient(rgb(255, 255, 255) 0%, rgb(248, 251, 255) 100%) !important; border: 1px solid rgba(14, 165, 233, 0.24) !important; border-radius: 16px !important; padding: 0.85rem 1rem !important; box-shadow: rgba(15, 23, 42, 0.07) 0px 10px 22px !important; }
@@ -2610,6 +2611,7 @@ html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-select
 html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card { background: linear-gradient(rgb(30, 41, 59) 0%, rgb(15, 23, 42) 100%) !important; border-color: rgba(56, 189, 248, 0.28) !important; box-shadow: rgba(0, 0, 0, 0.28) 0px 14px 28px !important; }
 html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted { letter-spacing: 0.06em !important; }
 html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p { color: rgb(100, 116, 139) !important; margin: 0px 0px 0.85rem !important; }
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p { color: rgb(148, 163, 184) !important; }
 html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-analyze-direction-banner { padding: 0.75rem 1.15rem !important; border-radius: 16px !important; margin-bottom: 1rem !important; box-shadow: rgba(15, 23, 42, 0.12) 0px 12px 24px !important; }
 html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div { gap: 0.85rem !important; }
 html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stMetric"] { background: linear-gradient(rgb(255, 255, 255) 0%, rgb(248, 251, 255) 100%) !important; border: 1px solid rgba(14, 165, 233, 0.24) !important; border-radius: 16px !important; padding: 0.85rem 1rem !important; box-shadow: rgba(15, 23, 42, 0.07) 0px 10px 22px !important; }

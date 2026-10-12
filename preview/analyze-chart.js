@@ -263,6 +263,19 @@
     return ticker;
   }
 
+  function lookupAsset(catalog, ticker) {
+    var upper = String(ticker || "").toUpperCase();
+    var bare = upper.replace(/-USD$/, "").replace(/=F$/, "");
+    var keys = [ticker, upper, bare, bare + "-USD", bare + "=F"];
+    var best = null;
+    keys.forEach(function (key) {
+      var asset = key && catalog[key];
+      if (!asset) return;
+      if (!best || String(asset.updated || "") > String(best.updated || "")) best = asset;
+    });
+    return best || catalog.PEP;
+  }
+
   function money(value) {
     if (value == null || isNaN(Number(value))) return "—";
     return "$" + Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -364,11 +377,11 @@
     snapshotUpdated = asset.updated || "";
   }
 
-  fetch("analyze-assets.json?v=5")
+  fetch("analyze-assets.json?v=6")
     .then(function (res) { return res.json(); })
     .then(function (catalog) {
       var ticker = assetTicker();
-      applyAsset(catalog[ticker] || catalog.PEP);
+      applyAsset(lookupAsset(catalog, ticker));
       bindSlider();
       noteLastUpdate();
       var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');

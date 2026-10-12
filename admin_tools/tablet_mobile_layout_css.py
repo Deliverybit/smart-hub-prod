@@ -3537,6 +3537,9 @@ _DESKTOP_ANALYZE_POP_RULES = """
         color: #64748b !important;
         margin: 0 0 0.85rem 0 !important;
     }
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
+        color: #94a3b8 !important;
+    }
     html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner {
         padding: 0.75rem 1.15rem !important;
         border-radius: 16px !important;

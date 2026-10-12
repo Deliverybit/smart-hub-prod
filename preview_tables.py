@@ -489,8 +489,13 @@ def refresh_analyze_catalog(payloads: list[dict]) -> int:
             bundle = _bundle_for_row(payload, row)
             if bundle is None:
                 continue
-            catalog[ticker] = _catalog_asset(payload, row, bundle, catalog.get(ticker))
-            written += 1
+            asset = _catalog_asset(payload, row, bundle, catalog.get(ticker))
+            source = str(row.get("_source_ticker") or ticker)
+            for key in {ticker, source}:
+                if not key:
+                    continue
+                catalog[key] = asset
+                written += 1
     ASSETS_PATH.write_text(json.dumps(catalog, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return written
 

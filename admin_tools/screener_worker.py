@@ -17,6 +17,8 @@ import subprocess
 import sys
 import time
 import traceback
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -79,6 +81,41 @@ def _publish_saved_pages(written: list[str]) -> None:
     else:
         subprocess.run(["git", "push", "prod", "HEAD:master"], cwd=ROOT, check=True)
     print("Pushed saved pages to master.", flush=True)
+    _purge_edge_cache()
+
+
+def _purge_edge_cache() -> None:
+    """Drop the published HTML from Cloudflare so the next visitor gets this snapshot."""
+    zone_id = os.environ.get("CLOUDFLARE_ZONE_ID", "").strip()
+    api_token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
+    if not zone_id or not api_token:
+        print(
+            "Edge cache was not purged. Set CLOUDFLARE_ZONE_ID and CLOUDFLARE_API_TOKEN.",
+            flush=True,
+        )
+        return
+    request = urllib.request.Request(
+        f"https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache",
+        data=b'{"purge_everything":true}',
+        headers={
+            "Authorization": f"Bearer {api_token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            body = response.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as exc:
+        print(f"Edge cache purge failed ({exc.code}).", flush=True)
+        return
+    except urllib.error.URLError:
+        print("Edge cache purge failed (network).", flush=True)
+        return
+    if '"success": true' in body or '"success":true' in body:
+        print("Purged the Cloudflare edge cache.", flush=True)
+        return
+    print("Edge cache purge was not accepted.", flush=True)
 
 
 def run_once(*, screener: str | None, persist: bool) -> list[dict]:

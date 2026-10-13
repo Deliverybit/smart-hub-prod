@@ -3203,9 +3203,9 @@ def _fetch_index(ticker: str):
     except Exception:
         return None, None
 
-_cl_price, _cl_chg = _fetch_index("CL=F")
-_gc_price, _gc_chg = _fetch_index("GC=F")
-_es_price, _es_chg = _fetch_index("ES=F")
+_cl_price, _cl_chg = _fetch_index("USO")
+_gc_price, _gc_chg = _fetch_index("GLD")
+_es_price, _es_chg = _fetch_index("CPER")
 
 def _banner_card(label, price, chg, prefix="$"):
     if price is None:
@@ -3223,9 +3223,9 @@ def _banner_card(label, price, chg, prefix="$"):
     )
 
 _cards = (
-    _banner_card("WTI Crude Oil (CL) — Today", _cl_price, _cl_chg)
-    + _banner_card("Gold (GC) — Today", _gc_price, _gc_chg)
-    + _banner_card("E-mini S&P 500 (ES) — Today", _es_price, _es_chg)
+    _banner_card("United States Oil Fund (USO) — Today", _cl_price, _cl_chg)
+    + _banner_card("SPDR Gold Shares (GLD) — Today", _gc_price, _gc_chg)
+    + _banner_card("United States Copper Index Fund (CPER) — Today", _es_price, _es_chg)
 )
 if _cards:
     render_desktop_index_banner(

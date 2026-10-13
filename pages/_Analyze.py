@@ -1862,13 +1862,22 @@ canvas.scoop-price-canvas {
   padding-left: 14px !important;
   padding-right: 18px !important;
 }
+[data-testid="stSlider"] [role="slider"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
 [data-testid="stSliderThumbValue"],
 [data-testid="stSliderTickBar"],
 [data-testid="stSlider"] [data-orientation="horizontal"] > div[style*="position: absolute"],
 [data-testid="stSlider"] [data-orientation="horizontal"] > div[style*="position:absolute"] {
   display: none !important;
 }
-[data-testid="stSlider"] [data-orientation="horizontal"] {
+[data-testid="stSlider"] [data-orientation="horizontal"],
+[data-testid="stSlider"] [data-baseweb="slider"],
+[data-testid="stSlider"] [data-baseweb="slider"] > div,
+[data-testid="stSlider"] .scoop-range-track {
   position: relative !important;
   overflow: visible !important;
 }
@@ -1879,24 +1888,30 @@ canvas.scoop-price-canvas {
   border-radius: 999px !important;
 }
 button.scoop-range-dot {
-  position: absolute;
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  padding: 0;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: #94a3b8;
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 0 1px #64748b;
-  z-index: 4;
-  cursor: pointer;
+  position: absolute !important;
+  top: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: #94a3b8 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 0 1px #64748b !important;
+  z-index: 4 !important;
+  cursor: pointer !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
 }
 button.scoop-range-dot.scoop-range-dot-on {
-  background: #16a34a;
-  border-color: #ffffff;
-  box-shadow: 0 0 0 1px #16a34a;
+  background: #16a34a !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 1px #16a34a !important;
 }
 #scoop-range-end-label {
   display: inline-block !important;
@@ -1942,6 +1957,57 @@ button.scoop-range-dot.scoop-range-dot-on {
   top: 0 !important;
   z-index: 4 !important;
   background: #0f172a !important;
+  color: #f8fafc !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"],
+html[data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-analyze-active="1"] .scoop-analyze-last-updated {
+  color: #64748b !important;
+  font-size: 1.6rem !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  line-height: 1.75 !important;
+  text-align: right !important;
+  margin: 0.4rem 0 0.9rem !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p b,
+html[data-scoop-analyze-active="1"] .scoop-analyze-last-updated b {
+  font-weight: 600 !important;
+  font-size: inherit !important;
+  color: inherit !important;
+}
+html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-analyze-last-updated {
+  color: #e2e8f0 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetric"] {
+  padding: 0.4rem 1rem !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] > div,
+html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] p {
+  font-size: 2.35rem !important;
+  line-height: 1.05 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] p,
+html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] label {
+  font-size: 1.45rem !important;
+  line-height: 1.15 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"],
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] p {
+  font-size: 1.35rem !important;
+  line-height: 1.1 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Up"]) {
+  color: #4ade80 !important;
+  font-weight: 800 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Down"]) {
+  color: #ff6b6b !important;
+  font-weight: 800 !important;
+}
   color: #f8fafc !important;
 }
 </style>
@@ -2058,13 +2124,25 @@ button.scoop-range-dot.scoop-range-dot-on {
     var text = payload.label || "";
     if (label.textContent !== text) label.textContent = text;
   }
+  function rangeTrack(root) {
+    var rails = root.querySelectorAll('[data-orientation="horizontal"]');
+    if (rails.length) return rails.length > 1 ? rails[1] : rails[0];
+    var slider = root.querySelector('[data-baseweb="slider"]');
+    if (!slider) return null;
+    var bars = slider.querySelectorAll("div");
+    for (var i = 0; i < bars.length; i++) {
+      var height = bars[i].style && bars[i].style.height;
+      if (height && height.indexOf("rem") >= 0 && bars[i].getAttribute("role") !== "slider") return bars[i];
+    }
+    return null;
+  }
   function placeDots() {
     var root = doc.querySelector('[data-testid="stSlider"]');
     if (!root) return;
-    var rails = root.querySelectorAll('[data-orientation="horizontal"]');
-    var rail = rails.length > 1 ? rails[1] : rails[0];
+    var rail = rangeTrack(root);
     var labels = payload.labels || [];
     if (!rail || labels.length < 2) return;
+    rail.classList.add("scoop-range-track");
     var current = labels.indexOf(payload.label);
     var existing = rail.querySelectorAll("button.scoop-range-dot");
     if (

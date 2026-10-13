@@ -334,11 +334,16 @@ _SCREENER_LANDING_INTRO_CSS = """
     .scoop-screener-last-updated {
         text-align: right;
         color: #64748b;
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.6rem;
+        font-weight: 400;
+        line-height: 1.75;
+        margin: 0.4rem 0 0.9rem;
+    }
+    .scoop-screener-last-updated b {
+        font-weight: 600;
     }
     html[data-scoop-theme="dark"] .scoop-screener-last-updated {
-        color: #94a3b8;
+        color: #e2e8f0;
     }
 </style>
 """

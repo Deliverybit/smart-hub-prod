@@ -3522,20 +3522,21 @@ st.markdown(
         }
         html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
         html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-wrap {
-            font-size: 0.95rem !important;
+            font-size: 1.08rem !important;
             font-weight: 650 !important;
-            line-height: 1.35 !important;
+            line-height: 1.4 !important;
             letter-spacing: 0.04em !important;
             text-transform: uppercase !important;
-            color: #475569 !important;
+            color: #334155 !important;
         }
         html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-text {
             text-transform: none !important;
             letter-spacing: 0 !important;
         }
         html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val {
-            font-size: 1.12rem !important;
+            font-size: 1.24rem !important;
             font-weight: 650 !important;
+            line-height: 1.45 !important;
             color: #0f172a !important;
             text-align: right !important;
         }
@@ -3566,7 +3567,7 @@ st.markdown(
         }
         html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
         html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-wrap {
-            color: #e2e8f0 !important;
+            color: #f1f5f9 !important;
         }
         html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val,
         html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val,

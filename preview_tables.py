@@ -61,6 +61,38 @@ NOUNS = {
     "CME": "CME commodities",
     "ICE": "ICE commodities",
 }
+
+# Top banners. The refresh script writes these labels and prices into each snapshot.
+# (ticker, label, fallback ticker, fallback label)
+BANNER_SLOTS = {
+    "NYSE": (
+        ("SPY", "SPDR S&P 500 ETF (SPY) — Today", "", ""),
+        ("DIA", "SPDR Dow Jones ETF (DIA) — Today", "", ""),
+        ("VTI", "Vanguard Total Stock Market ETF (VTI) — Today", "", ""),
+    ),
+    "NASDAQ": (
+        ("QQQ", "Invesco QQQ (QQQ) — Today", "", ""),
+        ("SOXX", "iShares Semiconductor ETF (SOXX) — Today", "SMH", "VanEck Semiconductor ETF (SMH) — Today"),
+        ("ONEQ", "Fidelity Nasdaq Composite ETF (ONEQ) — Today", "", ""),
+    ),
+    "CRYPTO": (
+        ("BTC-USD", "Bitcoin (BTC) — Today", "", ""),
+        ("ETH-USD", "Ethereum (ETH) — Today", "", ""),
+        ("SOL-USD", "Solana (SOL) — Today", "", ""),
+    ),
+    "CME": (
+        ("USO", "United States Oil Fund (USO) — Today", "", ""),
+        ("GLD", "SPDR Gold Shares (GLD) — Today", "", ""),
+        ("CPER", "United States Copper Index Fund (CPER) — Today", "", ""),
+    ),
+    "ICE": (
+        ("BNO", "United States Brent Oil Fund (BNO) — Today", "", ""),
+        ("UUP", "Invesco DB US Dollar Bullish (UUP) — Today", "", ""),
+        ("UNG", "United States Natural Gas Fund (UNG) — Today", "", ""),
+    ),
+}
+INDEX_CARD = re.compile(r'<div class="scoop-index-card".*?</div>', re.S)
+CARD_SPAN = re.compile(r"(<span[^>]*>)(.*?)(</span>)", re.S)
 ROW = re.compile(r"<tr>(.*?)</tr>", re.S)
 TICKER_CELL = re.compile(
     r'data-label="Ticker">(?:(?!</td>).)*<span class="fr-val">([^<]+)',
@@ -401,6 +433,7 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
             universe_size=int(payload.get("universe_size") or 0),
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
+        updated = apply_banners(updated, str(payload.get("screener_key") or ""))
         path.write_text(updated, encoding="utf-8")
         written.append(filename)
     if written:
@@ -409,6 +442,68 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         if stamp_analyze_caption(stamp):
             written.append("analyze.html")
     return written
+
+
+def _banner_quote(ticker: str, label: str, fallback: str, fallback_label: str):
+    """Latest price for a banner ETF. Fall back when the primary symbol has no quote."""
+    from market_data import MarketData
+
+    market = MarketData()
+    price, change = None, None
+    try:
+        price, change = market.get_daily_change(ticker)
+    except Exception:
+        price, change = None, None
+    if price is None and fallback:
+        try:
+            price, change = market.get_daily_change(fallback)
+        except Exception:
+            price, change = None, None
+        if price is not None:
+            label = fallback_label or label
+    return label, price, change
+
+
+def apply_banners(page_html: str, screener_key: str, quotes: list | None = None) -> str:
+    """Replace each top banner card with the planned ETF label and, when available, its quote."""
+    slots = BANNER_SLOTS.get(screener_key)
+    if not slots or 'class="scoop-index-card"' not in page_html:
+        return page_html
+    if quotes is None:
+        quotes = [_banner_quote(*slot) for slot in slots]
+
+    def _card(match: re.Match) -> str:
+        index = _card.state
+        _card.state += 1
+        label, price, change = quotes[index % len(quotes)]
+        block = match.group(0)
+        spans = list(CARD_SPAN.finditer(block))
+        if len(spans) < 3:
+            return block
+        values = [html.escape(label)]
+        if price is None:
+            values.append(spans[1].group(2))
+        else:
+            values.append(f"${price:,.2f}")
+        if change is None:
+            values.append(spans[2].group(2))
+        else:
+            arrow = "▲" if change >= 0 else "▼"
+            values.append(html.escape(f"{arrow} {change:+.2f}%"))
+            color = "rgb(34, 197, 94)" if change >= 0 else "rgb(239, 68, 68)"
+            block = block.replace("rgb(34, 197, 94)", color).replace("rgb(239, 68, 68)", color)
+            spans = list(CARD_SPAN.finditer(block))
+        pieces = []
+        cursor = 0
+        for span, value in zip(spans[:3], values):
+            pieces.append(block[cursor:span.start(2)])
+            pieces.append(value)
+            cursor = span.end(2)
+        pieces.append(block[cursor:])
+        return "".join(pieces)
+
+    _card.state = 0
+    return INDEX_CARD.sub(_card, page_html)
 
 
 LAST_UPDATED = re.compile(

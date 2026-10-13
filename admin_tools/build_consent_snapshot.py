@@ -496,7 +496,7 @@ html = html.replace(
     "http://localhost:8501/media/4c18d1172d4aeaf3916c2c8f08575f00.png",
     "logo.png",
 )
-html = html.replace("<head>", '<head><script>try{if(localStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}</script>', 1)
+html = html.replace("<head>", '<head><link rel="stylesheet" href="card-format.css"><script>try{if(localStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}</script>', 1)
 html = html.replace("</body>", extra + "</body>")
 OUT.write_text("<!DOCTYPE html>\n" + html, encoding="utf-8")
 print(OUT, OUT.stat().st_size)

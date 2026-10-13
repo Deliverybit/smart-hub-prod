@@ -3536,6 +3536,71 @@ st.markdown(
     .stMainBlockContainer { padding-bottom: 9rem !important; }
     :root { --footer-sidebar-width: clamp(12rem, 20vw, 36rem); }
     
+    @media (max-width: 1366px) {
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody tr {
+            margin: 0 0 0.9rem 0 !important;
+            padding: 0.85rem 1rem 0.35rem !important;
+            border: 1px solid #e2e8f0 !important;
+            border-left: 4px solid #16a34a !important;
+            border-radius: 16px !important;
+            background: #ffffff !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+        }
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-wrap {
+            font-size: 0.95rem !important;
+            font-weight: 650 !important;
+            line-height: 1.35 !important;
+            letter-spacing: 0.04em !important;
+            text-transform: uppercase !important;
+            color: #475569 !important;
+        }
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-text {
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+        }
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val {
+            font-size: 1.12rem !important;
+            font-weight: 650 !important;
+            color: #0f172a !important;
+            text-align: right !important;
+        }
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"],
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"],
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] {
+            display: block !important;
+            border-bottom: none !important;
+        }
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-label,
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-label,
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-label {
+            display: none !important;
+        }
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val,
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val,
+        html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val {
+            display: block !important;
+            text-align: left !important;
+            font-size: 1.35rem !important;
+            font-weight: 750 !important;
+            color: #0f172a !important;
+            text-transform: none !important;
+        }
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody tr {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+        }
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-wrap {
+            color: #e2e8f0 !important;
+        }
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val,
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val,
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val,
+        html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val {
+            color: #f8fafc !important;
+        }
+    }
     @media (min-width: 769px) and (max-width: 1366px) {
         .disclaimer-footer {
             position: static !important;

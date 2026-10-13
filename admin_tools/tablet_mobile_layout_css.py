@@ -3535,10 +3535,14 @@ _DESKTOP_ANALYZE_POP_RULES = """
     }
     html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
         color: #64748b !important;
-        margin: 0 0 0.85rem 0 !important;
+        font-size: 1.6rem !important;
+        font-weight: 400 !important;
+        line-height: 1.75 !important;
+        text-align: right !important;
+        margin: 0.4rem 0 0.9rem !important;
     }
     html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
-        color: #94a3b8 !important;
+        color: #e2e8f0 !important;
     }
     html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner {
         padding: 0.75rem 1.15rem !important;

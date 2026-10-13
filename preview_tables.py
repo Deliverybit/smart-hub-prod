@@ -172,13 +172,16 @@ def _tips_for_rows(page_html: str, rows: list[dict]) -> dict[str, str]:
 
 
 def _description_for(ticker: str, saved: str, name: str) -> str:
-    """Use the saved sentence. Fill a blank or name-only tip from the summary list."""
+    """Keep the company summary. A blank saved tip must not replace it."""
     from asset_names import resolve_asset_summary
 
+    summary = resolve_asset_summary(ticker)
+    if summary:
+        return summary
     text = (saved or "").strip()
     if text and text != (name or "").strip():
         return text
-    return resolve_asset_summary(ticker) or text
+    return ""
 
 
 def _columns(rows: list[dict], label_field: str) -> list[str]:
@@ -214,7 +217,7 @@ def build_tbody(rows: list[dict], *, label_field: str, from_path: str, tips: dic
             if column == label_field:
                 tip = tips.get(ticker, "")
                 name = str(row.get(column) or ticker)
-                inner = _tip(name, tip or name, "scoop-name-tip")
+                inner = _tip(name, tip, "scoop-name-tip") if tip else _tip(name, name, "scoop-name-tip")
                 cells += _td(column, inner)
                 continue
             if column == "Headlines":
@@ -412,7 +415,7 @@ LAST_UPDATED = re.compile(
     r'(class="scoop-screener-last-updated">Last updated: <b>)[^<]*'
 )
 ANALYZE_CAPTION = re.compile(
-    r'(data-testid="stCaptionContainer"[^>]*>\s*<p>)Last updated [^<]*'
+    r'(data-testid="stCaptionContainer"[^>]*>\s*<p>)Last updated:?\s*(?:<b>)?[^<]*(?:</b>)?'
 )
 ASSETS_PATH = PREVIEW / "analyze-assets.json"
 MARKETS = {

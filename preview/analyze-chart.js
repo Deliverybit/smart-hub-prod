@@ -387,12 +387,36 @@
       }
     }
     series = asset.series || [];
-    snapshotUpdated = asset.updated || "";
   }
 
-  fetch("analyze-assets.json?v=89")
+  function stampSortKey(text) {
+    var months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    var match = String(text || "").trim().match(/^([A-Za-z]{3}) (\d{1,2}), (\d{4})\s+(\d{1,2}):(\d{2}) (AM|PM) CT$/);
+    if (!match || months[match[1]] == null) return 0;
+    var hour = Number(match[4]) % 12;
+    if (match[6] === "PM") hour += 12;
+    return Date.UTC(Number(match[3]), months[match[1]], Number(match[2]), hour, Number(match[5]));
+  }
+
+  function newestScanStamp(catalog) {
+    var best = "";
+    var bestKey = 0;
+    Object.keys(catalog || {}).forEach(function (key) {
+      var asset = catalog[key];
+      var stamp = asset && asset.updated;
+      var sortKey = stampSortKey(stamp);
+      if (sortKey >= bestKey && stamp) {
+        best = stamp;
+        bestKey = sortKey;
+      }
+    });
+    return best;
+  }
+
+  fetch("analyze-assets.json?v=" + Date.now())
     .then(function (res) { return res.json(); })
     .then(function (catalog) {
+      snapshotUpdated = newestScanStamp(catalog);
       var ticker = assetTicker();
       applyAsset(lookupAsset(catalog, ticker));
       bindSlider();

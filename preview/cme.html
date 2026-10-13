@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-scoop-consent="0" lang="en" data-scoop-theme="light" data-scoop-screener-active="1" data-scoop-theme-listen="1" data-scoop-desktop-layout="1" data-scoop-tab-nav="1" style="zoom: 1 !important;"><head><script id="scoop-from-analyze-return">
+<html data-scoop-consent="0" lang="en" data-scoop-theme="light" data-scoop-screener-active="1" data-scoop-theme-listen="1" data-scoop-desktop-layout="1" data-scoop-tab-nav="1" style="zoom: 1 !important;"><head><link rel="stylesheet" href="card-format.css"><script id="scoop-from-analyze-return">
 try {
   if (location.search.indexOf("scoop_from_analyze=1") !== -1) {
     document.documentElement.setAttribute("data-scoop-consent", "1");
@@ -28243,4 +28243,123 @@ function scoopSetTheme(next) {
   document.querySelectorAll('#scoop-mobile-dark-cb, input[aria-label="Dark mode"]').forEach(function (box) { box.checked = next; });
 }
 </script>
+
+<style>
+@media (max-width: 1366px) {
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody tr {
+    margin: 0 0 0.9rem 0 !important;
+    padding: 0.85rem 1rem 0.35rem !important;
+    border: 1px solid #e2e8f0 !important;
+    border-left: 4px solid #16a34a !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val {
+    font-family: "Segoe UI", system-ui, sans-serif !important;
+    letter-spacing: 0 !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td {
+    align-items: center !important;
+    gap: 0.5rem 0.85rem !important;
+    padding: 0.55rem 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-wrap {
+    font-size: 0.95rem !important;
+    font-weight: 650 !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: #475569 !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-text {
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 0.95rem !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val {
+    font-size: 1.12rem !important;
+    font-weight: 650 !important;
+    line-height: 1.35 !important;
+    color: #0f172a !important;
+    text-align: right !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"],
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"],
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] {
+    display: block !important;
+    padding: 0.15rem 0 0.45rem !important;
+    border-bottom: none !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-label,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-label,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-label {
+    display: none !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val {
+    display: block !important;
+    text-align: left !important;
+    font-size: 1.35rem !important;
+    font-weight: 750 !important;
+    line-height: 1.25 !important;
+    color: #0f172a !important;
+    text-transform: none !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="#"] .fr-val {
+    display: inline-block !important;
+    min-width: 1.7rem !important;
+    padding: 0.05rem 0.45rem !important;
+    border-radius: 999px !important;
+    background: #f1f5f9 !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Market Mood"] .fr-val {
+    text-transform: lowercase !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Market Mood"] .fr-val::first-letter {
+    text-transform: uppercase !important;
+  }
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody tr {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    box-shadow: none !important;
+  }
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td {
+    border-bottom-color: #1e293b !important;
+  }
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label,
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-label .tip-wrap {
+    color: #e2e8f0 !important;
+  }
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val,
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val,
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val,
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val {
+    color: #f8fafc !important;
+  }
+  html[data-scoop-theme="dark"] body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="#"] .fr-val {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+  }
+}
+@media (min-width: 769px) and (max-width: 1366px) {
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td .fr-val {
+    font-size: 1.22rem !important;
+  }
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val {
+    font-size: 1.5rem !important;
+  }
+}
+</style>
+
 </body></html>

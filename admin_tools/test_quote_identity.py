@@ -22,14 +22,22 @@ def test_recent_series_is_kept() -> None:
 
 def test_old_ticker_does_not_match_the_company() -> None:
     matches = [
-        {"1. symbol": "BNY", "3. type": "Equity", "9. matchScore": "0.92"},
+        {"1. symbol": "BNY", "3. type": "Equity", "4. region": "United States", "9. matchScore": "0.92"},
     ]
     assert symbol_matches_company("BK", matches) is False
     assert symbol_matches_company("BNY", matches) is True
+
+
+def test_foreign_listing_does_not_drop_the_us_ticker() -> None:
+    matches = [
+        {"1. symbol": "0Q1F.LON", "3. type": "Equity", "4. region": "United Kingdom", "9. matchScore": "1.0"},
+    ]
+    assert symbol_matches_company("JPM", matches) is True
 
 
 if __name__ == "__main__":
     test_short_stale_series_is_rejected()
     test_recent_series_is_kept()
     test_old_ticker_does_not_match_the_company()
+    test_foreign_listing_does_not_drop_the_us_ticker()
     print("ok")

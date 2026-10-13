@@ -3233,13 +3233,13 @@ def _banner_card(label, price, chg, prefix="$"):
     )
 
 
-_nya_price, _nya_chg = _fetch_index("^NYA")
-_gspc_price, _gspc_chg = _fetch_index("^GSPC")
-_dji_price, _dji_chg = _fetch_index("^DJI")
+_spy_price, _spy_chg = _fetch_index("SPY")
+_dia_price, _dia_chg = _fetch_index("DIA")
+_vti_price, _vti_chg = _fetch_index("VTI")
 _cards = (
-    _banner_card("NYSE Composite (^NYA) — Today", _nya_price, _nya_chg)
-    + _banner_card("S&P 500 (^GSPC) — Today", _gspc_price, _gspc_chg)
-    + _banner_card("Dow Jones (^DJI) — Today", _dji_price, _dji_chg)
+    _banner_card("SPDR S&P 500 ETF (SPY) — Today", _spy_price, _spy_chg)
+    + _banner_card("SPDR Dow Jones ETF (DIA) — Today", _dia_price, _dia_chg)
+    + _banner_card("Vanguard Total Stock Market ETF (VTI) — Today", _vti_price, _vti_chg)
 )
 if _cards:
     render_desktop_index_banner(

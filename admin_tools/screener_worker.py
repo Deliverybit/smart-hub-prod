@@ -53,8 +53,10 @@ def _publish_saved_pages(written: list[str]) -> None:
         return
     paths = [str(ROOT / "preview" / name) for name in written]
     assets = ROOT / "preview" / "analyze-assets.json"
-    if assets.exists():
-        paths.append(str(assets))
+    chart = ROOT / "preview" / "analyze-chart.js"
+    for extra in (assets, chart):
+        if extra.exists():
+            paths.append(str(extra))
     subprocess.run(["git", "add", "--", *paths], cwd=ROOT, check=True)
     staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT)
     if staged.returncode == 0:

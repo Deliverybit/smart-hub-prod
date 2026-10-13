@@ -2572,19 +2572,19 @@ def _banner_card(label, price, chg, prefix="$"):
     )
 
 if not _analyze_mode:
-    _nya_p, _nya_c = _fetch_index("^NYA")
-    _ixic_p, _ixic_c = _fetch_index("^IXIC")
+    _nya_p, _nya_c = _fetch_index("DIA")
+    _ixic_p, _ixic_c = _fetch_index("QQQ")
     _btc_p, _btc_c = _fetch_index("BTC-USD")
     _eth_p, _eth_c = _fetch_index("ETH-USD")
-    _cl_p, _cl_c = _fetch_index("CL=F")
-    _gc_p, _gc_c = _fetch_index("GC=F")
+    _cl_p, _cl_c = _fetch_index("USO")
+    _gc_p, _gc_c = _fetch_index("GLD")
     _all_cards = (
-        _banner_card("NYSE (^NYA)", _nya_p, _nya_c)
-        + _banner_card("NASDAQ (^IXIC)", _ixic_p, _ixic_c)
-        + _banner_card("BTC", _btc_p, _btc_c)
-        + _banner_card("ETH", _eth_p, _eth_c)
-        + _banner_card("WTI Crude", _cl_p, _cl_c)
-        + _banner_card("Gold", _gc_p, _gc_c)
+        _banner_card("SPDR Dow Jones ETF (DIA)", _nya_p, _nya_c)
+        + _banner_card("Invesco QQQ (QQQ)", _ixic_p, _ixic_c)
+        + _banner_card("Bitcoin (BTC)", _btc_p, _btc_c)
+        + _banner_card("Ethereum (ETH)", _eth_p, _eth_c)
+        + _banner_card("United States Oil Fund (USO)", _cl_p, _cl_c)
+        + _banner_card("SPDR Gold Shares (GLD)", _gc_p, _gc_c)
     )
     if _all_cards:
         st.markdown(

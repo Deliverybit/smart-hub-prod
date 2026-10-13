@@ -188,6 +188,10 @@ def screen_ticker(
         names = env.get(defn.names_key) or {}
         if not isinstance(names, dict):
             names = {}
+        if defn.kind == "stock":
+            company = str(names.get(ticker) or "")
+            if company and not market_data.symbol_matches_company(ticker, company):
+                return None
 
         if defn.kind == "crypto":
             display_tickers = env.get("DISPLAY_TICKERS") or {}

@@ -1,11 +1,53 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime, timezone
 
 import pandas as pd
 import requests
 
 from app_config import get_alpha_vantage_api_key
+
+QUOTE_MAX_AGE_DAYS = 14
+QUOTE_MIN_BARS = 20
+
+
+def quote_is_usable(dates: list, today: datetime | None = None) -> bool:
+    """A screener quote needs a recent bar and enough history to be that company."""
+    if len(dates) < QUOTE_MIN_BARS:
+        return False
+    latest = max(dates)
+    if hasattr(latest, "to_pydatetime"):
+        latest = latest.to_pydatetime()
+    if getattr(latest, "tzinfo", None) is not None:
+        latest = latest.astimezone(timezone.utc).replace(tzinfo=None)
+    now = today or datetime.now(timezone.utc)
+    if now.tzinfo is not None:
+        now = now.astimezone(timezone.utc).replace(tzinfo=None)
+    return (now - latest).days <= QUOTE_MAX_AGE_DAYS
+
+
+def symbol_matches_company(ticker: str, matches: list[dict]) -> bool:
+    """True when this ticker is a real match for the company, or the search is empty."""
+    wanted = (ticker or "").strip().upper()
+    scored: list[tuple[float, str]] = []
+    for item in matches:
+        symbol = str(item.get("1. symbol") or "").strip().upper()
+        kind = str(item.get("3. type") or "")
+        if not symbol or (kind and kind.lower() != "equity"):
+            continue
+        try:
+            score = float(item.get("9. matchScore") or 0)
+        except (TypeError, ValueError):
+            score = 0
+        scored.append((score, symbol))
+    if not scored:
+        return True
+    if any(symbol == wanted and score >= 0.5 for score, symbol in scored):
+        return True
+    best_score, best_symbol = max(scored)
+    return not (best_score >= 0.7 and best_symbol != wanted)
+
 
 class MarketData:
     def __init__(self):
@@ -15,6 +57,7 @@ class MarketData:
         self._daily_cache: dict[tuple[str, str], pd.DataFrame] = {}
         self._news_cache: dict[tuple[str, bool], list] = {}
         self._screener_quote_cache: dict[str, dict] = {}
+        self._symbol_search_cache: dict[str, list] = {}
 
     _CRYPTO_SYMBOLS = {
         "BTC", "ETH", "DOGE", "SOL", "ADA", "SHIB", "XRP", "BNB", "AVAX",
@@ -53,8 +96,8 @@ class MarketData:
     }
 
     _INDEX_SYMBOLS = {
-        "^IXIC": "QQQ",   # NASDAQ Composite not on AV; QQQ ETF proxy
-        "^NYA": "DIA",    # NYSE Composite not on AV; Dow ETF proxy
+        "^IXIC": "QQQ",
+        "^NYA": "DIA",
         "^GSPC": "SPY",
         "^DJI": "DIA",
     }
@@ -509,7 +552,8 @@ class MarketData:
                 "year_high": cached["year_high"],
             }
         df = self._daily_history_frame(ticker, outputsize="full").tail(365)
-        if df.empty:
+        if df.empty or not quote_is_usable(list(df["date"])):
+            print(f"Skip {ticker}: price series is stale or too short", flush=True)
             return None
 
         low_series = df["low"].dropna()
@@ -522,6 +566,21 @@ class MarketData:
             "year_low": float(low_series.min()),
             "year_high": float(high_series.max()),
         }
+
+    def symbol_matches_company(self, ticker: str, company_name: str) -> bool:
+        """Confirm the saved company name still lists this ticker."""
+        name = (company_name or "").strip()
+        if not name or name.upper() == (ticker or "").strip().upper():
+            return True
+        cached = self._symbol_search_cache.get(name)
+        if cached is None:
+            data = self._request(function="SYMBOL_SEARCH", keywords=name, fail_fast=True)
+            cached = list(data.get("bestMatches") or [])
+            self._symbol_search_cache[name] = cached
+        if not symbol_matches_company(ticker, cached):
+            print(f"Skip {ticker}: company {name!r} does not list this ticker", flush=True)
+            return False
+        return True
 
     def get_52_week_low(self, ticker):
         """Returns the 52-week low price for the asset."""

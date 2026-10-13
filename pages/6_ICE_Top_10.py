@@ -3198,9 +3198,9 @@ def _fetch_index(ticker: str):
     except Exception:
         return None, None
 
-_bz_price, _bz_chg = _fetch_index("BZ=F")
-_dx_price, _dx_chg = _fetch_index("DX=F")
-_cc_price, _cc_chg = _fetch_index("CC=F")
+_bz_price, _bz_chg = _fetch_index("BNO")
+_dx_price, _dx_chg = _fetch_index("UUP")
+_cc_price, _cc_chg = _fetch_index("UNG")
 
 def _banner_card(label, price, chg, prefix="$"):
     if price is None:
@@ -3218,9 +3218,9 @@ def _banner_card(label, price, chg, prefix="$"):
     )
 
 _cards = (
-    _banner_card("Brent Crude Oil (BZ) — Today", _bz_price, _bz_chg)
-    + _banner_card("U.S. Dollar Index (DX) — Today", _dx_price, _dx_chg, prefix="")
-    + _banner_card("Cocoa (CC) — Today", _cc_price, _cc_chg)
+    _banner_card("United States Brent Oil Fund (BNO) — Today", _bz_price, _bz_chg)
+    + _banner_card("Invesco DB US Dollar Bullish (UUP) — Today", _dx_price, _dx_chg)
+    + _banner_card("United States Natural Gas Fund (UNG) — Today", _cc_price, _cc_chg)
 )
 if _cards:
     render_desktop_index_banner(

@@ -3245,18 +3245,18 @@ def _banner_card(label, price, chg, prefix="$"):
     )
 
 
-_ixic_price, _ixic_chg = _fetch_index("^IXIC")
 _qqq_price, _qqq_chg = _fetch_index("QQQ")
 _soxx_price, _soxx_chg = _fetch_index("SOXX")
-_third_label = "SOXX Semiconductor (SOXX) — Today"
+_semi_label = "iShares Semiconductor ETF (SOXX) — Today"
 if _soxx_price is None:
     _soxx_price, _soxx_chg = _fetch_index("SMH")
-    _third_label = "VanEck Semiconductor (SMH) — Today"
-_compact_cards = _banner_card("NASDAQ Composite (^IXIC) — Today", _ixic_price, _ixic_chg)
+    _semi_label = "VanEck Semiconductor ETF (SMH) — Today"
+_oneq_price, _oneq_chg = _fetch_index("ONEQ")
+_compact_cards = _banner_card("Invesco QQQ (QQQ) — Today", _qqq_price, _qqq_chg)
 _desktop_cards = (
-    _banner_card("NASDAQ Composite (^IXIC) — Today", _ixic_price, _ixic_chg)
-    + _banner_card("Invesco QQQ (QQQ) — Today", _qqq_price, _qqq_chg)
-    + _banner_card(_third_label, _soxx_price, _soxx_chg)
+    _banner_card("Invesco QQQ (QQQ) — Today", _qqq_price, _qqq_chg)
+    + _banner_card(_semi_label, _soxx_price, _soxx_chg)
+    + _banner_card("Fidelity Nasdaq Composite ETF (ONEQ) — Today", _oneq_price, _oneq_chg)
 )
 if _desktop_cards:
     render_desktop_index_banner(

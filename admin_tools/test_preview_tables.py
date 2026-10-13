@@ -62,7 +62,7 @@ def test_company_tip_stays_with_its_ticker() -> None:
         label_field="Company",
         from_path="/NYSE_Top_10",
     )
-    assert "Global food company" in updated
+    assert "Global food and beverage company" in updated
     assert updated.find("Global food company") < updated.find("How far the current price")
 
 

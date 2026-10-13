@@ -159,6 +159,28 @@ def _existing_tips(page_html: str) -> dict[str, str]:
     return tips
 
 
+def _tips_for_rows(page_html: str, rows: list[dict]) -> dict[str, str]:
+    saved = _existing_tips(page_html)
+    tips = {}
+    for row in rows:
+        ticker = str(row.get("Ticker") or "")
+        if not ticker:
+            continue
+        name = str(row.get("Company") or row.get("Name") or row.get("Commodity") or ticker)
+        tips[ticker] = _description_for(ticker, saved.get(ticker, ""), name)
+    return tips
+
+
+def _description_for(ticker: str, saved: str, name: str) -> str:
+    """Use the saved sentence. Fill a blank or name-only tip from the summary list."""
+    from asset_names import resolve_asset_summary
+
+    text = (saved or "").strip()
+    if text and text != (name or "").strip():
+        return text
+    return resolve_asset_summary(ticker) or text
+
+
 def _columns(rows: list[dict], label_field: str) -> list[str]:
     present = set(rows[0])
     ordered = [
@@ -192,7 +214,7 @@ def build_tbody(rows: list[dict], *, label_field: str, from_path: str, tips: dic
             if column == label_field:
                 tip = tips.get(ticker, "")
                 name = str(row.get(column) or ticker)
-                inner = _tip(name, tip, "scoop-name-tip") if tip else _esc(name)
+                inner = _tip(name, tip or name, "scoop-name-tip")
                 cells += _td(column, inner)
                 continue
             if column == "Headlines":
@@ -313,7 +335,7 @@ def refill_page(
         rows,
         label_field=label_field,
         from_path=from_path,
-        tips=_existing_tips(page_html) if tips is None else tips,
+        tips=_tips_for_rows(page_html, rows) if tips is None else tips,
         crypto=crypto,
     )
     updated = page_html[: match.start()] + match.group(1) + tbody[len("<tbody>") : -len("</tbody>")] + match.group(2) + page_html[match.end() :]
@@ -380,10 +402,7 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         written.append(filename)
     if written:
         refresh_analyze_catalog(ready)
-        stamp = next(
-            (str(payload.get("last_updated_display") or "") for payload in ready if payload.get("last_updated_display")),
-            "",
-        )
+        stamp = _newest_stamp(str(payload.get("last_updated_display") or "") for payload in ready)
         if stamp_analyze_caption(stamp):
             written.append("analyze.html")
     return written
@@ -403,6 +422,25 @@ MARKETS = {
     "CME": "CME Commodities 10",
     "ICE": "ICE Commodities 10",
 }
+
+
+def _newest_stamp(stamps) -> str:
+    from datetime import datetime
+
+    newest = ""
+    newest_at = None
+    for stamp in stamps:
+        text = str(stamp or "").strip()
+        if not text:
+            continue
+        try:
+            parsed = datetime.strptime(text, "%b %d, %Y  %I:%M %p CT")
+        except ValueError:
+            parsed = None
+        if newest_at is None or (parsed is not None and parsed >= newest_at):
+            newest = text
+            newest_at = parsed or newest_at
+    return newest
 
 
 def stamp_last_updated(page_html: str, stamp: str) -> str:
@@ -436,8 +474,6 @@ def _row_name(row: dict) -> str:
 
 
 def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None) -> dict:
-    from asset_names import resolve_asset_summary
-
     previous = previous or {}
     ticker = str(row.get("Ticker") or "")
     key = str(payload.get("screener_key") or "")
@@ -467,8 +503,12 @@ def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None
         "sentiment": previous.get("sentiment") or COLUMN_TIPS["Headline Sentiment"],
         "headlines": headlines,
         "series": series,
-        "description": previous.get("description") or resolve_asset_summary(ticker),
-        "updated": str(payload.get("last_updated_display") or ""),
+        "description": _description_for(
+            ticker,
+            str(previous.get("description") or ""),
+            _row_name(row),
+        ),
+        "updated": str(payload.get("last_updated_display") or previous.get("updated") or ""),
     }
 
 
@@ -496,6 +536,11 @@ def refresh_analyze_catalog(payloads: list[dict]) -> int:
                     continue
                 catalog[key] = asset
                 written += 1
+    stamp = _newest_stamp(str(payload.get("last_updated_display") or "") for payload in payloads)
+    if stamp:
+        for asset in catalog.values():
+            if isinstance(asset, dict):
+                asset["updated"] = stamp
     ASSETS_PATH.write_text(json.dumps(catalog, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return written
 

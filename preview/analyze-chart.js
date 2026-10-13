@@ -56,7 +56,7 @@
     ctx.fillRect(0, 0, w, h);
     var tickPx = window.innerWidth >= 1367 ? 40 : 26;
     var narrow = window.innerWidth < 1367;
-    var datePx = narrow ? 16 : 28;
+    var datePx = narrow ? 24 : 28;
     var padL = tickPx >= 40 ? 210 : 108, padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
     var plotW = Math.max(10, w - padL - padR);
     var plotH = h - padT - padB;
@@ -257,7 +257,11 @@
       cap.style.textAlign = "right";
       cap.style.display = "block";
       cap.style.width = "100%";
-      cap.style.color = dark ? "#94a3b8" : "#64748b";
+      cap.style.fontWeight = "400";
+      cap.style.fontSize = "1.6rem";
+      cap.style.lineHeight = "1.75";
+      cap.style.margin = "0.4rem 0 0.9rem";
+      cap.style.color = dark ? "#e2e8f0" : "#64748b";
       var box = cap.closest('[data-testid="stCaptionContainer"]');
       if (box) box.style.textAlign = "right";
     });

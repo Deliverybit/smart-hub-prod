@@ -364,10 +364,19 @@ st.markdown(
         text-align: right;
         color: #64748b;
         font-size: 1.1rem;
-        margin: 0 0 0.85rem 0;
+        font-weight: 400;
+        margin: 0 0 0.5rem 0;
     }
     html[data-scoop-theme="dark"] .scoop-analyze-last-updated {
         color: #94a3b8;
+    }
+    html[data-scoop-theme="dark"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Up"]) {
+        color: #4ade80 !important;
+        font-weight: 800 !important;
+    }
+    html[data-scoop-theme="dark"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Down"]) {
+        color: #ff6b6b !important;
+        font-weight: 800 !important;
     }
     /* Subheaders inside columns */
     [data-testid="stHorizontalBlock"] h2,

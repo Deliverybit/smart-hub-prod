@@ -7602,10 +7602,15 @@ html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] {
     }
     html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
         color: #64748b !important;
-        margin: 0 0 0.85rem 0 !important;
+        font-size: 1.6rem !important;
+        font-weight: 400 !important;
+        line-height: 1.75 !important;
+        text-align: right !important;
+        margin: 0.4rem 0 0.9rem 0 !important;
     }
     html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
-        color: #94a3b8 !important;
+        color: #e2e8f0 !important;
+        font-weight: 400 !important;
     }
     html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner {
         padding: 0.75rem 1.15rem !important;
@@ -7815,10 +7820,15 @@ html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] {
     }
     html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
         color: #64748b !important;
-        margin: 0 0 0.85rem 0 !important;
+        font-size: 1.6rem !important;
+        font-weight: 400 !important;
+        line-height: 1.75 !important;
+        text-align: right !important;
+        margin: 0.4rem 0 0.9rem 0 !important;
     }
     html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
-        color: #94a3b8 !important;
+        color: #e2e8f0 !important;
+        font-weight: 400 !important;
     }
     html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-analyze-direction-banner {
         padding: 0.75rem 1.15rem !important;
@@ -22584,5 +22594,56 @@ document.addEventListener("pointermove", function () {
   document.documentElement.classList.remove("scoop-tip-hold");
 });
 </script>
-<script src="analyze-chart.js?v=89"></script>
+<script src="analyze-chart.js?v=93"></script>
+<style>
+html[data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"],
+html[data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-analyze-active="1"] .scoop-analyze-last-updated {
+  color: #64748b !important;
+  font-size: 1.6rem !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  line-height: 1.75 !important;
+  text-align: right !important;
+  margin: 0.4rem 0 0.9rem !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p b,
+html[data-scoop-analyze-active="1"] .scoop-analyze-last-updated b {
+  font-weight: 600 !important;
+  font-size: inherit !important;
+  color: inherit !important;
+}
+html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,
+html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-analyze-last-updated {
+  color: #e2e8f0 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Up"]) {
+  color: #4ade80 !important;
+  font-weight: 800 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Down"]) {
+  color: #ff6b6b !important;
+  font-weight: 800 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetric"] {
+  padding: 0.4rem 1rem !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] > div,
+html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] p {
+  font-size: 2.35rem !important;
+  line-height: 1.05 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] p,
+html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] label {
+  font-size: 1.45rem !important;
+  line-height: 1.15 !important;
+}
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"],
+html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] p {
+  font-size: 1.35rem !important;
+  line-height: 1.1 !important;
+}
+</style>
 </body></html>

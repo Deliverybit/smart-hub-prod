@@ -34,7 +34,10 @@ def symbol_matches_company(ticker: str, matches: list[dict]) -> bool:
     for item in matches:
         symbol = str(item.get("1. symbol") or "").strip().upper()
         kind = str(item.get("3. type") or "")
-        if not symbol or (kind and kind.lower() != "equity"):
+        region = str(item.get("4. region") or "")
+        if not symbol or "." in symbol or (kind and kind.lower() != "equity"):
+            continue
+        if region and region.lower() != "united states":
             continue
         try:
             score = float(item.get("9. matchScore") or 0)

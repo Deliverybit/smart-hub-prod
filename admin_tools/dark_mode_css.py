@@ -462,7 +462,7 @@ html[data-scoop-theme="dark"] [data-testid="stSidebar"] .stCheckbox label p {
 }
 
 html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-baseweb="switch"] {
-    background-color: #60a5fa !important;
+    background-color: #38bdf8 !important;
 }
 
 html[data-scoop-theme="dark"] .stMarkdown .full-results-wrap .full-results-table tbody td,

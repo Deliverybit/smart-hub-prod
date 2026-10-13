@@ -12,9 +12,13 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
+import os
+import subprocess
 import sys
 import time
 import traceback
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -41,6 +45,77 @@ def _print_payloads(payloads: list[dict], *, dry_run: bool) -> None:
             f"mode={payload.get('selection_mode')} "
             f"updated={payload.get('last_updated_display')}"
         )
+
+
+def _publish_saved_pages(written: list[str]) -> None:
+    """Commit the refreshed preview files and push them to production master."""
+    if not written:
+        return
+    paths = [str(ROOT / "preview" / name) for name in written]
+    assets = ROOT / "preview" / "analyze-assets.json"
+    if assets.exists():
+        paths.append(str(assets))
+    subprocess.run(["git", "add", "--", *paths], cwd=ROOT, check=True)
+    staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT)
+    if staged.returncode == 0:
+        print("Saved pages match master. Nothing to push.", flush=True)
+        return
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Scoop Snapshot",
+            "-c",
+            "user.email=snapshots@thescoop52.com",
+            "commit",
+            "-m",
+            "Publish the latest screener snapshots.",
+        ],
+        cwd=ROOT,
+        check=True,
+    )
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        remote = f"https://x-access-token:{token}@github.com/Deliverybit/smart-hub-prod.git"
+        subprocess.run(["git", "push", remote, "HEAD:master"], cwd=ROOT, check=True)
+    else:
+        subprocess.run(["git", "push", "prod", "HEAD:master"], cwd=ROOT, check=True)
+    print("Pushed saved pages to master.", flush=True)
+    _purge_edge_cache()
+
+
+def _purge_edge_cache() -> None:
+    """Drop the published HTML from Cloudflare so the next visitor gets this snapshot."""
+    zone_id = os.environ.get("CLOUDFLARE_ZONE_ID", "").strip()
+    api_token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
+    if not zone_id or not api_token:
+        print(
+            "Edge cache was not purged. Set CLOUDFLARE_ZONE_ID and CLOUDFLARE_API_TOKEN.",
+            flush=True,
+        )
+        return
+    request = urllib.request.Request(
+        f"https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache",
+        data=b'{"purge_everything":true}',
+        headers={
+            "Authorization": f"Bearer {api_token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            body = response.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as exc:
+        print(f"Edge cache purge failed ({exc.code}).", flush=True)
+        return
+    except urllib.error.URLError:
+        print("Edge cache purge failed (network).", flush=True)
+        return
+    if '"success": true' in body or '"success":true' in body:
+        print("Purged the Cloudflare edge cache.", flush=True)
+        return
+    print("Edge cache purge was not accepted.", flush=True)
 
 
 def run_once(*, screener: str | None, persist: bool) -> list[dict]:
@@ -85,6 +160,21 @@ def main() -> int:
             continue
 
         _print_payloads(payloads, dry_run=args.dry_run)
+        if persist and payloads:
+            import importlib
+            import preview_tables
+
+            importlib.reload(preview_tables)
+            written = preview_tables.refresh_preview_from_payloads(payloads)
+            print(
+                "Saved pages updated: " + (", ".join(written) if written else "none"),
+                flush=True,
+            )
+            try:
+                _publish_saved_pages(written)
+            except Exception:
+                traceback.print_exc()
+                print("Saved pages were not pushed.", flush=True)
         if not payloads:
             print("Full scan finished with no screener saved.", flush=True)
             if not args.loop:

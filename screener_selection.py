@@ -94,8 +94,9 @@ def selection_status_message(
     """Return a Streamlit status helper name and markdown message."""
     count = len(selection.results)
     shortfall = ""
-    if count < TARGET_COUNT:
+    if count < TARGET_COUNT and selection.mode == "all_strict":
         shortfall = f" (only **{count}** within **{MAX_PAD_CAP_PCT}%** right now)"
+    found = f"Found **{count}** {asset_noun} from {scanned_count} of {universe_size} scanned."
 
     if selection.mode == "all_strict":
         return (
@@ -104,22 +105,8 @@ def selection_status_message(
             f"{universe_size} {asset_noun} scanned.",
         )
 
-    if selection.mode == "padded":
-        return (
-            "info",
-            f"**{selection.strict_count}** {asset_noun} within "
-            f"**{INTERNAL_THRESHOLD_PCT}%** of their 52-week low; "
-            f"**{selection.padded_count}** additional closest names shown "
-            f"(up to **{MAX_PAD_CAP_PCT}%**).{shortfall}",
-        )
-
-    if selection.mode == "closest_only":
-        return (
-            "info",
-            f"No {asset_noun} within **{INTERNAL_THRESHOLD_PCT}%** of their 52-week low; "
-            f"showing the **{count}** closest available (within "
-            f"**{MAX_PAD_CAP_PCT}%**).{shortfall}",
-        )
+    if selection.mode in {"padded", "closest_only"}:
+        return ("info", found)
 
     return (
         "warning",

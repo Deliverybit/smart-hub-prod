@@ -1275,7 +1275,7 @@ TABLET_SCREENER_MOBILE_LAYOUT = (
             pointer-events: auto !important;
             -webkit-tap-highlight-color: rgba(34, 197, 94, 0.2) !important;
             text-decoration: none !important;
-            font-size: clamp(1.08rem, 2.3vw, 1.28rem) !important;
+            font-size: inherit !important;
         }
         .stMarkdown .tip-wrap.headlines-tip .hl-tip-backdrop { display: none !important; }
         .stMarkdown .tip-wrap.headlines-tip:has(.hl-tip-cb:checked) .hl-tip-backdrop {
@@ -3536,6 +3536,9 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
         color: #64748b !important;
         margin: 0 0 0.85rem 0 !important;
+    }
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stCaptionContainer"] p {
+        color: #94a3b8 !important;
     }
     html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner {
         padding: 0.75rem 1.15rem !important;

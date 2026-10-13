@@ -20,7 +20,6 @@ from urllib.parse import urlparse
 
 from screener_engine import SCREENER_DEFINITIONS
 from screener_selection import _FULL_RESULTS_COLUMN_ORDER
-from screener_snapshots import snapshot_age_seconds, snapshot_max_age_seconds
 
 DISPLAY_ROW_LIMIT = 10
 DISPLAY_ROW_FIELDS = (
@@ -61,6 +60,11 @@ def consent_allowed(ip_address: str, now: float) -> bool:
 
 HOST = "0.0.0.0"
 PORT = int(os.environ.get("PORT", "8080"))
+ALLOWED_SITE_ORIGINS = frozenset({
+    "https://thescoop52.com",
+    "https://www.thescoop52.com",
+})
+SCREENER_CACHE_CONTROL = "public, max-age=60, s-maxage=900, stale-while-revalidate=60"
 POOL_MAX = 5
 SCREENER_KEYS = {defn.key for defn in SCREENER_DEFINITIONS}
 _pool = None
@@ -148,39 +152,34 @@ def screener_payload(screener_key: str) -> tuple[int, dict]:
     return 200, display_snapshot(payload)
 
 
+def caller_site(headers) -> str | None:
+    """Return the public site origin when the browser sent one."""
+    origin = (headers.get("Origin") or "").rstrip("/")
+    if origin in ALLOWED_SITE_ORIGINS:
+        return origin
+    referer = headers.get("Referer") or ""
+    for allowed in ALLOWED_SITE_ORIGINS:
+        if referer == allowed or referer.startswith(allowed + "/"):
+            return allowed
+    return None
+
+
 def health_payload() -> tuple[int, dict]:
-    """200 only when every screener snapshot exists and is fresh."""
-    missing: list[str] = []
-    stale: list[str] = []
-    max_age = snapshot_max_age_seconds()
-    with get_pool().connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT screener_key, updated_at
-                FROM screener_snapshots
-                WHERE screener_key = ANY(%s)
-                """,
-                (sorted(SCREENER_KEYS),),
-            )
-            found = {key: updated for key, updated in cur.fetchall()}
-    for key in sorted(SCREENER_KEYS):
-        updated = found.get(key)
-        if updated is None:
-            missing.append(key)
-            continue
-        age = snapshot_age_seconds({"updated_at": updated.isoformat()})
-        if age is None or age > max_age:
-            stale.append(key)
-    if missing or stale:
-        return 503, {"ok": False, "missing": missing, "stale": stale}
-    return 200, {"ok": True, "screeners": sorted(SCREENER_KEYS)}
+    """200 when this process can accept requests.
+
+    Render restarts the service on any other status. Consent logging must stay
+    up even when a market snapshot is missing or stale.
+    """
+    return 200, {"ok": True}
 
 
 class SnapshotHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def do_OPTIONS(self) -> None:  # noqa: N802
+        if caller_site(self.headers) is None:
+            self._send_json(403, {"error": "forbidden"}, "no-store")
+            return
         self.send_response(204)
         self._cors_headers()
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -191,6 +190,9 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         if path != "/consent":
             self._send_json(404, {"error": "not found"}, "no-store")
+            return
+        if caller_site(self.headers) is None:
+            self._send_json(403, {"error": "forbidden"}, "no-store")
             return
         client_ip = self.headers.get("CF-Connecting-IP") or self.client_address[0]
         if not consent_allowed(client_ip, time.monotonic()):
@@ -229,9 +231,12 @@ class SnapshotHandler(BaseHTTPRequestHandler):
             if not key or "/" in key:
                 status, body = 404, {"error": "unknown screener"}
                 cache_control = "no-store"
+            elif caller_site(self.headers) is None:
+                status, body = 403, {"error": "forbidden"}
+                cache_control = "no-store"
             else:
                 status, body = screener_payload(key)
-                cache_control = "public, max-age=60" if status == 200 else "no-store"
+                cache_control = SCREENER_CACHE_CONTROL if status == 200 else "no-store"
         else:
             status, body = 404, {"error": "not found"}
             cache_control = "no-store"
@@ -252,7 +257,41 @@ class SnapshotHandler(BaseHTTPRequestHandler):
         self.wfile.write(raw)
 
     def _cors_headers(self) -> None:
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = caller_site(self.headers)
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+
+
+def serve_preview(port: int = 8766) -> None:
+    """Serve preview HTML and record consent at POST /consent."""
+    from http.server import SimpleHTTPRequestHandler
+
+    preview = os.path.join(os.path.dirname(os.path.abspath(__file__)), "preview")
+
+    class PreviewHandler(SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=preview, **kwargs)
+
+        def do_OPTIONS(self):  # noqa: N802
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.end_headers()
+
+        def do_POST(self):  # noqa: N802
+            SnapshotHandler.do_POST(self)
+
+        def end_headers(self):
+            self.send_header("Access-Control-Allow-Origin", "*")
+            super().end_headers()
+
+    PreviewHandler._send_json = SnapshotHandler._send_json
+    PreviewHandler._cors_headers = SnapshotHandler._cors_headers
+
+    server = ThreadingHTTPServer(("127.0.0.1", port), PreviewHandler)
+    print(f"Preview with consent on http://127.0.0.1:{port}")
+    server.serve_forever()
 
 
 def main() -> None:

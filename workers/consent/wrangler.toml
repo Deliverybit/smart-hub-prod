@@ -1,0 +1,22 @@
+name = "scoop52-consent"
+main = "src/index.js"
+compatibility_date = "2026-10-11"
+compatibility_flags = ["nodejs_compat"]
+account_id = "4241f4700d68f80164b810d9e0897d6f"
+
+# Only the consent path. Screeners and the public site stay on their current origins.
+routes = [
+  { pattern = "data.thescoop52.com/consent", zone_name = "thescoop52.com" }
+]
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "7ca2c6ab51e5427f9d4423ce2d412d55"
+
+[[ratelimits]]
+name = "CONSENT_LIMIT"
+namespace_id = "1001"
+
+[ratelimits.simple]
+limit = 5
+period = 60

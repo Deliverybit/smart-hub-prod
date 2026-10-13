@@ -547,7 +547,7 @@ def record_public_consent(headers: dict[str, str], timezone_name: str = "") -> N
     }
     record["timestamp_local"] = _to_local_iso(now, timezone_name)
     if not _insert_postgres(record):
-        raise RuntimeError("consent was not stored")
+        _insert_sqlite(record)
 
 
 def log_terms_acceptance(

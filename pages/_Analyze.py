@@ -4,7 +4,9 @@ Analyze deep-dive page (hidden from navigation).
 Opened from Top 10 **Analyze** links with ?ticker=.
 """
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+
+import json
 
 import streamlit as st
 import plotly.graph_objects as go
@@ -20,10 +22,11 @@ from analyze_page import (
     query_param_ticker,
     render_analyze_back_button,
 )
-from asset_names import resolve_asset_display_name
+from asset_names import resolve_asset_display_name, resolve_asset_summary
 from predictor import Predictor
 from market_data import MarketData
 import importlib
+import sys
 
 import analyze_snapshot as _analyze_snapshot_mod
 
@@ -357,6 +360,42 @@ st.markdown(
     }
     /* Captions */
     .stCaption p, [data-testid="stCaptionContainer"] p { font-size: 1.4rem !important; }
+    .scoop-analyze-last-updated {
+        text-align: right;
+        color: #64748b;
+        font-size: 1.6rem;
+        font-weight: 400;
+        line-height: 1.75;
+        margin: 0.4rem 0 0.9rem 0;
+    }
+    html[data-scoop-theme="dark"] .scoop-analyze-last-updated {
+        color: #e2e8f0;
+    }
+    .scoop-analyze-last-updated b { font-weight: 600; }
+    [data-testid="stMetric"] { padding: 0.4rem 1rem !important; }
+    [data-testid="stMetricValue"] > div,
+    [data-testid="stMetricValue"] p {
+        font-size: 2.35rem !important;
+        line-height: 1.05 !important;
+    }
+    [data-testid="stMetricLabel"] p,
+    [data-testid="stMetricLabel"] label {
+        font-size: 1.45rem !important;
+        line-height: 1.15 !important;
+    }
+    [data-testid="stMetricDelta"],
+    [data-testid="stMetricDelta"] p {
+        font-size: 1.35rem !important;
+        line-height: 1.1 !important;
+    }
+    [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Up"]) {
+        color: #4ade80 !important;
+        font-weight: 800 !important;
+    }
+    [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Down"]) {
+        color: #ff6b6b !important;
+        font-weight: 800 !important;
+    }
     /* Subheaders inside columns */
     [data-testid="stHorizontalBlock"] h2,
     [data-testid="stHorizontalBlock"] h3 { font-size: 2.2rem !important; }
@@ -503,7 +542,7 @@ st.markdown(
         top: auto;
         transform: translateX(-50%);
         line-height: 1.45;
-        font-size: 1.08rem !important;
+        font-size: 1.35rem !important;
         font-weight: 500;
         text-transform: none;
         letter-spacing: normal;
@@ -518,6 +557,16 @@ st.markdown(
         margin: 0 0 0.4rem 0;
         padding-bottom: 0.3rem;
         border-bottom: 1px solid rgba(229, 231, 235, 0.28);
+    }
+    .scoop-selected-name-tip {
+        position: relative;
+    }
+    .scoop-selected-name-tip .tip-text {
+        left: 0;
+        transform: none;
+        width: max-content;
+        max-width: min(24rem, 70vw);
+        bottom: calc(100% + 0.2rem);
     }
     .scoop-analyze-direction-banner .scoop-analyze-desktop-tip {
         color: inherit;
@@ -540,7 +589,7 @@ st.markdown(
             outline-offset: 2px;
         }
         .scoop-mood-summary .scoop-analyze-desktop-tip .tip-text {
-            font-size: 1.02rem !important;
+            font-size: 1.35rem !important;
             width: min(22rem, calc(100% - 1rem));
             max-width: calc(100% - 1rem);
             bottom: calc(100% + 0.4rem);
@@ -716,10 +765,7 @@ st.markdown(
         /* Sentiment column: remove fixed-height whitespace on mobile */
         .mood-column { margin-top: 0 !important; }
         .mood-feed {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 0.75rem !important;
             padding-bottom: 0.25rem !important;
         }
         /* Extra top padding so index banners clear Streamlit header / notch (0.75rem alone clipped the row on phones) */
@@ -930,10 +976,7 @@ st.markdown(
 
         .mood-column { margin-top: 0 !important; }
         .mood-feed {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 0.75rem !important;
             padding-bottom: 0.25rem !important;
             font-size: clamp(1.15rem, 2.5vw, 1.38rem) !important;
             line-height: 1.62 !important;
@@ -1140,10 +1183,7 @@ st.markdown(
 
         .mood-column { margin-top: 0 !important; }
         .mood-feed {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 0.75rem !important;
             padding-bottom: 0.25rem !important;
             font-size: clamp(1.15rem, 2.5vw, 1.38rem) !important;
             line-height: 1.62 !important;
@@ -1250,10 +1290,7 @@ st.markdown(
 
         .mood-column { margin-top: 0 !important; }
         .mood-feed {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 0.75rem !important;
             padding-bottom: 0.25rem !important;
             font-size: clamp(1.15rem, 2.5vw, 1.38rem) !important;
             line-height: 1.62 !important;
@@ -1442,6 +1479,17 @@ def _cached_analyze_core(
     }
 
 
+def _live_analyze_snapshot():
+    """Return analyze_snapshot even after a fragment rerun evicts it."""
+    name = getattr(_analyze_snapshot_mod, "__name__", "analyze_snapshot")
+    if sys.modules.get(name) is None:
+        sys.modules[name] = _analyze_snapshot_mod
+    try:
+        return importlib.reload(sys.modules[name])
+    except ImportError:
+        return sys.modules.get(name) or _analyze_snapshot_mod
+
+
 @st.cache_data(
     ttl=_SEARCH_ANALYSIS_TTL_SEC,
     show_spinner="Loading analysis…",
@@ -1453,7 +1501,7 @@ def _ensured_analyze_bundle(
     _hist_span_v: int = 6,
 ) -> dict | None:
     """Snapshot hit, or first-user compute persisted for 15 minutes."""
-    snap = importlib.reload(_analyze_snapshot_mod)
+    snap = _live_analyze_snapshot()
     fn = getattr(snap, "ensure_analyze_bundle", None)
     if fn is None:
         return None
@@ -1489,6 +1537,7 @@ def _cached_analyze_bundle(ticker: str, days, screener_key: str | None, _hist_sp
         "week52_high": price["week52_high"],
         "low_date": price["low_date"],
         "high_date": price["high_date"],
+        "cached_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -1766,6 +1815,359 @@ def _render_week52_metrics(
                 )
 
 
+def snapshot_last_updated(cached_at) -> str:
+    """Clock time the Analyze snapshot was taken, in Central time."""
+    from screener_engine import format_scan_display
+
+    raw = str(cached_at or "").strip()
+    if not raw:
+        return "Last updated"
+    try:
+        moment = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return "Last updated"
+    return f"Last updated {format_scan_display(moment)}"
+
+
+def _install_snapshot_price_chart(history, range_label: str) -> None:
+    """Draw the saved-page price line on top of the Plotly chart and keep the range control."""
+    series = []
+    for row in history or []:
+        price = row.get("price")
+        date = str(row.get("date") or "")[:10]
+        if price is None or not date:
+            continue
+        series.append({"d": date, "p": float(price)})
+    payload = json.dumps(
+        {
+            "series": series,
+            "label": range_label,
+            "labels": list(PERIOD_OPTIONS.keys()),
+        }
+    )
+    st.html(
+        """
+<style id="scoop-analyze-chart-face">
+canvas.scoop-price-canvas {
+  display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
+  width: 100% !important;
+  height: 500px !important;
+}
+[data-testid="stSlider"] {
+  max-width: 100% !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+  padding-left: 14px !important;
+  padding-right: 18px !important;
+}
+[data-testid="stSliderThumbValue"],
+[data-testid="stSliderTickBar"],
+[data-testid="stSlider"] [data-orientation="horizontal"] > div[style*="position: absolute"],
+[data-testid="stSlider"] [data-orientation="horizontal"] > div[style*="position:absolute"] {
+  display: none !important;
+}
+[data-testid="stSlider"] [data-orientation="horizontal"] {
+  position: relative !important;
+  overflow: visible !important;
+}
+[data-testid="stSlider"] [data-orientation="horizontal"] > [data-orientation="horizontal"] > div:first-child {
+  background: rgba(151, 166, 195, 0.45) !important;
+  background-image: none !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+}
+button.scoop-range-dot {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #94a3b8;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #64748b;
+  z-index: 4;
+  cursor: pointer;
+}
+button.scoop-range-dot.scoop-range-dot-on {
+  background: #16a34a;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #16a34a;
+}
+#scoop-range-end-label {
+  display: inline-block !important;
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin: 0 0 0.75rem 0 !important;
+  padding: 0.45rem 0.9rem !important;
+  text-align: left !important;
+  color: #16a34a !important;
+  background: #ffffff !important;
+  border: 2px solid #16a34a !important;
+  border-radius: 10px !important;
+}
+.scoop-mood-summary {
+  margin-bottom: 0 !important;
+}
+[data-testid="stMarkdownContainer"]:has(.scoop-mood-summary) {
+  margin-bottom: 0.85rem !important;
+}
+@media (min-width: 1367px) {
+  [data-testid="stMarkdownContainer"]:has(.scoop-mood-summary) {
+    margin-bottom: 20px !important;
+  }
+}
+[data-testid="stMarkdownContainer"]:has(.mood-feed) {
+  margin-bottom: 0.75rem !important;
+}
+.mood-feed {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  max-height: none !important;
+}
+.mood-feed table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+.mood-feed thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 4 !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+</style>
+<script>
+(function () {
+  var payload = __PAYLOAD__;
+  var doc = document;
+  try {
+    if (window.parent && window.parent.document) doc = window.parent.document;
+  } catch (err) {}
+  var win = doc.defaultView || window;
+  var series = payload.series || [];
+
+  function host() {
+    return doc.querySelector(".js-plotly-plot .svg-container");
+  }
+  function draw() {
+    var box = host();
+    if (!box || !series.length) return;
+    var svg = box.querySelector("svg.main-svg");
+    if (svg) svg.style.display = "none";
+    var canvas = box.querySelector("canvas.scoop-price-canvas");
+    if (!canvas) {
+      canvas = doc.createElement("canvas");
+      canvas.className = "scoop-price-canvas";
+      box.appendChild(canvas);
+    }
+    canvas.style.display = "block";
+    canvas.style.width = "100%";
+    canvas.style.height = "500px";
+    box.style.width = "100%";
+    box.style.height = "500px";
+    var dpr = win.devicePixelRatio || 1;
+    var w = box.clientWidth || 640;
+    var h = 500;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var dark = doc.documentElement.getAttribute("data-scoop-theme") === "dark";
+    ctx.fillStyle = dark ? "#0f172a" : "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+    var narrow = (win.innerWidth || 0) < 1367;
+    var tickPx = narrow ? 26 : 40;
+    var datePx = narrow ? 24 : 28;
+    var padL = tickPx >= 40 ? 210 : 108, padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
+    var plotW = Math.max(10, w - padL - padR);
+    var plotH = h - padT - padB;
+    var prices = series.map(function (row) { return row.p; });
+    var min = Math.min.apply(null, prices);
+    var max = Math.max.apply(null, prices);
+    if (min === max) { min -= 1; max += 1; }
+    var span = max - min;
+    min -= span * 0.06;
+    max += span * 0.06;
+    function xAt(i) { return padL + (series.length === 1 ? plotW / 2 : (i / (series.length - 1)) * plotW); }
+    function yAt(p) { return padT + (1 - (p - min) / (max - min)) * plotH; }
+    ctx.strokeStyle = dark ? "rgba(148,163,184,0.25)" : "rgba(51,65,85,0.18)";
+    ctx.lineWidth = 1;
+    ctx.font = tickPx + 'px "Source Sans 3", "Source Sans Pro", sans-serif';
+    ctx.fillStyle = dark ? "#e2e8f0" : "#334155";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (var g = 0; g <= 4; g++) {
+      var val = min + ((max - min) * g) / 4;
+      var y = yAt(val);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + plotW, y);
+      ctx.stroke();
+      ctx.fillText("$" + val.toFixed(2), padL - 8, y);
+    }
+    ctx.font = datePx + 'px "Source Sans 3", "Source Sans Pro", sans-serif';
+    ctx.textBaseline = "top";
+    var tickCount = Math.min(narrow ? 2 : 3, series.length);
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    for (var t = 0; t < tickCount; t++) {
+      var idx = tickCount === 1 ? 0 : Math.round((t / (tickCount - 1)) * (series.length - 1));
+      var x = xAt(idx);
+      var raw = String(series[idx].d).slice(0, 10);
+      var label = raw;
+      if (narrow) {
+        var parts = raw.split("-");
+        label = months[Number(parts[1]) - 1] + " " + parts[0];
+      }
+      ctx.textAlign = "center";
+      if (t === 0) { ctx.textAlign = "left"; x = padL; }
+      if (t === tickCount - 1) { ctx.textAlign = "right"; x = padL + plotW; }
+      ctx.fillText(label, x, padT + plotH + 10);
+    }
+    ctx.beginPath();
+    series.forEach(function (row, i) {
+      var x = xAt(i), y = yAt(row.p);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = "#4ade80";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    var last = series[series.length - 1];
+    ctx.fillStyle = "#4ade80";
+    ctx.beginPath();
+    ctx.arc(xAt(series.length - 1), yAt(last.p), series.length < 2 ? 7 : 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  function placeLabel() {
+    var heading = doc.querySelector("h3.search-price-chart-heading");
+    if (!heading || !heading.parentElement) return;
+    var label = doc.getElementById("scoop-range-end-label");
+    if (!label) {
+      label = doc.createElement("div");
+      label.id = "scoop-range-end-label";
+      heading.parentElement.insertBefore(label, heading);
+    }
+    var text = payload.label || "";
+    if (label.textContent !== text) label.textContent = text;
+  }
+  function placeDots() {
+    var root = doc.querySelector('[data-testid="stSlider"]');
+    if (!root) return;
+    var rails = root.querySelectorAll('[data-orientation="horizontal"]');
+    var rail = rails.length > 1 ? rails[1] : rails[0];
+    var labels = payload.labels || [];
+    if (!rail || labels.length < 2) return;
+    var current = labels.indexOf(payload.label);
+    var existing = rail.querySelectorAll("button.scoop-range-dot");
+    if (
+      existing.length === labels.length &&
+      current >= 0 &&
+      existing[current].classList.contains("scoop-range-dot-on")
+    ) {
+      return;
+    }
+    existing.forEach(function (dot) { dot.remove(); });
+    labels.forEach(function (name, i) {
+      var dot = doc.createElement("button");
+      dot.type = "button";
+      dot.className = "scoop-range-dot" + (i === current ? " scoop-range-dot-on" : "");
+      dot.style.left = (i / (labels.length - 1)) * 100 + "%";
+      dot.setAttribute("aria-label", name);
+      rail.appendChild(dot);
+    });
+  }
+  function fitFeed() {
+    var feed = doc.querySelector(".mood-feed");
+    if (feed && (win.innerWidth || 0) >= 1367) {
+      var mood = doc.querySelector(".scoop-mood-summary");
+      var chart = doc.querySelector("canvas.scoop-price-canvas") || doc.querySelector('[data-testid="stPlotlyChart"]');
+      if (!mood || !chart) return;
+      feed.style.setProperty("margin-top", "0px", "important");
+      feed.style.setProperty("margin-bottom", "0px", "important");
+      var gapNow = feed.getBoundingClientRect().top - mood.getBoundingClientRect().bottom;
+      feed.style.setProperty("margin-top", (20 - gapNow) + "px", "important");
+      var top = mood.getBoundingClientRect().bottom + 20;
+      var h = Math.round(chart.getBoundingClientRect().bottom - top);
+      if (h < 220) h = 220;
+      var px = h + "px";
+      feed.style.setProperty("height", px, "important");
+      feed.style.setProperty("max-height", px, "important");
+      feed.style.setProperty("overflow-y", "auto", "important");
+      return;
+    }
+    var foot = doc.querySelector(".disclaimer-footer");
+    if (!feed || !foot) return;
+    var gap = 16;
+    var rect = feed.getBoundingClientRect();
+    var footRect = foot.getBoundingClientRect();
+    var padNow = footRect.top - rect.bottom;
+    if (padNow > gap - 4 && padNow < gap + 28 && rect.height > 200) return;
+    var footH = footRect.height || 72;
+    var anchor = rect.top < 8 ? 8 : rect.top;
+    var h = win.innerHeight - footH - gap - anchor;
+    if (h < 220) h = 220;
+    var slack = footRect.top - rect.bottom - gap;
+    if (feed.dataset.scoopSlack !== "skip" && slack > 12) {
+      var trial = rect.height + slack;
+      var before = footRect.top;
+      feed.style.setProperty("height", Math.round(trial) + "px", "important");
+      feed.style.setProperty("max-height", Math.round(trial) + "px", "important");
+      if (foot.getBoundingClientRect().top - before > 4) {
+        feed.dataset.scoopSlack = "skip";
+      } else {
+        h = trial;
+      }
+    }
+    var px = Math.round(h) + "px";
+    if (feed.style.height === px) return;
+    feed.style.setProperty("height", px, "important");
+    feed.style.setProperty("max-height", px, "important");
+    feed.style.setProperty("overflow-y", "auto", "important");
+  }
+  function boot() {
+    if (!host()) return;
+    placeLabel();
+    placeDots();
+    draw();
+    fitFeed();
+  }
+  var tries = 0;
+  function ready() {
+    boot();
+    if (!host() && tries++ < 80) win.setTimeout(ready, 150);
+  }
+  ready();
+  if (win.__scoopPriceWatch) win.__scoopPriceWatch.disconnect();
+  win.__scoopPriceWatch = new MutationObserver(function () { boot(); });
+  win.__scoopPriceWatch.observe(doc.body, { childList: true, subtree: true });
+  if (win.__scoopPriceDraw) win.removeEventListener("resize", win.__scoopPriceDraw);
+  win.__scoopPriceDraw = function () { draw(); fitFeed(); };
+  win.addEventListener("resize", win.__scoopPriceDraw);
+  if (!win.__scoopFeedScroll) {
+    win.__scoopFeedScroll = function () { if (win.__scoopFitFeed) win.__scoopFitFeed(); };
+    win.addEventListener("scroll", win.__scoopFeedScroll, true);
+  }
+  win.__scoopFitFeed = fitFeed;
+  if (win.__scoopPriceTheme) win.__scoopPriceTheme.disconnect();
+  win.__scoopPriceTheme = new MutationObserver(function () {
+    if (win.__scoopPriceDraw) win.__scoopPriceDraw();
+  });
+  win.__scoopPriceTheme.observe(doc.documentElement, { attributes: true, attributeFilter: ["data-scoop-theme"] });
+})();
+</script>
+""".replace("__PAYLOAD__", payload),
+        unsafe_allow_javascript=True,
+    )
+
+
 @st.fragment(run_every=timedelta(minutes=15))
 def _render_search_dashboard(ticker: str) -> None:
     """Renders analyze deep-dive; reruns on a timer so cached sentiment/news refresh without widget clicks."""
@@ -1806,6 +2208,10 @@ def _render_search_dashboard(ticker: str) -> None:
     bg = "#14532d" if combined > 0 else "#7f1d1d"
 
     asset_name = resolve_asset_display_name(ticker)
+    asset_summary = resolve_asset_summary(ticker)
+    name_html = html.escape(asset_name)
+    if asset_summary:
+        name_html = _analyze_desktop_tip(name_html, asset_summary, "scoop-selected-name-tip")
     st.markdown(
         f"""
         <div class="scoop-selected-asset-card" style="
@@ -1820,7 +2226,7 @@ def _render_search_dashboard(ticker: str) -> None:
                 Selected Asset
             </div>
             <div class="scoop-title-text" style="font-size:2rem;line-height:1.25;font-weight:800;color:#0f172a;">
-                {html.escape(asset_name)}
+                {name_html}
             </div>
             <div class="scoop-subtitle-text" style="font-size:1.15rem;color:#475569;font-weight:700;margin-top:0.2rem;">
                 Ticker: {html.escape(ticker)}
@@ -1830,7 +2236,13 @@ def _render_search_dashboard(ticker: str) -> None:
         unsafe_allow_html=True,
     )
 
-    st.caption(f"Data updated every {_SEARCH_ANALYSIS_TTL_SEC // 60} minutes")
+    scan_stamp = str(bundle.get("scan_updated_display") or "").strip()
+    if not scan_stamp:
+        scan_stamp = snapshot_last_updated(bundle.get("scan_updated_at") or bundle.get("cached_at"))
+    st.markdown(
+        f'<div class="scoop-analyze-last-updated">Last updated: <b>{html.escape(scan_stamp.replace("Last updated ", ""))}</b></div>',
+        unsafe_allow_html=True,
+    )
 
     dir_inner = (
         f'<span style="font-size:4rem;">{arrow}</span>'
@@ -1929,6 +2341,8 @@ def _render_search_dashboard(ticker: str) -> None:
             options=list(PERIOD_OPTIONS.keys()),
             key="search_price_history_range",
         )
+        if st.query_params.get("history") in PERIOD_OPTIONS:
+            del st.query_params["history"]
         st.markdown(
             '<h3 class="search-price-chart-heading">📈 Price Chart</h3>',
             unsafe_allow_html=True,
@@ -1957,6 +2371,10 @@ def _render_search_dashboard(ticker: str) -> None:
             else {}
         )
         st.plotly_chart(fig, width="stretch", config=_plotly_cfg)
+        _install_snapshot_price_chart(
+            history,
+            st.session_state.get("search_price_history_range", ""),
+        )
 
     with col_mood:
         st.markdown("<div class='mood-column'>", unsafe_allow_html=True)
@@ -2026,7 +2444,7 @@ def _render_search_dashboard(ticker: str) -> None:
             "</table>"
         )
         st.markdown(
-            "<div class='mood-feed' style='height:1600px;overflow-y:auto;border:1px solid #334155;border-radius:10px;padding:0.25rem;margin-bottom:0;'>"
+            "<div class='mood-feed' style='overflow-y:auto;border:1px solid #334155;border-radius:10px;padding:0.25rem;margin-bottom:0.75rem;'>"
             f"{table_html}</div>",
             unsafe_allow_html=True,
         )
@@ -2039,7 +2457,12 @@ if _analyze_mode:
     st.session_state["search_terms_accepted"] = True
 agreed = terms_accepted(st, "search_terms_accepted")
 ensure_timezone_cookie(st)
-if "search_price_history_range" not in st.session_state:
+_history_choice = st.query_params.get("history", "")
+if isinstance(_history_choice, list):
+    _history_choice = _history_choice[0] if _history_choice else ""
+if _history_choice in PERIOD_OPTIONS:
+    st.session_state["search_price_history_range"] = _history_choice
+elif "search_price_history_range" not in st.session_state:
     st.session_state["search_price_history_range"] = "30 days"
 elif st.session_state["search_price_history_range"] not in PERIOD_OPTIONS:
     st.session_state["search_price_history_range"] = "2 years"

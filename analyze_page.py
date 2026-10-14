@@ -316,6 +316,18 @@ html[data-scoop-theme="dark"] a.scoop-analyze-back:hover {{
         margin-bottom: 0.85rem;
     }}
 }}
+@media (max-width: 1366px) {{
+    a.scoop-analyze-back {{
+        font-size: clamp(1.12rem, 2.9vw, 1.38rem) !important;
+    }}
+}}
+@media (min-width: 1367px) {{
+    a.scoop-analyze-back,
+    [data-testid="stElementContainer"]:has(a.scoop-analyze-back),
+    [data-testid="element-container"]:has(a.scoop-analyze-back) {{
+        display: none !important;
+    }}
+}}
 </style>
 <a class="scoop-analyze-back" href="{html_module.escape(href, quote=True)}" target="_self"
    onclick="{persist_js}{return_js}">

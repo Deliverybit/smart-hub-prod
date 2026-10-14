@@ -145,7 +145,7 @@
     margin-right: -18px !important;
     width: calc(100% + 36px) !important;
     max-width: none !important;
-    padding: 0.35rem 18px 0.55rem !important;
+    padding: 0.28rem 15px 0.44rem !important;
     box-sizing: border-box !important;
     border: 1px solid #22c55e !important;
     background: #1e293b !important;
@@ -156,7 +156,8 @@
   html:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val .tip-wrap.scoop-name-tip,
   html:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val .tip-wrap.scoop-name-tip,
   html:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val .tip-wrap.scoop-name-tip {
-    font-size: 2.35rem !important;
+    font-size: 1.95rem !important;
+    font-weight: 700 !important;
     color: #4ade80 !important;
   }
   html[data-scoop-theme="light"]:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"],
@@ -251,6 +252,7 @@
   html:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Name"] .fr-val .tip-wrap.scoop-name-tip,
   html:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Company"] .fr-val .tip-wrap.scoop-name-tip,
   html:has(#nyse-top-10, #nasdaq-top-10, #crypto-top-10, #cme-top-10, #ice-top-10) body .stApp .stMarkdown .full-results-wrap .full-results-table tbody td[data-label="Commodity"] .fr-val .tip-wrap.scoop-name-tip {
-    font-size: 2.65rem !important;
+    font-size: 2.2rem !important;
+    font-weight: 700 !important;
   }
 }

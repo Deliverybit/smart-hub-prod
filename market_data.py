@@ -367,6 +367,14 @@ class MarketData:
             return df.tail(max_rows).copy()
         return df.copy()
 
+    @staticmethod
+    def _year_window(df: pd.DataFrame) -> pd.DataFrame:
+        """Bars in the 365 calendar days ending on the latest bar."""
+        if df.empty or "date" not in df.columns:
+            return df
+        cutoff = df["date"].max() - pd.Timedelta(days=365)
+        return df.loc[df["date"] >= cutoff].copy()
+
     def get_latest_price(self, ticker):
         """Fetch the latest Alpha Vantage price for an asset."""
         symbol = self._format_ticker(ticker)
@@ -471,7 +479,7 @@ class MarketData:
                 "high_date": None,
             }
 
-        year_df = df.tail(365)
+        year_df = self._year_window(df)
         low_series = year_df["low"].dropna()
         high_series = year_df["high"].dropna()
 
@@ -554,7 +562,7 @@ class MarketData:
                 "year_low": cached["year_low"],
                 "year_high": cached["year_high"],
             }
-        df = self._daily_history_frame(ticker, outputsize="full").tail(365)
+        df = self._year_window(self._daily_history_frame(ticker, outputsize="full"))
         if df.empty or not quote_is_usable(list(df["date"])):
             print(f"Skip {ticker}: price series is stale or too short", flush=True)
             return None
@@ -601,7 +609,7 @@ class MarketData:
 
     def get_52_week_low_high_dates(self, ticker):
         """Returns dates when the 52-week low and high occurred."""
-        df = self._daily_history_frame(ticker, outputsize="full").tail(365)
+        df = self._year_window(self._daily_history_frame(ticker, outputsize="full"))
         if df.empty or df["low"].dropna().empty or df["high"].dropna().empty:
             return None, None
         low_date = df.loc[df["low"].idxmin(), "date"].strftime("%b %d, %Y")

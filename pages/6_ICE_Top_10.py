@@ -3230,12 +3230,12 @@ if _cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("🛢️ ICE Commodities")
+st.title("🛢️ ICE Markets")
 render_screener_landing_intro(
     st,
     market="ICE",
     universe_size=len(ICE_UNIVERSE),
-    asset_label="commodity future or ETF",
+    asset_label="market",
     sentiment_profile="commodity",
 )
 
@@ -3481,12 +3481,12 @@ else:
         st.markdown("---")
         st.markdown(
             """
-            #### 🧠 Why these assets were selected
+            #### 🧠 Why these markets were selected
 
             - **Near 52-week low.** Price is within 30% of the lowest price in the past year (15% preferred).
             - **No scandal headlines.** Sentiment screening filters negative keywords—including scandal, bankruptcy, manipulation, sanctions, and contamination.
             - **Headline context.** Click **Analyze** for detailed headline sentiment and charts.
-            - **ICE listed.** All futures / ETFs trade on or track ICE-listed commodity contracts.
+            - **ICE listed.** These are futures markets listed with ICE, shown as quotes rather than products to buy.
 
             > **Disclaimer:** Commodity futures and ETFs involve substantial risk. This is an
             > automated screen — not financial advice. Always do your own due diligence before trading.

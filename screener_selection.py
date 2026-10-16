@@ -203,22 +203,20 @@ _SCREENER_LANDING_SUMMARY_FULL: dict[str, str] = {
         "Headline sentiment is fetched for the final displayed rows."
     ),
     "CME": (
-        "Screens a curated watchlist of **{n}** well-known CME Group futures "
-        "(CME, CBOT, NYMEX, COMEX) for those trading **closest to their 52-week low**. "
-        "This is a selected sample, not every listed contract and not an official "
-        "CME product universe. "
-        "Proximity uses a batched market quote (last price and 52-week range); "
-        "Alpha Vantage and ETF proxies remain available on Analyze. "
-        "Headline sentiment is fetched for the final displayed rows."
+        "Shows a selected sample of **{n}** CME Group futures markets "
+        "(CME, CBOT, NYMEX, COMEX) trading **closest to their 52-week low**. "
+        "These rows are market quotes, not products offered for purchase. "
+        "This is not every listed contract and not an official CME product universe. "
+        "Proximity uses the contract quote (last price and 52-week range). "
+        "Headline sentiment is fetched for the markets shown."
     ),
     "ICE": (
-        "Screens a curated watchlist of **{n}** well-known ICE-linked commodity "
-        "futures and commodity ETFs for those trading **closest to their 52-week low**. "
-        "This is a selected sample, not every ICE listing and not an official "
-        "exchange or index universe. "
-        "Proximity uses a batched market quote (last price and 52-week range); "
-        "Alpha Vantage remains available on Analyze. "
-        "Headline sentiment is fetched for the final displayed rows."
+        "Shows a selected sample of **{n}** ICE futures markets "
+        "trading **closest to their 52-week low**. "
+        "These rows are market quotes, not products offered for purchase. "
+        "This is not every ICE listing and not an official exchange universe. "
+        "Proximity uses the contract quote (last price and 52-week range). "
+        "Headline sentiment is fetched for the markets shown."
     ),
 }
 
@@ -226,8 +224,8 @@ _SCREENER_LANDING_SUMMARY_COMPACT: dict[str, str] = {
     "NYSE": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official NYSE universe). Headline sentiment on shown rows.",
     "NASDAQ": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official Nasdaq universe). Headline sentiment on shown rows.",
     "CRYPTO": "**{n}** well-known cryptocurrencies near **52-week lows** (selected sample, not an official market universe). Headline sentiment on shown rows.",
-    "CME": "**{n}** well-known CME Group futures near **52-week lows** (selected sample, not an official CME universe). Tap **Analyze** for deeper sentiment.",
-    "ICE": "**{n}** well-known ICE-linked futures and commodity ETFs near **52-week lows** (selected sample, not an official ICE universe). Tap **Analyze** for deeper sentiment.",
+    "CME": "**{n}** CME Group futures markets near **52-week lows** (selected sample, not an official CME universe). Market quotes, not a list of products to buy.",
+    "ICE": "**{n}** ICE futures markets near **52-week lows** (selected sample, not an official ICE universe). Market quotes, not a list of products to buy.",
 }
 
 _SCREENER_LANDING_INTRO_CSS = """

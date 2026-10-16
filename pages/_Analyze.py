@@ -2657,6 +2657,10 @@ if not _analyze_mode:
 if _analyze_mode:
     render_analyze_back_button()
 st.title(f"{ticker} — Analyze" if _analyze_mode else f"{ticker} Dashboard")
+if _analyze_mode and analyze_screener_snapshot_key() in {"CME", "ICE"}:
+    st.caption(
+        "Futures market quote for context. This is not a product offered for purchase."
+    )
 
 if not _analyze_mode and not render_terms_gate(
     st,

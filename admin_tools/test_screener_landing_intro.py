@@ -136,15 +136,16 @@ class _MarkdownStub:
 
 def test_cme_ice_landing_describes_well_known_curated_watchlist() -> None:
     for market, phrase in (
-        ("CME", "well-known CME Group futures"),
-        ("ICE", "well-known ICE-linked commodity"),
+        ("CME", "CME Group futures markets"),
+        ("ICE", "ICE futures markets"),
     ):
         full = screener_landing_summary(market, 100, compact=False)
         compact = screener_landing_summary(market, 100, compact=True)
         assert "100" in full and "100" in compact
         assert phrase in full
         assert "selected sample" in full
-        assert "batched market quote" in full
+        assert "contract quote" in full
+        assert "not products offered for purchase" in full
         assert "official" in full.lower()
 
 

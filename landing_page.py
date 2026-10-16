@@ -26,8 +26,8 @@ HOME_NAV_MARKETS: tuple[tuple[str, str], ...] = (
     ("pages/1_NYSE_Top_10.py", "📊 NYSE 10"),
     ("pages/2_NASDAQ_Top_10.py", "💹 NASDAQ 10"),
     ("pages/3_Crypto_Top_10.py", "🪙 Crypto 10"),
-    ("pages/5_CME_Top_10.py", "🌾 CME Commodities 10"),
-    ("pages/6_ICE_Top_10.py", "🛢️ ICE Commodities 10"),
+    ("pages/5_CME_Top_10.py", "🌾 CME Markets 10"),
+    ("pages/6_ICE_Top_10.py", "🛢️ ICE Markets 10"),
 )
 
 # Market screener paths (mobile/tablet: visit home first, then consent on these pages).

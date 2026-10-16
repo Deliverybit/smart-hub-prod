@@ -2894,8 +2894,8 @@ if agreed:
     log_terms_acceptance(st, consent_key="agree_terms_cme")
 
 # ── Constants ─────────────────────────────────────────────────────────
-# Curated watchlist of 100 well-known CME Group futures (not an official contract list).
-# Futures =F symbols are used for quotes; Analyze may use ETF proxies.
+# Curated watchlist of 100 CME Group futures markets (not an official contract list).
+# Rows are contract quotes, not products offered for purchase.
 COMMODITY_NAMES = {
     # Precious Metals (COMEX)
     "GC=F":  "Gold",
@@ -3235,12 +3235,12 @@ if _cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("🌾 CME Commodities")
+st.title("🌾 CME Markets")
 render_screener_landing_intro(
     st,
     market="CME",
     universe_size=len(CME_UNIVERSE),
-    asset_label="commodity future",
+    asset_label="market",
     sentiment_profile="commodity",
 )
 
@@ -3486,7 +3486,7 @@ else:
         st.markdown("---")
         st.markdown(
             """
-            #### 🧠 Why these assets were selected
+            #### 🧠 Why these markets were selected
 
             - **Near 52-week low.** Price is within 30% of the lowest price in the past year (15% preferred).
             - **No scandal headlines.** Sentiment screening filters negative keywords—including scandal, bankruptcy, manipulation, sanctions, and contamination.

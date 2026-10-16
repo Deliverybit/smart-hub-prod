@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from market_data import MarketData
@@ -43,11 +43,20 @@ def _news_from_row(row: dict[str, Any]) -> list[dict[str, str]]:
 
 
 def _slice_history(history: list, days) -> list:
+    """Keep bars inside the last N calendar days. `max` is 730 calendar days."""
     try:
         chart_days = 730 if days == "max" else min(int(days), 730)
     except (TypeError, ValueError):
         chart_days = 365
-    return list(history or [])[-chart_days:]
+    rows = list(history or [])
+    if not rows:
+        return rows
+    latest = max(str(row.get("date") or "") for row in rows)
+    try:
+        cutoff = (datetime.fromisoformat(latest[:10]) - timedelta(days=chart_days)).date().isoformat()
+    except ValueError:
+        return rows[-chart_days:]
+    return [row for row in rows if str(row.get("date") or "") >= cutoff]
 
 
 def build_analyze_bundles(

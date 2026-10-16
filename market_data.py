@@ -10,6 +10,8 @@ from app_config import get_alpha_vantage_api_key
 
 QUOTE_MAX_AGE_DAYS = 14
 QUOTE_MIN_BARS = 20
+# Live quote vs latest daily close. Wide enough for a normal session, tight enough to reject a split-scale mismatch.
+QUOTE_CLOSE_BAND = 0.15
 
 
 def quote_is_usable(dates: list, today: datetime | None = None) -> bool:
@@ -25,6 +27,23 @@ def quote_is_usable(dates: list, today: datetime | None = None) -> bool:
     if now.tzinfo is not None:
         now = now.astimezone(timezone.utc).replace(tzinfo=None)
     return (now - latest).days <= QUOTE_MAX_AGE_DAYS
+
+
+def _name_tokens(name: str) -> set[str]:
+    cleaned = "".join(ch.lower() if ch.isalnum() else " " for ch in name)
+    stop = {"inc", "corp", "corporation", "company", "co", "ltd", "plc", "the", "class", "common", "stock", "group"}
+    return {token for token in cleaned.split() if token and token not in stop}
+
+
+def names_agree(saved: str, reported: str) -> bool:
+    """True when the saved company name and the vendor name refer to the same firm."""
+    left = _name_tokens(saved)
+    right = _name_tokens(reported)
+    if not left or not right:
+        return False
+    if left <= right or right <= left:
+        return True
+    return len(left & right) / min(len(left), len(right)) >= 0.6
 
 
 def symbol_matches_company(ticker: str, matches: list[dict]) -> bool:
@@ -220,8 +239,6 @@ class MarketData:
         ticker = (ticker or "").strip().upper()
         if ticker in self._INDEX_SYMBOLS:
             return self._INDEX_SYMBOLS[ticker]
-        if ticker in self._FUTURES_SYMBOLS:
-            return self._FUTURES_SYMBOLS[ticker]
         if ticker.endswith("-USD"):
             base = ticker.replace("-USD", "")
             return self._CRYPTO_ID_ALIASES.get(base, base)
@@ -355,8 +372,16 @@ class MarketData:
             high = self._to_float(values.get("2. high"))
             if close is None:
                 continue
-            rows.append({"date": pd.to_datetime(date), "price": close, "low": low, "high": high})
+            rows.append({
+                "date": pd.to_datetime(date),
+                "price": close,
+                "low": low,
+                "high": high,
+                "adj_close": self._to_float(values.get("5. adjusted close")),
+                "split": self._to_float(values.get("8. split coefficient")) or 1.0,
+            })
 
+        self._apply_share_scale(rows)
         df = pd.DataFrame(rows)
         if not df.empty:
             df = df.sort_values("date").reset_index(drop=True)
@@ -368,12 +393,39 @@ class MarketData:
         return df.copy()
 
     @staticmethod
-    def _year_window(df: pd.DataFrame) -> pd.DataFrame:
-        """Bars in the 365 calendar days ending on the latest bar."""
+    def _apply_share_scale(rows: list[dict]) -> None:
+        """Put close, high, and low on the latest share count. Splits inside the series stay aligned."""
+        factor = 1.0
+        for row in reversed(rows):
+            close = row["price"]
+            adj = row.pop("adj_close", None)
+            split = row.pop("split", 1.0) or 1.0
+            if split <= 0:
+                split = 1.0
+            if adj is not None and close:
+                scale = adj / close
+                row["price"] = float(adj)
+            else:
+                scale = 1.0 / factor
+                row["price"] = float(close) * scale
+                factor *= split
+            if row.get("low") is not None:
+                row["low"] = float(row["low"]) * scale
+            if row.get("high") is not None:
+                row["high"] = float(row["high"]) * scale
+
+    @staticmethod
+    def _span_window(df: pd.DataFrame, days: int) -> pd.DataFrame:
+        """Bars in the last `days` calendar days ending on the latest bar."""
         if df.empty or "date" not in df.columns:
             return df
-        cutoff = df["date"].max() - pd.Timedelta(days=365)
+        cutoff = df["date"].max() - pd.Timedelta(days=int(days))
         return df.loc[df["date"] >= cutoff].copy()
+
+    @classmethod
+    def _year_window(cls, df: pd.DataFrame) -> pd.DataFrame:
+        """Bars in the 365 calendar days ending on the latest bar."""
+        return cls._span_window(df, 365)
 
     def get_latest_price(self, ticker):
         """Fetch the latest Alpha Vantage price for an asset."""
@@ -398,7 +450,7 @@ class MarketData:
 
         if days != "max":
             try:
-                df = df.tail(int(days))
+                df = self._span_window(df, int(days))
             except (TypeError, ValueError):
                 pass
 
@@ -450,12 +502,9 @@ class MarketData:
             and snap_high > 0
         )
 
-        if chart_days <= compact_days and has_snap_52w:
-            outputsize = "compact"
-            max_rows = compact_days + 10
-        elif chart_days <= compact_days:
+        if chart_days <= compact_days:
             outputsize = "full"
-            max_rows = 375
+            max_rows = 280
         else:
             outputsize = "full"
             max_rows = chart_max_days + 10
@@ -486,21 +535,16 @@ class MarketData:
         latest_price = float(df["price"].iloc[-1])
         if snap_price is not None and snap_price > 0:
             latest_price = snap_price
-        week52_low = snap_low if has_snap_52w else (
-            float(low_series.min()) if not low_series.empty else None
-        )
-        week52_high = snap_high if has_snap_52w else (
-            float(high_series.max()) if not high_series.empty else None
-        )
+        week52_low = float(low_series.min()) if not low_series.empty else snap_low
+        week52_high = float(high_series.max()) if not high_series.empty else snap_high
 
         low_date = high_date = None
-        if not has_snap_52w:
-            if not low_series.empty:
-                low_date = year_df.loc[year_df["low"].idxmin(), "date"].strftime("%b %d, %Y")
-            if not high_series.empty:
-                high_date = year_df.loc[year_df["high"].idxmax(), "date"].strftime("%b %d, %Y")
+        if not low_series.empty:
+            low_date = year_df.loc[year_df["low"].idxmin(), "date"].strftime("%b %d, %Y")
+        if not high_series.empty:
+            high_date = year_df.loc[year_df["high"].idxmax(), "date"].strftime("%b %d, %Y")
 
-        chart_df = df.tail(chart_days)
+        chart_df = self._span_window(df, chart_days)
 
         chart_df = chart_df.copy()
         chart_df["change_pct"] = chart_df["price"].pct_change().fillna(0)
@@ -562,6 +606,8 @@ class MarketData:
                 "year_low": cached["year_low"],
                 "year_high": cached["year_high"],
             }
+        symbol = self._format_ticker(ticker)
+        quote = self._live_quote(ticker, symbol)
         df = self._year_window(self._daily_history_frame(ticker, outputsize="full"))
         if df.empty or not quote_is_usable(list(df["date"])):
             print(f"Skip {ticker}: price series is stale or too short", flush=True)
@@ -569,29 +615,84 @@ class MarketData:
 
         low_series = df["low"].dropna()
         high_series = df["high"].dropna()
-        if low_series.empty or high_series.empty:
+        last_close = float(df["price"].iloc[-1])
+        if low_series.empty or high_series.empty or last_close <= 0 or quote is None:
+            print(f"Skip {ticker}: quote or 52-week range is missing", flush=True)
+            return None
+
+        year_low = float(low_series.min())
+        year_high = float(high_series.max())
+        if year_low <= 0 or year_low > year_high:
+            print(f"Skip {ticker}: 52-week range is not usable", flush=True)
+            return None
+        if abs(quote - last_close) / last_close > QUOTE_CLOSE_BAND:
+            print(f"Skip {ticker}: quote {quote} disagrees with last close {last_close}", flush=True)
+            return None
+        if quote < year_low * (1 - QUOTE_CLOSE_BAND) or quote > year_high * (1 + QUOTE_CLOSE_BAND):
+            print(f"Skip {ticker}: quote {quote} is outside the 52-week range", flush=True)
             return None
 
         return {
-            "current_price": float(df["price"].iloc[-1]),
-            "year_low": float(low_series.min()),
-            "year_high": float(high_series.max()),
+            "current_price": quote,
+            "year_low": year_low,
+            "year_high": year_high,
         }
 
+    def _live_quote(self, ticker: str, symbol: str) -> float | None:
+        """Latest Alpha Vantage price for this exact symbol."""
+        if self._is_crypto(ticker):
+            data = self._request(
+                function="CURRENCY_EXCHANGE_RATE",
+                from_currency=symbol,
+                to_currency="USD",
+                fail_fast=True,
+            )
+            rate = data.get("Realtime Currency Exchange Rate") or {}
+            reported = str(rate.get("1. From_Currency Code") or "").strip().upper()
+            price = self._to_float(rate.get("5. Exchange Rate"))
+        else:
+            data = self._request(function="GLOBAL_QUOTE", symbol=symbol, fail_fast=True)
+            quote = data.get("Global Quote") or {}
+            reported = str(quote.get("01. symbol") or "").strip().upper()
+            price = self._to_float(quote.get("05. price"))
+        if reported != symbol.upper() or price is None or price <= 0:
+            return None
+        return price
+
     def symbol_matches_company(self, ticker: str, company_name: str) -> bool:
-        """Confirm the saved company name still lists this ticker."""
+        """True when search and company overview both name this ticker."""
         name = (company_name or "").strip()
-        if not name or name.upper() == (ticker or "").strip().upper():
-            return True
+        symbol = (ticker or "").strip().upper()
+        if not name or not symbol:
+            return False
         cached = self._symbol_search_cache.get(name)
         if cached is None:
             data = self._request(function="SYMBOL_SEARCH", keywords=name, fail_fast=True)
             cached = list(data.get("bestMatches") or [])
             self._symbol_search_cache[name] = cached
-        if not symbol_matches_company(ticker, cached):
-            print(f"Skip {ticker}: company {name!r} does not list this ticker", flush=True)
+        listed = any(
+            str(item.get("1. symbol") or "").strip().upper() == symbol
+            and str(item.get("3. type") or "").lower() in {"", "equity"}
+            and str(item.get("4. region") or "").lower() in {"", "united states"}
+            for item in cached
+        )
+        if not listed:
+            print(f"Skip {symbol}: company {name!r} does not list this ticker", flush=True)
+            return False
+        if not self._overview_matches(symbol, name):
+            print(f"Skip {symbol}: overview does not match {name!r}", flush=True)
             return False
         return True
+
+    def _overview_matches(self, symbol: str, company_name: str) -> bool:
+        cached = self._symbol_search_cache.get(f"overview:{symbol}")
+        if cached is None:
+            data = self._request(function="OVERVIEW", symbol=symbol, fail_fast=True)
+            cached = data if isinstance(data, dict) else {}
+            self._symbol_search_cache[f"overview:{symbol}"] = cached
+        reported_symbol = str(cached.get("Symbol") or "").strip().upper()
+        reported_name = str(cached.get("Name") or "")
+        return reported_symbol == symbol and names_agree(company_name, reported_name)
 
     def get_52_week_low(self, ticker):
         """Returns the 52-week low price for the asset."""

@@ -1519,7 +1519,7 @@ def _cached_analyze_bundle(ticker: str, days, screener_key: str | None, _hist_sp
         chart_days = 730 if days == "max" else min(int(days), 730)
     except (TypeError, ValueError):
         chart_days = 365
-    history = list(price.get("history") or [])[-chart_days:]
+    history = _analyze_snapshot_mod._slice_history(list(price.get("history") or []), chart_days)
     latest_price = price["latest_price"]
     if len(history) >= 2:
         prev_price = history[-2]["price"]

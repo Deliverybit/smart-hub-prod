@@ -3140,6 +3140,9 @@ def screen_stock(ticker: str) -> dict | None:
         snapshot = market_data.get_market_snapshot(ticker)
         if not snapshot:
             return None
+        company = COMPANY_NAMES.get(ticker, "")
+        if not market_data.symbol_matches_company(ticker, company):
+            return None
         current_price = snapshot["current_price"]
         year_low = snapshot["year_low"]
         year_high = snapshot["year_high"]

@@ -9,6 +9,8 @@ import requests
 from app_config import get_alpha_vantage_api_key
 
 QUOTE_MAX_AGE_DAYS = 14
+# Last 252 sessions on or before the scan date. One trading year, not 365 bars.
+ROLLING_52W_BARS = 252
 QUOTE_MIN_BARS = 20
 # Live quote vs latest daily close. Wide enough for a normal session, tight enough to reject a split-scale mismatch.
 QUOTE_CLOSE_BAND = 0.15
@@ -239,6 +241,8 @@ class MarketData:
         ticker = (ticker or "").strip().upper()
         if ticker in self._INDEX_SYMBOLS:
             return self._INDEX_SYMBOLS[ticker]
+        if ticker in self._FUTURES_SYMBOLS:
+            return self._FUTURES_SYMBOLS[ticker]
         if ticker.endswith("-USD"):
             base = ticker.replace("-USD", "")
             return self._CRYPTO_ID_ALIASES.get(base, base)
@@ -402,17 +406,18 @@ class MarketData:
             split = row.pop("split", 1.0) or 1.0
             if split <= 0:
                 split = 1.0
+            split_scale = 1.0 / factor
+            factor *= split
+            traded = float(close) * split_scale
+            row["traded_close"] = traded
             if adj is not None and close:
-                scale = adj / close
                 row["price"] = float(adj)
             else:
-                scale = 1.0 / factor
-                row["price"] = float(close) * scale
-                factor *= split
+                row["price"] = traded
             if row.get("low") is not None:
-                row["low"] = float(row["low"]) * scale
+                row["low"] = float(row["low"]) * split_scale
             if row.get("high") is not None:
-                row["high"] = float(row["high"]) * scale
+                row["high"] = float(row["high"]) * split_scale
 
     @staticmethod
     def _span_window(df: pd.DataFrame, days: int) -> pd.DataFrame:
@@ -423,9 +428,18 @@ class MarketData:
         return df.loc[df["date"] >= cutoff].copy()
 
     @classmethod
-    def _year_window(cls, df: pd.DataFrame) -> pd.DataFrame:
-        """Bars in the 365 calendar days ending on the latest bar."""
-        return cls._span_window(df, 365)
+    def _year_window(cls, df: pd.DataFrame, as_of: datetime | None = None) -> pd.DataFrame:
+        """Last 252 sessions on or before the scan date."""
+        if df.empty or "date" not in df.columns:
+            return df
+        if as_of is None:
+            as_of = datetime.now(timezone.utc)
+        if getattr(as_of, "tzinfo", None) is not None:
+            as_of = as_of.astimezone(timezone.utc).replace(tzinfo=None)
+        end = pd.Timestamp(as_of).normalize()
+        dates = pd.to_datetime(df["date"]).dt.normalize()
+        window = df.loc[dates <= end]
+        return window.tail(ROLLING_52W_BARS).copy()
 
     def get_latest_price(self, ticker):
         """Fetch the latest Alpha Vantage price for an asset."""
@@ -615,7 +629,8 @@ class MarketData:
 
         low_series = df["low"].dropna()
         high_series = df["high"].dropna()
-        last_close = float(df["price"].iloc[-1])
+        close_col = "traded_close" if "traded_close" in df.columns else "price"
+        last_close = float(df[close_col].iloc[-1])
         if low_series.empty or high_series.empty or last_close <= 0 or quote is None:
             print(f"Skip {ticker}: quote or 52-week range is missing", flush=True)
             return None
@@ -633,7 +648,7 @@ class MarketData:
             return None
 
         return {
-            "current_price": quote,
+            "current_price": last_close,
             "year_low": year_low,
             "year_high": year_high,
         }

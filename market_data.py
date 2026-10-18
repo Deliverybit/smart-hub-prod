@@ -9,8 +9,8 @@ import requests
 from app_config import get_alpha_vantage_api_key
 
 QUOTE_MAX_AGE_DAYS = 14
-# Last 252 sessions on or before the scan date. One trading year, not 365 bars.
-ROLLING_52W_BARS = 252
+# Calendar year of daily-adjusted highs and lows, ending on the scan date.
+ROLLING_52W_DAYS = 365
 QUOTE_MIN_BARS = 20
 # Live quote vs latest daily close. Wide enough for a normal session, tight enough to reject a split-scale mismatch.
 QUOTE_CLOSE_BAND = 0.15
@@ -429,7 +429,7 @@ class MarketData:
 
     @classmethod
     def _year_window(cls, df: pd.DataFrame, as_of: datetime | None = None) -> pd.DataFrame:
-        """Last 252 sessions on or before the scan date."""
+        """Split-adjusted daily bars in the last 365 calendar days."""
         if df.empty or "date" not in df.columns:
             return df
         if as_of is None:
@@ -437,9 +437,9 @@ class MarketData:
         if getattr(as_of, "tzinfo", None) is not None:
             as_of = as_of.astimezone(timezone.utc).replace(tzinfo=None)
         end = pd.Timestamp(as_of).normalize()
+        start = end - pd.Timedelta(days=ROLLING_52W_DAYS)
         dates = pd.to_datetime(df["date"]).dt.normalize()
-        window = df.loc[dates <= end]
-        return window.tail(ROLLING_52W_BARS).copy()
+        return df.loc[(dates >= start) & (dates <= end)].copy()
 
     def get_latest_price(self, ticker):
         """Fetch the latest Alpha Vantage price for an asset."""

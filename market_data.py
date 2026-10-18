@@ -9,6 +9,8 @@ import requests
 from app_config import get_alpha_vantage_api_key
 
 QUOTE_MAX_AGE_DAYS = 14
+# Calendar year of split-adjusted daily highs and lows, ending on the scan date.
+ROLLING_52W_DAYS = 365
 QUOTE_MIN_BARS = 20
 
 
@@ -355,8 +357,16 @@ class MarketData:
             high = self._to_float(values.get("2. high"))
             if close is None:
                 continue
-            rows.append({"date": pd.to_datetime(date), "price": close, "low": low, "high": high})
+            rows.append({
+                "date": pd.to_datetime(date),
+                "price": close,
+                "low": low,
+                "high": high,
+                "adj_close": self._to_float(values.get("5. adjusted close")),
+                "split": self._to_float(values.get("8. split coefficient")) or 1.0,
+            })
 
+        self._apply_share_scale(rows)
         df = pd.DataFrame(rows)
         if not df.empty:
             df = df.sort_values("date").reset_index(drop=True)
@@ -366,6 +376,43 @@ class MarketData:
         if max_rows is not None and len(df) > max_rows:
             return df.tail(max_rows).copy()
         return df.copy()
+
+    @staticmethod
+    def _apply_share_scale(rows: list[dict]) -> None:
+        """Put close, high, and low on the latest share count. Splits inside the series stay aligned."""
+        factor = 1.0
+        for row in reversed(rows):
+            close = row["price"]
+            adj = row.pop("adj_close", None)
+            split = row.pop("split", 1.0) or 1.0
+            if split <= 0:
+                split = 1.0
+            split_scale = 1.0 / factor
+            factor *= split
+            traded = float(close) * split_scale
+            row["traded_close"] = traded
+            if adj is not None and close:
+                row["price"] = float(adj)
+            else:
+                row["price"] = traded
+            if row.get("low") is not None:
+                row["low"] = float(row["low"]) * split_scale
+            if row.get("high") is not None:
+                row["high"] = float(row["high"]) * split_scale
+
+    @classmethod
+    def _year_window(cls, df: pd.DataFrame, as_of: datetime | None = None) -> pd.DataFrame:
+        """Split-adjusted daily bars in the last 365 calendar days."""
+        if df.empty or "date" not in df.columns:
+            return df
+        if as_of is None:
+            as_of = datetime.now(timezone.utc)
+        if getattr(as_of, "tzinfo", None) is not None:
+            as_of = as_of.astimezone(timezone.utc).replace(tzinfo=None)
+        end = pd.Timestamp(as_of).normalize()
+        start = end - pd.Timedelta(days=ROLLING_52W_DAYS)
+        dates = pd.to_datetime(df["date"]).dt.normalize()
+        return df.loc[(dates >= start) & (dates <= end)].copy()
 
     def get_latest_price(self, ticker):
         """Fetch the latest Alpha Vantage price for an asset."""
@@ -471,7 +518,7 @@ class MarketData:
                 "high_date": None,
             }
 
-        year_df = df.tail(365)
+        year_df = self._year_window(df)
         low_series = year_df["low"].dropna()
         high_series = year_df["high"].dropna()
 
@@ -554,18 +601,19 @@ class MarketData:
                 "year_low": cached["year_low"],
                 "year_high": cached["year_high"],
             }
-        df = self._daily_history_frame(ticker, outputsize="full").tail(365)
+        df = self._year_window(self._daily_history_frame(ticker, outputsize="full"))
         if df.empty or not quote_is_usable(list(df["date"])):
             print(f"Skip {ticker}: price series is stale or too short", flush=True)
             return None
 
         low_series = df["low"].dropna()
         high_series = df["high"].dropna()
+        close_col = "traded_close" if "traded_close" in df.columns else "price"
         if low_series.empty or high_series.empty:
             return None
 
         return {
-            "current_price": float(df["price"].iloc[-1]),
+            "current_price": float(df[close_col].iloc[-1]),
             "year_low": float(low_series.min()),
             "year_high": float(high_series.max()),
         }
@@ -601,7 +649,7 @@ class MarketData:
 
     def get_52_week_low_high_dates(self, ticker):
         """Returns dates when the 52-week low and high occurred."""
-        df = self._daily_history_frame(ticker, outputsize="full").tail(365)
+        df = self._year_window(self._daily_history_frame(ticker, outputsize="full"))
         if df.empty or df["low"].dropna().empty or df["high"].dropna().empty:
             return None, None
         low_date = df.loc[df["low"].idxmin(), "date"].strftime("%b %d, %Y")

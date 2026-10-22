@@ -20,10 +20,10 @@ def main() -> int:
         print("SKIP: DATABASE_URL not configured")
         return 0
 
-    payload = refresh_screener(get_definition("ICE"))
+    payload = refresh_screener(get_definition("NYSE"))
     assert payload["display_results"], "expected display_results"
 
-    loaded = fetch_snapshot("ICE")
+    loaded = fetch_snapshot("NYSE")
     assert loaded is not None, "snapshot missing after save"
     assert snapshot_is_fresh(loaded), "snapshot should be fresh immediately after save"
     assert loaded["display_results"][0].get("_headline_texts") is not None

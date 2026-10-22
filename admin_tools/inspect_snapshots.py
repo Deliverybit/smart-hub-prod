@@ -43,7 +43,7 @@ def main() -> int:
             f"{payload.get('selection_mode', '?'):<14} {payload.get('headlines_enriched')}"
         )
 
-    expected = {"NYSE", "NASDAQ", "CRYPTO", "CME", "ICE"}
+    expected = {"NYSE", "NASDAQ", "CRYPTO"}
     found = {row[0] for row in rows}
     missing = expected - found
     if missing:

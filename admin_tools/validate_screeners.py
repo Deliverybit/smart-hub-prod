@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Validate all 6 screener universes against Alpha Vantage market data.
+Validate NYSE, NASDAQ, and Crypto universes against Alpha Vantage market data.
 
 Usage (from repo root):
     python admin_tools/validate_screeners.py
@@ -45,18 +45,6 @@ SCREENER_PAGES = [
         "path": PAGES / "3_Crypto_Top_10.py",
         "universe_expr": "list(CRYPTO_DATA.keys())",
         "deps": ("CRYPTO_DATA",),
-    },
-    {
-        "name": "CME",
-        "path": PAGES / "5_CME_Top_10.py",
-        "universe_expr": "list(COMMODITY_NAMES.keys())",
-        "deps": ("COMMODITY_NAMES",),
-    },
-    {
-        "name": "ICE",
-        "path": PAGES / "6_ICE_Top_10.py",
-        "universe_expr": "list(COMMODITY_NAMES.keys())",
-        "deps": ("COMMODITY_NAMES",),
     },
 ]
 

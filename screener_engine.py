@@ -67,26 +67,6 @@ SCREENER_DEFINITIONS: tuple[ScreenerDefinition, ...] = (
         "CRYPTO_NAMES",
         "cryptos",
     ),
-    ScreenerDefinition(
-        "CME",
-        "5_CME_Top_10.py",
-        "list(COMMODITY_NAMES.keys())",
-        ("COMMODITY_NAMES",),
-        "commodity",
-        "Commodity",
-        "COMMODITY_NAMES",
-        "CME commodities",
-    ),
-    ScreenerDefinition(
-        "ICE",
-        "6_ICE_Top_10.py",
-        "list(COMMODITY_NAMES.keys())",
-        ("COMMODITY_NAMES",),
-        "commodity",
-        "Commodity",
-        "COMMODITY_NAMES",
-        "ICE commodities",
-    ),
 )
 
 

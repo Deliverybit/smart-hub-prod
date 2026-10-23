@@ -83,6 +83,8 @@ def test_screener_pages_use_index_banner_helper() -> None:
     pages = [
         "pages/1_NYSE_Top_10.py",
         "pages/2_NASDAQ_Top_10.py",
+        "pages/3b_LSE_Top_10.py",
+        "pages/3c_TSX_Top_10.py",
         "pages/3_Crypto_Top_10.py",
         "pages/5_CME_Top_10.py",
         "pages/6_ICE_Top_10.py",

@@ -331,7 +331,7 @@ _JS = r"""
             return false;
         }
         if (!origin) return false;
-        const knownFrom = ["NYSE_Top_10", "NASDAQ_Top_10", "Crypto_Top_10", "CME_Top_10", "ICE_Top_10"];
+        const knownFrom = ["NYSE_Top_10", "NASDAQ_Top_10", "LSE_Top_10", "TSX_Top_10", "Crypto_Top_10", "CME_Top_10", "ICE_Top_10"];
         let fromPath = "/NYSE_Top_10";
         for (const slug of knownFrom) {
             if (path.indexOf(slug) !== -1) {

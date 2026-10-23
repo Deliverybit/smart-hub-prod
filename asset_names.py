@@ -22,6 +22,8 @@ class _NameSource:
 _NAME_SOURCES: tuple[_NameSource, ...] = (
     _NameSource("1_NYSE_Top_10.py", ("COMPANY_NAMES",), "COMPANY_NAMES", "stock"),
     _NameSource("2_NASDAQ_Top_10.py", ("COMPANY_NAMES",), "COMPANY_NAMES", "stock"),
+    _NameSource("3b_LSE_Top_10.py", ("COMPANY_NAMES",), "COMPANY_NAMES", "stock"),
+    _NameSource("3c_TSX_Top_10.py", ("COMPANY_NAMES",), "COMPANY_NAMES", "stock"),
     _NameSource("3_Crypto_Top_10.py", ("CRYPTO_DATA",), "CRYPTO_NAMES", "crypto"),
     _NameSource("5_CME_Top_10.py", ("COMMODITY_NAMES",), "COMMODITY_NAMES", "commodity"),
     _NameSource("6_ICE_Top_10.py", ("COMMODITY_NAMES",), "COMMODITY_NAMES", "commodity"),
@@ -105,6 +107,8 @@ def resolve_asset_display_name(ticker: str) -> str:
 _SUMMARY_SOURCES: tuple[_NameSource, ...] = (
     _NameSource("1_NYSE_Top_10.py", ("COMPANY_SUMMARIES",), "COMPANY_SUMMARIES", "stock"),
     _NameSource("2_NASDAQ_Top_10.py", ("COMPANY_SUMMARIES",), "COMPANY_SUMMARIES", "stock"),
+    _NameSource("3b_LSE_Top_10.py", ("COMPANY_SUMMARIES",), "COMPANY_SUMMARIES", "stock"),
+    _NameSource("3c_TSX_Top_10.py", ("COMPANY_SUMMARIES",), "COMPANY_SUMMARIES", "stock"),
     _NameSource("3_Crypto_Top_10.py", ("CRYPTO_SUMMARIES",), "CRYPTO_SUMMARIES", "crypto"),
     _NameSource("5_CME_Top_10.py", ("COMMODITY_SUMMARIES",), "COMMODITY_SUMMARIES", "commodity"),
     _NameSource("6_ICE_Top_10.py", ("COMMODITY_SUMMARIES",), "COMMODITY_SUMMARIES", "commodity"),

@@ -48,6 +48,27 @@ def names_agree(saved: str, reported: str) -> bool:
     return len(left & right) / min(len(left), len(right)) >= 0.6
 
 
+def _listing_regions(symbol: str) -> set[str]:
+    upper = (symbol or "").strip().upper()
+    if upper.endswith(".LON"):
+        return {"", "united kingdom"}
+    if upper.endswith(".TRT"):
+        return {"", "canada", "toronto"}
+    return {"", "united states"}
+
+
+def _symbols_match(reported: str, symbol: str) -> bool:
+    """Alpha Vantage sometimes returns the base ticker without the exchange suffix."""
+    reported = (reported or "").strip().upper()
+    symbol = (symbol or "").strip().upper()
+    if not reported or not symbol:
+        return False
+    if reported == symbol:
+        return True
+    base, _, suffix = symbol.partition(".")
+    return bool(suffix) and reported == base
+
+
 def symbol_matches_company(ticker: str, matches: list[dict]) -> bool:
     """True when this ticker is a real match for the company, or the search is empty."""
     wanted = (ticker or "").strip().upper()
@@ -234,6 +255,45 @@ class MarketData:
         "SEK=F": "FXS",
         "NOK=F": "NORW",
         "PLN=F": "EPOL",
+    }
+
+    # News feed symbol when the London or Toronto code is a different US company, or has no news under the bare ticker.
+    _LISTING_NEWS_SYMBOLS = {
+        "HSBA.LON": "HSBC",
+        "ULVR.LON": "UL",
+        "DGE.LON": "DEO",
+        "BATS.LON": "BTI",
+        "REL.LON": "RELX",
+        "NG.LON": "NGG",
+        "LLOY.LON": "LYG",
+        "BARC.LON": "BCS",
+        "TSCO.LON": "TSCDY",
+        "GLEN.LON": "GLNCY",
+        "AAL.LON": "NGLOY",
+        "PRU.LON": "PUK",
+        "LSEG.LON": "LNSTY",
+        "CPG.LON": "CMPGY",
+        "EXPN.LON": "EXPGY",
+        "STAN.LON": "SCBFF",
+        "BA.LON": "BAESY",
+        "RR.LON": "RYCEY",
+        "IMB.LON": "IMBBY",
+        "ANTO.LON": "ANFGF",
+        "SSE.LON": "SSEZY",
+        "AV.LON": "AIVAF",
+        "LGEN.LON": "LGGNY",
+        "RKT.LON": "RBGLY",
+        "SN.LON": "SNN",
+        "NXT.LON": "NXGPY",
+        "AHT.LON": "ASHTY",
+        "III.LON": "TGOPY",
+        "T.TRT": "TU",
+        "ABX.TRT": "GOLD",
+        "CNR.TRT": "CNI",
+        "MG.TRT": "MGA",
+        "PPL.TRT": "PBA",
+        "NA.TRT": "NTIOF",
+        "L.TRT": "LBLCF",
     }
 
     def _format_ticker(self, ticker):
@@ -622,7 +682,9 @@ class MarketData:
             }
         symbol = self._format_ticker(ticker)
         quote = self._live_quote(ticker, symbol)
-        df = self._year_window(self._daily_history_frame(ticker, outputsize="full"))
+        df = self._year_window(
+            self._daily_history_frame(ticker, outputsize="full", fail_fast=True)
+        )
         if df.empty or not quote_is_usable(list(df["date"])):
             print(f"Skip {ticker}: price series is stale or too short", flush=True)
             return None
@@ -680,15 +742,18 @@ class MarketData:
         symbol = (ticker or "").strip().upper()
         if not name or not symbol:
             return False
-        cached = self._symbol_search_cache.get(name)
+        search_key = symbol if "." in symbol else name
+        cached = self._symbol_search_cache.get(search_key)
         if cached is None:
-            data = self._request(function="SYMBOL_SEARCH", keywords=name, fail_fast=True)
+            keywords = symbol.split(".", 1)[0] if "." in symbol else name
+            data = self._request(function="SYMBOL_SEARCH", keywords=keywords, fail_fast=True)
             cached = list(data.get("bestMatches") or [])
-            self._symbol_search_cache[name] = cached
+            self._symbol_search_cache[search_key] = cached
+        regions = _listing_regions(symbol)
         listed = any(
             str(item.get("1. symbol") or "").strip().upper() == symbol
             and str(item.get("3. type") or "").lower() in {"", "equity"}
-            and str(item.get("4. region") or "").lower() in {"", "united states"}
+            and str(item.get("4. region") or "").lower() in regions
             for item in cached
         )
         if not listed:
@@ -707,7 +772,10 @@ class MarketData:
             self._symbol_search_cache[f"overview:{symbol}"] = cached
         reported_symbol = str(cached.get("Symbol") or "").strip().upper()
         reported_name = str(cached.get("Name") or "")
-        return reported_symbol == symbol and names_agree(company_name, reported_name)
+        if not reported_symbol and not reported_name:
+            # London and Toronto overviews often come back empty on this plan.
+            return "." in symbol
+        return _symbols_match(reported_symbol, symbol) and names_agree(company_name, reported_name)
 
     def get_52_week_low(self, ticker):
         """Returns the 52-week low price for the asset."""
@@ -741,15 +809,19 @@ class MarketData:
         """Pulls headline + source URL pairs for the specific asset."""
         symbol = self._format_ticker(ticker)
         is_crypto = self._is_crypto(ticker)
-        cache_key = (symbol, is_crypto)
+        # NEWS_SENTIMENT has no London or Toronto feed. Use the US listing when the bare code is a different company.
+        news_symbol = self._LISTING_NEWS_SYMBOLS.get(symbol)
+        if not news_symbol:
+            news_symbol = symbol.split(".", 1)[0] if symbol.endswith((".LON", ".TRT")) else symbol
+        cache_key = (news_symbol, is_crypto)
         if cache_key in self._news_cache:
             return [dict(item) for item in self._news_cache[cache_key]]
 
         params = {"function": "NEWS_SENTIMENT", "limit": 1000}
         if is_crypto:
             params["tickers"] = f"CRYPTO:{symbol}"
-        elif symbol:
-            params["tickers"] = symbol
+        elif news_symbol:
+            params["tickers"] = news_symbol
 
         data = self._request(fail_fast=fail_fast, **params)
         feed = data.get("feed", [])
@@ -794,7 +866,7 @@ class MarketData:
             if title and key not in seen:
                 seen.add(key)
                 relevance = 0.0
-                expected = f"CRYPTO:{symbol}" if is_crypto else symbol
+                expected = f"CRYPTO:{symbol}" if is_crypto else news_symbol
                 for sentiment in item.get("ticker_sentiment") or []:
                     if sentiment.get("ticker") != expected:
                         continue

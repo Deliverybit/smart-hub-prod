@@ -47,6 +47,7 @@ def load_screener_page_data(
 ) -> ScreenerPageLoad:
     """Return the latest snapshot when available; live-scan only if none exists."""
     payload = fetch_snapshot(screener_key)
+    has_rows = bool(payload and payload.get("all_results"))
     if screener_key in {"CME", "ICE"}:
         payload = payload or {}
         selection = selection_from_payload(payload) if payload else select_proximity_results([])
@@ -62,7 +63,7 @@ def load_screener_page_data(
             snapshot_stale=bool(payload) and not snapshot_is_fresh(payload),
             headlines_enriched=bool(payload.get("headlines_enriched")) if payload else False,
         )
-    if payload:
+    if has_rows:
         stale = not snapshot_is_fresh(payload)
         selection = selection_from_payload(payload)
         return ScreenerPageLoad(

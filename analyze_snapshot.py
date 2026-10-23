@@ -185,6 +185,11 @@ def build_one_analyze_bundle(
     if not price:
         return None
     news_items = _news_from_row(row)
+    if not news_items or str(news_items[0].get("title") or "").startswith("No current news"):
+        from headline_service import row_company_name
+        from screener_headlines import get_cached_news_items
+
+        news_items = get_cached_news_items(sym, company_name=row_company_name(row))
     headlines = [item["title"] for item in news_items]
     sent_result = sentiment_eng.analyze_headlines(sym, headlines)
     history = list(price.get("history") or [])

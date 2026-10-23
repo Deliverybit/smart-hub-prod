@@ -103,7 +103,7 @@ _MOBILE_PHONE_HEADLINES_FIXED_CSS = """
         border-bottom: 1px solid #334155 !important;
         border-radius: 14px 14px 0 0 !important;
         padding: 0.55rem 0.75rem !important;
-        font-size: calc(0.82rem + 4pt) !important;
+        font-size: 1.9rem !important;
         font-weight: 700 !important;
         line-height: 1.2 !important;
         box-sizing: border-box !important;
@@ -688,7 +688,7 @@ _DESKTOP_HEADLINES_CSS = """
         background: #1e1e2f !important;
         color: #93c5fd !important;
         font-weight: 700 !important;
-        font-size: 1.15rem !important;
+        font-size: 1.9rem !important;
         line-height: 1.3 !important;
         border: 0 !important;
         border-bottom: 1px solid #334155 !important;
@@ -867,7 +867,7 @@ _DESKTOP_TOOLTIP_TYPE_CSS = """
     }
     .full-results-wrap .full-results-table tbody .tip-wrap.headlines-tip .tip-text .hl-tip-heading,
     .stMarkdown .full-results-wrap .tip-wrap.headlines-tip .tip-text .hl-tip-heading {
-        font-size: 1.65rem !important;
+        font-size: 1.9rem !important;
         line-height: 1.3 !important;
     }
     .full-results-wrap .full-results-table tbody .tip-wrap.headlines-tip .tip-text .hl-tip-line,
@@ -1075,7 +1075,7 @@ _TABLET_HEADLINES_POPUP_RULES = """
         text-align: left !important;
         color: #93c5fd !important;
         padding: 0.55rem 0.75rem !important;
-        font-size: calc(1rem + 4pt) !important;
+        font-size: 1.9rem !important;
         font-weight: 700 !important;
         line-height: 1.2 !important;
         background: #1e1e2f !important;
@@ -1738,6 +1738,8 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
             if (upper.indexOf("CRYPTO") >= 0) source = "CRYPTO";
             else if (upper.indexOf("NASDAQ") >= 0) source = "NASDAQ";
             else if (upper.indexOf("NYSE") >= 0) source = "NYSE";
+            else if (upper.indexOf("LSE") >= 0) source = "LSE";
+            else if (upper.indexOf("TSX") >= 0) source = "TSX";
             else if (upper.indexOf("CME") >= 0) source = "CME";
             else if (upper.indexOf("ICE") >= 0) source = "ICE";
             if (!source) {

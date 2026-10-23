@@ -67,6 +67,26 @@ SCREENER_DEFINITIONS: tuple[ScreenerDefinition, ...] = (
         "CRYPTO_NAMES",
         "cryptos",
     ),
+    ScreenerDefinition(
+        "LSE",
+        "3b_LSE_Top_10.py",
+        "list(COMPANY_NAMES.keys())",
+        ("COMPANY_NAMES",),
+        "stock",
+        "Company",
+        "COMPANY_NAMES",
+        "stocks",
+    ),
+    ScreenerDefinition(
+        "TSX",
+        "3c_TSX_Top_10.py",
+        "list(COMPANY_NAMES.keys())",
+        ("COMPANY_NAMES",),
+        "stock",
+        "Company",
+        "COMPANY_NAMES",
+        "stocks",
+    ),
 )
 
 
@@ -211,8 +231,9 @@ def screen_ticker(
                 "_headline_urls": headline_links,
             }
 
+        shown = ticker.split(".", 1)[0] if "." in ticker else ticker
         return {
-            "Ticker": ticker,
+            "Ticker": shown,
             "_source_ticker": ticker,
             defn.label_field: names.get(ticker, ticker),
             "Price": current_price,

@@ -13,6 +13,8 @@ MAIN_SCREENER_PAGE = "pages/1_NYSE_Top_10.py"
 SCREENER_RETURN_PAGES: dict[str, tuple[str, str]] = {
     "/NYSE_Top_10": ("pages/1_NYSE_Top_10.py", "NYSE Top 10"),
     "/NASDAQ_Top_10": ("pages/2_NASDAQ_Top_10.py", "NASDAQ Top 10"),
+    "/LSE_Top_10": ("pages/3b_LSE_Top_10.py", "LSE Top 10"),
+    "/TSX_Top_10": ("pages/3c_TSX_Top_10.py", "TSX Top 10"),
     "/Crypto_Top_10": ("pages/3_Crypto_Top_10.py", "Crypto Top 10"),
     "/CME_Top_10": ("pages/5_CME_Top_10.py", "CME Top 10"),
     "/ICE_Top_10": ("pages/6_ICE_Top_10.py", "ICE Top 10"),
@@ -21,6 +23,8 @@ SCREENER_RETURN_PAGES: dict[str, tuple[str, str]] = {
 SCREENER_CONSENT_BY_PATH: dict[str, str] = {
     "/NYSE_Top_10": "agree_terms_nyse",
     "/NASDAQ_Top_10": "agree_terms_nasdaq",
+    "/LSE_Top_10": "agree_terms_lse",
+    "/TSX_Top_10": "agree_terms_tsx",
     "/Crypto_Top_10": "agree_terms_crypto_top10",
     "/CME_Top_10": "agree_terms_cme",
     "/ICE_Top_10": "agree_terms_ice",
@@ -29,6 +33,8 @@ SCREENER_CONSENT_BY_PATH: dict[str, str] = {
 SCREENER_SNAPSHOT_KEY_BY_PATH: dict[str, str] = {
     "/NYSE_Top_10": "NYSE",
     "/NASDAQ_Top_10": "NASDAQ",
+    "/LSE_Top_10": "LSE",
+    "/TSX_Top_10": "TSX",
     "/Crypto_Top_10": "CRYPTO",
     "/CME_Top_10": "CME",
     "/ICE_Top_10": "ICE",
@@ -37,6 +43,8 @@ SCREENER_SNAPSHOT_KEY_BY_PATH: dict[str, str] = {
 SCREENER_TERMS_KEYS = (
     "agree_terms_nyse",
     "agree_terms_nasdaq",
+    "agree_terms_lse",
+    "agree_terms_tsx",
     "agree_terms_crypto_top10",
     "agree_terms_cme",
     "agree_terms_ice",
@@ -203,6 +211,8 @@ def inject_analyze_source_restore() -> None:
         const known = [
             "/NYSE_Top_10",
             "/NASDAQ_Top_10",
+            "/LSE_Top_10",
+            "/TSX_Top_10",
             "/Crypto_Top_10",
             "/CME_Top_10",
             "/ICE_Top_10",

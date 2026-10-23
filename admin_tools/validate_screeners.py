@@ -41,6 +41,18 @@ SCREENER_PAGES = [
         "deps": ("COMPANY_NAMES",),
     },
     {
+        "name": "LSE",
+        "path": PAGES / "3b_LSE_Top_10.py",
+        "universe_expr": "list(COMPANY_NAMES.keys())",
+        "deps": ("COMPANY_NAMES",),
+    },
+    {
+        "name": "TSX",
+        "path": PAGES / "3c_TSX_Top_10.py",
+        "universe_expr": "list(COMPANY_NAMES.keys())",
+        "deps": ("COMPANY_NAMES",),
+    },
+    {
         "name": "Crypto",
         "path": PAGES / "3_Crypto_Top_10.py",
         "universe_expr": "list(CRYPTO_DATA.keys())",

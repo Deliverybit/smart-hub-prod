@@ -12,6 +12,8 @@ PREVIEW = Path(__file__).resolve().parent / "preview"
 PAGES = {
     "NYSE": ("nyse.html", "/NYSE_Top_10", "Company"),
     "NASDAQ": ("nasdaq.html", "/NASDAQ_Top_10", "Company"),
+    "LSE": ("lse.html", "/LSE_Top_10", "Company"),
+    "TSX": ("tsx.html", "/TSX_Top_10", "Company"),
     "CRYPTO": ("crypto.html", "/Crypto_Top_10", "Name"),
     "CME": ("cme.html", "/CME_Top_10", "Commodity"),
     "ICE": ("ice.html", "/ICE_Top_10", "Commodity"),
@@ -57,6 +59,8 @@ STATUS_PARAGRAPH = re.compile(
 NOUNS = {
     "NYSE": "stocks",
     "NASDAQ": "stocks",
+    "LSE": "stocks",
+    "TSX": "stocks",
     "CRYPTO": "cryptos",
     "CME": "CME commodities",
     "ICE": "ICE commodities",
@@ -74,6 +78,16 @@ BANNER_SLOTS = {
         ("QQQ", "Invesco QQQ (QQQ) — Today", "", ""),
         ("SOXX", "iShares Semiconductor ETF (SOXX) — Today", "SMH", "VanEck Semiconductor ETF (SMH) — Today"),
         ("ONEQ", "Fidelity Nasdaq Composite ETF (ONEQ) — Today", "", ""),
+    ),
+    "LSE": (
+        ("EWU", "iShares MSCI United Kingdom ETF (EWU) — Today", "", ""),
+        ("FLGB", "Franklin FTSE United Kingdom ETF (FLGB) — Today", "", ""),
+        ("EWUS", "iShares MSCI United Kingdom Small-Cap ETF (EWUS) — Today", "", ""),
+    ),
+    "TSX": (
+        ("EWC", "iShares MSCI Canada ETF (EWC) — Today", "", ""),
+        ("FLCA", "Franklin FTSE Canada ETF (FLCA) — Today", "", ""),
+        ("BBCA", "JPMorgan BetaBuilders Canada ETF (BBCA) — Today", "", ""),
     ),
     "CRYPTO": (
         ("BTC-USD", "Bitcoin (BTC) — Today", "", ""),
@@ -516,6 +530,8 @@ ASSETS_PATH = PREVIEW / "analyze-assets.json"
 MARKETS = {
     "NYSE": "NYSE Top 10",
     "NASDAQ": "NASDAQ Top 10",
+    "LSE": "LSE Top 10",
+    "TSX": "TSX Top 10",
     "CRYPTO": "Crypto 10",
     "CME": "CME Commodities 10",
     "ICE": "ICE Commodities 10",

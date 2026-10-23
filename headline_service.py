@@ -23,7 +23,9 @@ def asset_mention_labels(ticker: str, company_name: str = "") -> list[str]:
     """Ticker symbols and cleaned company name that a headline must contain."""
     labels: list[str] = []
     raw = (ticker or "").strip().upper()
-    for token in (raw, raw.replace("-USD", ""), raw.replace("=F", "")):
+    exchange_listing = raw.endswith((".LON", ".TRT"))
+    ticker_tokens = () if exchange_listing else (raw, raw.split(".", 1)[0], raw.replace("-USD", ""), raw.replace("=F", ""))
+    for token in ticker_tokens:
         token = token.strip()
         if len(token) >= 2 and token not in labels:
             labels.append(token)

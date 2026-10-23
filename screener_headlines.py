@@ -148,6 +148,12 @@ def get_cached_news_items(
 ) -> list[dict]:
     """Return headline dicts from snapshot, shared cache, or API."""
     sym = normalize_screener_ticker(ticker)
+    if not company_name and "." in sym:
+        from asset_names import resolve_asset_display_name
+
+        resolved = resolve_asset_display_name(sym)
+        if resolved and resolved.upper() != sym:
+            company_name = resolved
     cached_rows = _cached_news_items(
         sym,
         screener_key,

@@ -44,6 +44,8 @@ def test_terms_and_footers_link_licenses() -> None:
     footer_pages = (
         "1_NYSE_Top_10.py",
         "2_NASDAQ_Top_10.py",
+        "3b_LSE_Top_10.py",
+        "3c_TSX_Top_10.py",
         "3_Crypto_Top_10.py",
         "5_CME_Top_10.py",
         "6_ICE_Top_10.py",

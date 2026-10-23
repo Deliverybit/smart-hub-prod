@@ -21,7 +21,7 @@ def _market_data() -> MarketData:
 
 def test_scanner_skips_cme_and_ice() -> None:
     keys = {item.key for item in SCREENER_DEFINITIONS}
-    assert keys == {"NYSE", "NASDAQ", "CRYPTO"}
+    assert keys == {"NYSE", "NASDAQ", "LSE", "TSX", "CRYPTO"}
 
 
 def test_cme_snapshots_use_alpha_vantage_only() -> None:

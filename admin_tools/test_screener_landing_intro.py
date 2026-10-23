@@ -22,7 +22,7 @@ from screener_selection import (  # noqa: E402
 
 
 def test_compact_summary_shorter_than_full_for_all_markets() -> None:
-    for market in ("NYSE", "NASDAQ", "CRYPTO", "CME", "ICE"):
+    for market in ("NYSE", "NASDAQ", "LSE", "TSX", "CRYPTO", "CME", "ICE"):
         full = screener_landing_summary(market, 70, compact=False)
         compact = screener_landing_summary(market, 70, compact=True)
         assert len(compact) < len(full)

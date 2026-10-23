@@ -191,6 +191,22 @@ _SCREENER_LANDING_SUMMARY_FULL: dict[str, str] = {
         "and not a large-cap or official exchange universe. "
         "Headline sentiment is fetched for the final displayed rows."
     ),
+    "LSE": (
+        "Screens a curated watchlist of **{n}** well-known London-listed stocks "
+        "for those trading **at or near their 52-week low** using Alpha Vantage daily market data. "
+        "Prices are in pounds. "
+        "This is a selected sample, not the FTSE 100, not every London listing, "
+        "and not an official exchange universe. "
+        "Headline sentiment is fetched for the final displayed rows."
+    ),
+    "TSX": (
+        "Screens a curated watchlist of **{n}** well-known Toronto-listed stocks "
+        "for those trading **at or near their 52-week low** using Alpha Vantage daily market data. "
+        "Prices are in Canadian dollars. "
+        "This is a selected sample, not the S&P/TSX Composite, not every Toronto listing, "
+        "and not an official exchange universe. "
+        "Headline sentiment is fetched for the final displayed rows."
+    ),
     "CRYPTO": (
         "Screens a curated watchlist of **{n}** well-known cryptocurrencies "
         "for those trading **closest to their 52-week low**. "
@@ -223,6 +239,8 @@ _SCREENER_LANDING_SUMMARY_FULL: dict[str, str] = {
 _SCREENER_LANDING_SUMMARY_COMPACT: dict[str, str] = {
     "NYSE": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official NYSE universe). Headline sentiment on shown rows.",
     "NASDAQ": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official Nasdaq universe). Headline sentiment on shown rows.",
+    "LSE": "**{n}** curated well-known London stocks near **52-week lows** (selected sample, not an official LSE universe). Prices in pounds. Headline sentiment on shown rows.",
+    "TSX": "**{n}** curated well-known Toronto stocks near **52-week lows** (selected sample, not an official TSX universe). Prices in Canadian dollars. Headline sentiment on shown rows.",
     "CRYPTO": "**{n}** well-known cryptocurrencies near **52-week lows** (selected sample, not an official market universe). Headline sentiment on shown rows.",
     "CME": "**{n}** CME Group futures markets near **52-week lows** (selected sample, not an official CME universe). Market quotes, not a list of products to buy.",
     "ICE": "**{n}** ICE futures markets near **52-week lows** (selected sample, not an official ICE universe). Market quotes, not a list of products to buy.",

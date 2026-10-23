@@ -18,12 +18,16 @@ APP_NAV_PAGES: tuple[tuple[str, str], ...] = (
     ("pages/1_NYSE_Top_10.py", "📊 NYSE"),
     ("pages/2_NASDAQ_Top_10.py", "💹 NASDAQ"),
     ("pages/3_Crypto_Top_10.py", "🪙 Crypto"),
+    ("pages/3b_LSE_Top_10.py", "💹 LSE"),
+    ("pages/3c_TSX_Top_10.py", "💹 TSX"),
 )
 
 HOME_NAV_MARKETS: tuple[tuple[str, str], ...] = (
     ("pages/1_NYSE_Top_10.py", "📊 NYSE 10"),
     ("pages/2_NASDAQ_Top_10.py", "💹 NASDAQ 10"),
     ("pages/3_Crypto_Top_10.py", "🪙 Crypto 10"),
+    ("pages/3b_LSE_Top_10.py", "💹 LSE 10"),
+    ("pages/3c_TSX_Top_10.py", "💹 TSX 10"),
 )
 
 # Market screener paths (mobile/tablet: visit home first, then consent on these pages).

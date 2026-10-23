@@ -1498,7 +1498,7 @@ def _ensured_analyze_bundle(
     ticker: str,
     screener_key: str | None,
     days,
-    _hist_span_v: int = 6,
+    _hist_span_v: int = 7,
 ) -> dict | None:
     """Snapshot hit, or first-user compute persisted for 15 minutes."""
     snap = _live_analyze_snapshot()

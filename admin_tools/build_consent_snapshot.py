@@ -24,6 +24,8 @@ html = re.sub(r"<html\b", '<html data-scoop-consent="0"', html, count=1)
 for streamlit_path, preview_file in (
     ("/NYSE_Top_10", "nyse.html"),
     ("/NASDAQ_Top_10", "nasdaq.html"),
+    ("/LSE_Top_10", "lse.html"),
+    ("/TSX_Top_10", "tsx.html"),
     ("/Crypto_Top_10", "crypto.html"),
     ("/CME_Top_10", "cme.html"),
     ("/ICE_Top_10", "ice.html"),

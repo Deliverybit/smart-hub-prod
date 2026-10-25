@@ -78,12 +78,43 @@ def test_snapshot_drops_headlines_that_omit_name_and_ticker() -> None:
         screener_snapshots.fetch_snapshot = original
 
 
+def test_crypto_close_name_match() -> None:
+    from headline_service import title_mentions_asset
+
+    assert title_mentions_asset(
+        "Echelon token climbs after a game update",
+        "PRIME-USD",
+        "Echelon Prime",
+    )
+    assert not title_mentions_asset(
+        "Stocks rise in a broad market rally",
+        "PRIME-USD",
+        "Echelon Prime",
+    )
+    assert not title_mentions_asset(
+        "Strong Cash Flow and Strategic Growth",
+        "FLOW-USD",
+        "Flow",
+    )
+    assert not title_mentions_asset(
+        "Stellar Blockchain to Power Turbo Energy's financing",
+        "TURBO-USD",
+        "Turbo",
+    )
+    assert title_mentions_asset(
+        "TURBO Crypto Blasts 50%",
+        "TURBO-USD",
+        "Turbo",
+    )
+
+
 def main() -> int:
     tests = [
         test_ticker_matches_row_requires_row_overlap,
         test_ticker_matches_crypto_aliases,
         test_news_items_from_snapshot_skips_empty_headline_rows,
         test_snapshot_drops_headlines_that_omit_name_and_ticker,
+        test_crypto_close_name_match,
     ]
     for fn in tests:
         fn()

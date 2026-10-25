@@ -85,20 +85,39 @@ def _listing_close_match(title: str, company_name: str) -> bool:
     return False
 
 
+_CRYPTO_GENERIC = {
+    "flow", "turbo", "cash", "rate", "rates", "bank", "dollar", "growth", "market",
+    "price", "prices", "stock", "stocks", "share", "shares", "earnings",
+}
+
+
 def title_mentions_asset(title: str, ticker: str, company_name: str = "") -> bool:
     folded = _fold(title)
     if not folded:
         return False
+    raw = (ticker or "").strip().upper()
+    if raw.endswith("-USD"):
+        symbol = raw[:-4]
+        if symbol and re.search(rf"(?<![A-Z0-9]){re.escape(symbol)}(?![A-Z0-9])", title or ""):
+            return True
     padded = f" {folded} "
     for label in asset_mention_labels(ticker, company_name):
         needle = _fold(label)
         if len(needle) < 2:
             continue
+        if raw.endswith("-USD") and needle in _CRYPTO_GENERIC:
+            continue
         if f" {needle} " in padded:
             return True
-    raw = (ticker or "").strip().upper()
     if raw.endswith((".LON", ".TRT")) and _listing_close_match(title, company_name):
         return True
+    if raw.endswith("-USD"):
+        kept = [
+            token for token in _fold(company_name).split()
+            if len(token) >= 5 and token not in _CRYPTO_GENERIC
+        ]
+        if kept and _listing_close_match(title, " ".join(kept)):
+            return True
     return False
 
 

@@ -2066,6 +2066,7 @@ _DESKTOP_MARKET_NAV_LIGHT_RULES = """
         box-sizing: border-box !important;
     }
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]),
+    html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]):hover,
     html:not([data-scoop-theme="dark"]) [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active {
         background: #7dd3fc !important;
         border-color: #0284c7 !important;
@@ -2126,9 +2127,10 @@ _DESKTOP_MARKET_NAV_DARK_RULES = """
         background-color: transparent !important;
     }
     html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]),
+    html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]):hover,
     html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"]:has(a[href$="_Top_10"]):active {
         background: #7dd3fc !important;
-        border-color: #e0f2fe !important;
+        border-color: #0284c7 !important;
         box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.45) !important;
     }
     html[data-scoop-theme="dark"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active]:has(a[href$="_Top_10"]) a,
@@ -3487,12 +3489,15 @@ _DESKTOP_ANALYZE_POP_RULES = """
     html[data-scoop-analyze-active="1"] a.scoop-analyze-back {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 0.35rem !important;
+        gap: 0.45rem !important;
         color: #0369a1 !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
+        font-size: 1.85rem !important;
+        line-height: 1.2 !important;
         text-decoration: none !important;
-        padding: 0.35rem 0.15rem !important;
-        margin-bottom: 0.65rem !important;
+        padding: 0.95rem 1.45rem !important;
+        min-height: 3.6rem !important;
+        margin-bottom: 0.85rem !important;
     }
     html[data-scoop-analyze-active="1"] a.scoop-analyze-back:hover {
         color: #0284c7 !important;
@@ -3724,6 +3729,41 @@ DESKTOP_ANALYZE_TOP_COMPACT = (
 {_desktop_analyze_pop_attr}
 """
     + _DESKTOP_ANALYZE_MOOD_ROW_CSS
+    + """
+@media (min-width: 1367px) {
+    html[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a {
+        background-color: rgba(151, 166, 195, 0.15) !important;
+        border-radius: 0.5rem !important;
+        box-shadow: none !important;
+    }
+    html[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a:hover {
+        background-color: rgba(151, 166, 195, 0.25) !important;
+    }
+    html:not([data-scoop-theme="dark"])[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a p,
+    html:not([data-scoop-theme="dark"])[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] span {
+        background: transparent !important;
+        color: rgb(49, 51, 63) !important;
+    }
+    html:not([data-scoop-theme="dark"])[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a {
+        color: rgb(49, 51, 63) !important;
+        background-color: rgba(151, 166, 195, 0.15) !important;
+    }
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a p,
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] span {
+        background: transparent !important;
+        color: rgb(250, 250, 250) !important;
+    }
+    html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a {
+        color: rgb(250, 250, 250) !important;
+        background-color: rgba(151, 166, 195, 0.15) !important;
+    }
+}
+"""
 )
 
 # Mobile/tablet Analyze deep-dive: collapse bootstrap gaps, js_eval, and stray divider lines.
@@ -4270,12 +4310,20 @@ _DESKTOP_SCREENER_POP_CSS = """
         box-shadow: 0 16px 34px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(56, 189, 248, 0.18) !important;
         border-radius: 16px !important;
     }
-    html:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 {
-        letter-spacing: -0.03em !important;
+    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1 {
+        letter-spacing: -0.02em !important;
+        font-size: 3.35rem !important;
+        font-weight: 400 !important;
+        line-height: 1.25 !important;
         text-decoration: underline !important;
         text-decoration-color: #0284c7 !important;
         text-decoration-thickness: 4px !important;
         text-underline-offset: 10px !important;
+    }
+    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1 span[data-heading-text] {
+        font-size: inherit !important;
+        font-weight: 400 !important;
+        line-height: inherit !important;
     }
     html[data-scoop-theme="dark"]:not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 {
         text-decoration-color: #38bdf8 !important;
@@ -7129,6 +7177,7 @@ _GATED_IPAD13_SURFACE_DESKTOP_TYPE_CSS = """
     }
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) [data-testid="stMainBlockContainer"] h1 {
         font-size: 5rem !important;
+        font-weight: 400 !important;
         line-height: 1.12 !important;
     }
     html[data-scoop-screener-gated="1"][data-scoop-screener-active="1"]:not([data-scoop-home-ipad-mini="1"]) .scoop-landing-summary,

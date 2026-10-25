@@ -1696,10 +1696,38 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
                     return;
                 }
                 const href = normalize(a.getAttribute("href") || "");
+                const marketSlug = (value) => {
+                    const upper = String(value || "").toUpperCase();
+                    if (upper.indexOf("CRYPTO") >= 0) return "crypto";
+                    if (upper.indexOf("NASDAQ") >= 0) return "nasdaq";
+                    if (upper.indexOf("NYSE") >= 0) return "nyse";
+                    if (upper.indexOf("LSE") >= 0) return "lse";
+                    if (upper.indexOf("TSX") >= 0) return "tsx";
+                    if (upper.indexOf("CME") >= 0) return "cme";
+                    if (upper.indexOf("ICE") >= 0) return "ice";
+                    return "";
+                };
+                let analyzeFrom = "";
+                const onAnalyze = current.indexOf("analyze") >= 0 || doc.documentElement.getAttribute("data-scoop-analyze-active") === "1";
+                if (onAnalyze) {
+                    try {
+                        analyzeFrom = new URLSearchParams(appWin.location.search || "").get("from") || "";
+                    } catch (e) {}
+                    if (!analyzeFrom) {
+                        try {
+                            analyzeFrom = (appWin.sessionStorage && appWin.sessionStorage.getItem("scoop-analyze-from")) || "";
+                        } catch (e2) {}
+                    }
+                    if (!analyzeFrom) {
+                        analyzeFrom = doc.documentElement.getAttribute("data-scoop-analyze-source") || "";
+                    }
+                }
+                const sourceSlug = marketSlug(analyzeFrom);
                 const active = Boolean(href) && (
                     current === href ||
                     current.endsWith("/" + href) ||
-                    (isHomePath && (href === "app" || href.endsWith("/app")))
+                    (isHomePath && (href === "app" || href.endsWith("/app"))) ||
+                    (sourceSlug && marketSlug(href) === sourceSlug)
                 );
                 if (active) {
                     box.setAttribute("data-scoop-nav-active", "");
@@ -1708,7 +1736,7 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
                 }
             });
         };
-        markActive('[data-testid="stSidebar"] [data-testid="stPageLink"] a[href$="_Top_10"]');
+        markActive('[data-testid="stSidebar"] [data-testid="stPageLink"] a');
         if (isTabNavMode()) {
             markActive('.scoop-mobile-tab-row [data-testid="stPageLink"] a');
         }
@@ -1776,10 +1804,10 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
     };
 
     const resync = () => {
+        syncAnalyzePageFlag();
         try {
             syncMarketNavActive();
         } catch (e) {}
-        syncAnalyzePageFlag();
         syncScreenerPageFlag();
         syncTermsPageFlag();
         holdMobileTermsMainView();
@@ -1789,7 +1817,7 @@ _PAGE_NAV_LAYOUT_RESYNC_JS = (
 
     const TERMS_NAV_COLLAPSE_KEY = "scoop-terms-nav-collapse";
     const TERMS_NAV_SUPPRESS_MS = 15000;
-    const PAGE_NAV_BIND_VERSION = 13;
+    const PAGE_NAV_BIND_VERSION = 14;
 
     const enforceMobileTermsMainView = () => {
         if (!__scoopShouldHoldTermsMainView()) {
@@ -5065,11 +5093,31 @@ def inject_desktop_sidebar_nav_market() -> None:
         """<script>(() => {
   const mark = () => {
     const path = ((location.pathname) || "").replace(/^\\/+|\\/+$/g, "").toLowerCase();
-    document.querySelectorAll('[data-testid="stSidebar"] [data-testid="stPageLink"] a[href$="_Top_10"]').forEach((a) => {
+    document.querySelectorAll('[data-testid="stSidebar"] [data-testid="stPageLink"] a').forEach((a) => {
       const box = a.closest('[data-testid="stPageLink"]');
       if (!box) return;
       const href = (a.getAttribute("href") || "").replace(/^\\/+|\\/+$/g, "").toLowerCase();
-      const on = Boolean(href) && (path === href || path.endsWith("/" + href));
+      const marketSlug = (value) => {
+        const upper = String(value || "").toUpperCase();
+        if (upper.indexOf("CRYPTO") >= 0) return "crypto";
+        if (upper.indexOf("NASDAQ") >= 0) return "nasdaq";
+        if (upper.indexOf("NYSE") >= 0) return "nyse";
+        if (upper.indexOf("LSE") >= 0) return "lse";
+        if (upper.indexOf("TSX") >= 0) return "tsx";
+        if (upper.indexOf("CME") >= 0) return "cme";
+        if (upper.indexOf("ICE") >= 0) return "ice";
+        return "";
+      };
+      let analyzeFrom = "";
+      if (path.indexOf("analyze") >= 0 || document.documentElement.getAttribute("data-scoop-analyze-active") === "1") {
+        try { analyzeFrom = new URLSearchParams(location.search || "").get("from") || ""; } catch (e) {}
+        if (!analyzeFrom) {
+          try { analyzeFrom = sessionStorage.getItem("scoop-analyze-from") || ""; } catch (e2) {}
+        }
+        if (!analyzeFrom) analyzeFrom = document.documentElement.getAttribute("data-scoop-analyze-source") || "";
+      }
+      const sourceSlug = marketSlug(analyzeFrom);
+      const on = Boolean(href) && (path === href || path.endsWith("/" + href) || (sourceSlug && marketSlug(href) === sourceSlug));
       if (on) box.setAttribute("data-scoop-nav-active", "");
       else box.removeAttribute("data-scoop-nav-active");
     });

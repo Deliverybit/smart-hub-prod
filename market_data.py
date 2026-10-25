@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import time
 from datetime import datetime, timezone
 
@@ -702,15 +703,17 @@ class MarketData:
         if year_low <= 0 or year_low > year_high:
             print(f"Skip {ticker}: 52-week range is not usable", flush=True)
             return None
-        if abs(quote - last_close) / last_close > QUOTE_CLOSE_BAND:
+        # Crypto daily bars lag the live rate. The rate is the price to show.
+        price = quote if self._is_crypto(ticker) else last_close
+        if not self._is_crypto(ticker) and abs(quote - last_close) / last_close > QUOTE_CLOSE_BAND:
             print(f"Skip {ticker}: quote {quote} disagrees with last close {last_close}", flush=True)
             return None
-        if quote < year_low * (1 - QUOTE_CLOSE_BAND) or quote > year_high * (1 + QUOTE_CLOSE_BAND):
-            print(f"Skip {ticker}: quote {quote} is outside the 52-week range", flush=True)
+        if price < year_low * (1 - QUOTE_CLOSE_BAND) or price > year_high * (1 + QUOTE_CLOSE_BAND):
+            print(f"Skip {ticker}: quote {price} is outside the 52-week range", flush=True)
             return None
 
         return {
-            "current_price": last_close,
+            "current_price": price,
             "year_low": year_low,
             "year_high": year_high,
         }
@@ -864,13 +867,25 @@ class MarketData:
         feed = data.get("feed", [])
         if is_crypto:
             expected_ticker = f"CRYPTO:{symbol}"
-            news = [
-                item for item in feed
-                if any(
+            base = symbol.replace("-USD", "").lower()
+
+            def _crypto_story(item: dict) -> bool:
+                tagged = any(
                     sentiment.get("ticker") == expected_ticker
                     for sentiment in item.get("ticker_sentiment", [])
                 )
-            ]
+                if tagged:
+                    return True
+                folded = re.sub(r"[^a-z0-9]+", " ", str(item.get("title") or "").lower())
+                titled = str(item.get("title") or "")
+                if re.search(rf"(?<![A-Z0-9]){re.escape(base.upper())}(?![A-Z0-9])", titled):
+                    return True
+                return f" {base} " in f" {folded} " and base not in {
+                    "flow", "turbo", "cash", "rate", "rates", "bank", "dollar", "growth", "market",
+                    "price", "prices", "stock", "stocks", "share", "shares", "earnings",
+                }
+
+            news = [item for item in feed if _crypto_story(item)]
             source_priority = {
                 "Cointelegraph": 0,
                 "Decrypt.co": 1,
@@ -918,6 +933,15 @@ class MarketData:
                     "relevance": relevance,
                 })
 
+        if is_crypto and not headlines:
+            yahoo_symbol = symbol if str(symbol).endswith("-USD") else f"{symbol}-USD"
+            yahoo = [
+                item for item in self._yahoo_listing_headlines(yahoo_symbol)
+                if item.get("url")
+            ]
+            if yahoo:
+                self._news_cache[cache_key] = [dict(item) for item in yahoo]
+                return [dict(item) for item in yahoo]
         result = headlines if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]
         self._news_cache[cache_key] = [dict(item) for item in result]
         return [dict(item) for item in result]

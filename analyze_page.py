@@ -332,10 +332,12 @@ html[data-scoop-theme="dark"] a.scoop-analyze-back:hover {{
     }}
 }}
 @media (min-width: 1367px) {{
-    a.scoop-analyze-back,
-    [data-testid="stElementContainer"]:has(a.scoop-analyze-back),
-    [data-testid="element-container"]:has(a.scoop-analyze-back) {{
-        display: none !important;
+    a.scoop-analyze-back {{
+        font-size: 1.85rem !important;
+        font-weight: 800 !important;
+        line-height: 1.2 !important;
+        padding: 0.95rem 1.45rem !important;
+        min-height: 3.6rem !important;
     }}
 }}
 </style>

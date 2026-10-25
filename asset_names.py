@@ -157,4 +157,8 @@ def resolve_asset_summary(ticker: str) -> str:
         alt = f"{normalized}=F"
         if alt in lookup:
             return lookup[alt]
+    for suffix in (".LON", ".TRT"):
+        alt = f"{normalized}{suffix}"
+        if alt in lookup:
+            return lookup[alt]
     return ""

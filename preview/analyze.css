@@ -4836,10 +4836,35 @@ html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-test
   }
 }
 @media (min-width: 1367px) {
-  html[data-scoop-analyze-active="1"] a.scoop-analyze-back,
-  html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] a.scoop-analyze-back,
-  html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(a.scoop-analyze-back),
-  html[data-scoop-analyze-active="1"] [data-testid="element-container"]:has(a.scoop-analyze-back) {
-    display: none !important;
+  html[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a {
+    background-color: rgba(151, 166, 195, 0.15) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: none !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a:hover {
+    background-color: rgba(151, 166, 195, 0.25) !important;
+  }
+  html:not([data-scoop-theme="dark"])[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a p,
+  html:not([data-scoop-theme="dark"])[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] span {
+    background: transparent !important;
+    color: rgb(49, 51, 63) !important;
+  }
+  html:not([data-scoop-theme="dark"])[data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a {
+    color: rgb(49, 51, 63) !important;
+    background-color: rgba(151, 166, 195, 0.15) !important;
+  }
+  html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a p,
+  html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] span {
+    background: transparent !important;
+    color: rgb(250, 250, 250) !important;
+  }
+  html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a {
+    color: rgb(250, 250, 250) !important;
+    background-color: rgba(151, 166, 195, 0.15) !important;
   }
 }

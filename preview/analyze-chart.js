@@ -14,9 +14,33 @@
     ].join("\n");
     document.body.appendChild(face);
   }
+  var navFace = document.getElementById("scoop-analyze-market-nav");
+  if (!navFace) {
+    navFace = document.createElement("style");
+    navFace.id = "scoop-analyze-market-nav";
+    navFace.textContent = [
+      "@media (min-width: 1367px) { html[data-scoop-analyze-active='1'] a.scoop-analyze-back, html[data-scoop-desktop-layout='1'][data-scoop-analyze-active='1'] a.scoop-analyze-back { display: inline-flex !important; font-size: 1.85rem !important; font-weight: 800 !important; line-height: 1.2 !important; padding: 0.95rem 1.45rem !important; min-height: 3.6rem !important; gap: 0.45rem !important; } }",
+      "html[data-scoop-analyze-active='1'] [data-testid='stElementContainer']:has(a.scoop-analyze-back),",
+      "html[data-scoop-analyze-active='1'] [data-testid='element-container']:has(a.scoop-analyze-back) { display: block !important; }",
+      "@media (min-width: 1367px) {",
+      "html[data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] { background: transparent !important; border-color: transparent !important; box-shadow: none !important; }",
+      "html[data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] a { background-color: rgba(151, 166, 195, 0.15) !important; border-radius: 0.5rem !important; box-shadow: none !important; }",
+      "html[data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] a:hover { background-color: rgba(151, 166, 195, 0.25) !important; }",
+      "html:not([data-scoop-theme='dark'])[data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] a p,",
+      "html:not([data-scoop-theme='dark'])[data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] span { background: transparent !important; color: rgb(49, 51, 63) !important; }",
+      "html:not([data-scoop-theme='dark'])[data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] a { color: rgb(49, 51, 63) !important; background-color: rgba(151, 166, 195, 0.15) !important; }",
+      "html[data-scoop-theme='dark'][data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] a p,",
+      "html[data-scoop-theme='dark'][data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] span { background: transparent !important; color: rgb(250, 250, 250) !important; }",
+      "html[data-scoop-theme='dark'][data-scoop-analyze-active='1'] [data-testid='stSidebar'] [data-testid='stPageLink'][data-scoop-nav-active] a { color: rgb(250, 250, 250) !important; background-color: rgba(151, 166, 195, 0.15) !important; }",
+      "}"
+    ].join("\n");
+    document.body.appendChild(navFace);
+  }
   var LABELS = ["7 days", "30 days", "90 days", "180 days", "1 year", "2 years"];
   var DAYS = [7, 30, 90, 180, 365, 730];
   var series = [];
+  var currentAsset = null;
+  var showUsd = false;
 
   function sliderRoot() {
     return document.querySelector('[data-testid="stSlider"]');
@@ -60,7 +84,7 @@
     var padL = tickPx >= 40 ? 210 : 108, padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
     var plotW = Math.max(10, w - padL - padR);
     var plotH = h - padT - padB;
-    var prices = slice.map(function (r) { return r.p; });
+    var prices = slice.map(function (row) { return shownPrice(row.p); });
     var min = Math.min.apply(null, prices);
     var max = Math.max.apply(null, prices);
     if (min === max) { min -= 1; max += 1; }
@@ -82,7 +106,7 @@
       ctx.moveTo(padL, y);
       ctx.lineTo(padL + plotW, y);
       ctx.stroke();
-      ctx.fillText("$" + val.toFixed(2), padL - 8, y);
+      ctx.fillText(formatMoney(val), padL - 8, y);
     }
     ctx.font = datePx + "px \"Source Sans 3\", \"Source Sans Pro\", sans-serif";
     ctx.textBaseline = "top";
@@ -104,7 +128,7 @@
     }
     ctx.beginPath();
     slice.forEach(function (row, i) {
-      var x = xAt(i), y = yAt(row.p);
+      var x = xAt(i), y = yAt(shownPrice(row.p));
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
@@ -114,7 +138,7 @@
     var last = slice[slice.length - 1];
     ctx.fillStyle = "#4ade80";
     ctx.beginPath();
-    ctx.arc(xAt(slice.length - 1), yAt(last.p), slice.length < 2 ? 7 : 4, 0, Math.PI * 2);
+    ctx.arc(xAt(slice.length - 1), yAt(shownPrice(last.p)), slice.length < 2 ? 7 : 4, 0, Math.PI * 2);
     ctx.fill();
     canvas._slice = slice;
     canvas._map = { padL: padL, plotW: plotW, xAt: xAt };
@@ -289,9 +313,60 @@
     return best || catalog.PEP;
   }
 
-  function money(value) {
+  function shownPrice(value) {
+    var amount = Number(value);
+    if (!currentAsset || !currentAsset.currency) return amount;
+    var local = amount * (Number(currentAsset.scale) || 1);
+    if (showUsd) return local * (Number(currentAsset.fx) || 1);
+    return local;
+  }
+
+  function formatMoney(value) {
     if (value == null || isNaN(Number(value))) return "—";
-    return "$" + Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var prefix = "$";
+    if (currentAsset && currentAsset.currency && !showUsd) {
+      prefix = currentAsset.currency === "GBP" ? "£" : "C$";
+    }
+    return prefix + Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function money(value) {
+    return formatMoney(shownPrice(value));
+  }
+
+  function mountCurrencySwitch() {
+    if (!document.getElementById("scoop-currency-switch")) {
+      var style = document.createElement("style");
+      style.id = "scoop-currency-switch";
+      style.textContent = ".scoop-currency{display:flex;align-items:center;gap:.45rem;width:fit-content;margin:.4rem 0 .8rem}.scoop-currency .currency-abbrev{position:relative;font-size:1.45rem;font-weight:700;letter-spacing:.04em;border-bottom:1px dashed currentColor;line-height:1.2;cursor:help}.scoop-currency .tip-text{display:none;position:absolute;left:0;top:calc(100% + .35rem);z-index:20;width:max-content;padding:.45rem .7rem;font-size:1.25rem;font-weight:500;line-height:1.35;white-space:nowrap;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-radius:8px}.scoop-currency .currency-abbrev:hover .tip-text,.scoop-currency .currency-abbrev:focus .tip-text{display:block}html[data-scoop-theme=dark] .scoop-currency .tip-text{color:#f8fafc;background:#0f172a;border-color:#334155}.scoop-currency-switch{width:3.15rem;height:1.7rem;border:0;border-radius:999px;background:#e2e8f0;padding:0;position:relative;cursor:pointer}.scoop-currency-switch::after{content:\"\";position:absolute;top:.22rem;left:.22rem;width:1.25rem;height:1.25rem;border-radius:999px;background:#2563eb}.scoop-currency-switch[aria-pressed=true]{background:#22c55e}.scoop-currency-switch[aria-pressed=true]::after{background:#f8fafc;transform:translateX(1.45rem)}";
+      document.head.appendChild(style);
+    }
+    var existing = document.querySelector(".scoop-currency");
+    if (!currentAsset || !currentAsset.currency) {
+      if (existing) existing.remove();
+      showUsd = false;
+      return;
+    }
+    if (existing) return;
+    var heading = document.querySelector("h1");
+    if (!heading) return;
+    var host = heading.closest('[data-testid="stElementContainer"]') || heading.parentElement;
+    var code = currentAsset.currency;
+    var names = { GBP: "British Pounds", CAD: "Canadian Dollars", USD: "United States Dollars" };
+    var box = document.createElement("div");
+    box.className = "scoop-currency";
+    box.innerHTML = '<span class="tip-wrap currency-abbrev" tabindex="0">' + code + '<span class="tip-text">' + names[code] + '</span></span>'
+      + '<button type="button" class="scoop-currency-switch" aria-pressed="false" aria-label="Show prices in USD"></button>'
+      + '<span class="tip-wrap currency-abbrev" tabindex="0">USD<span class="tip-text">' + names.USD + '</span></span>';
+    host.insertAdjacentElement("afterend", box);
+    var button = box.querySelector("button");
+    button.addEventListener("click", function () {
+      showUsd = button.getAttribute("aria-pressed") !== "true";
+      button.setAttribute("aria-pressed", showUsd ? "true" : "false");
+      applyAsset(currentAsset);
+      var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');
+      draw(DAYS[input ? Number(input.value) : 0]);
+    });
   }
 
   function escapeHtml(value) {
@@ -316,6 +391,8 @@
 
   function applyAsset(asset) {
     if (!asset) return;
+    currentAsset = asset;
+    mountCurrencySwitch();
     document.title = asset.ticker + " — Analyze";
     var heading = document.querySelector("h1 [data-heading-text]") || document.querySelector("h1");
     if (heading) heading.textContent = asset.ticker + " — Analyze";
@@ -346,13 +423,27 @@
       back.setAttribute("href", asset.page + "?scoop_from_analyze=1");
       back.textContent = "← Back to " + asset.market;
     }
+    var pageFile = String(asset.page || "").split("?")[0].split("/").pop();
+    document.querySelectorAll('[data-testid="stSidebar"] [data-testid="stPageLink"]').forEach(function (box) {
+      var link = box.querySelector("a");
+      var href = link ? String(link.getAttribute("href") || "") : "";
+      var file = href.split("?")[0].split("/").pop();
+      if (pageFile && file === pageFile) box.setAttribute("data-scoop-nav-active", "");
+      else box.removeAttribute("data-scoop-nav-active");
+    });
     var change = "—";
     if (asset.series && asset.series.length > 1) {
       var prev = asset.series[asset.series.length - 2].p;
       var last = asset.series[asset.series.length - 1].p;
       if (prev) change = ((last - prev) / prev * 100 >= 0 ? "+" : "") + ((last - prev) / prev * 100).toFixed(2) + "% (24h)";
     }
-    setMetric("Live Price (USD)", money(asset.price), change);
+    var priceLabel = currentAsset && currentAsset.currency && !showUsd
+      ? "Live Price (" + currentAsset.currency + ")"
+      : "Live Price (USD)";
+    document.querySelectorAll('[data-testid="stMetricLabel"] p').forEach(function (name) {
+      if (/^Live Price \(/.test(name.textContent.trim())) name.textContent = priceLabel;
+    });
+    setMetric(priceLabel, money(asset.price), change);
     setMetric("52-Week Low", money(asset.low));
     setMetric("52-Week High", money(asset.high));
     if (asset.price != null && asset.low != null) {

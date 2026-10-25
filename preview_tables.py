@@ -15,8 +15,6 @@ PAGES = {
     "LSE": ("lse.html", "/LSE_Top_10", "Company"),
     "TSX": ("tsx.html", "/TSX_Top_10", "Company"),
     "CRYPTO": ("crypto.html", "/Crypto_Top_10", "Name"),
-    "CME": ("cme.html", "/CME_Top_10", "Commodity"),
-    "ICE": ("ice.html", "/ICE_Top_10", "Commodity"),
 }
 
 COLUMN_TIPS = {
@@ -62,8 +60,6 @@ NOUNS = {
     "LSE": "stocks",
     "TSX": "stocks",
     "CRYPTO": "cryptos",
-    "CME": "CME commodities",
-    "ICE": "ICE commodities",
 }
 
 # Top banners. The refresh script writes these labels and prices into each snapshot.
@@ -93,16 +89,6 @@ BANNER_SLOTS = {
         ("BTC-USD", "Bitcoin (BTC) — Today", "", ""),
         ("ETH-USD", "Ethereum (ETH) — Today", "", ""),
         ("SOL-USD", "Solana (SOL) — Today", "", ""),
-    ),
-    "CME": (
-        ("USO", "United States Oil Fund (USO) — Today", "", ""),
-        ("GLD", "SPDR Gold Shares (GLD) — Today", "", ""),
-        ("CPER", "United States Copper Index Fund (CPER) — Today", "", ""),
-    ),
-    "ICE": (
-        ("BNO", "United States Brent Oil Fund (BNO) — Today", "", ""),
-        ("UUP", "Invesco DB US Dollar Bullish (UUP) — Today", "", ""),
-        ("UNG", "United States Natural Gas Fund (UNG) — Today", "", ""),
     ),
 }
 INDEX_CARD = re.compile(r'<div class="scoop-index-card".*?</div>', re.S)
@@ -533,8 +519,6 @@ MARKETS = {
     "LSE": "LSE Top 10",
     "TSX": "TSX Top 10",
     "CRYPTO": "Crypto 10",
-    "CME": "CME Commodities 10",
-    "ICE": "ICE Commodities 10",
 }
 
 
@@ -592,6 +576,7 @@ def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None
     ticker = str(row.get("Ticker") or "")
     key = str(payload.get("screener_key") or "")
     filename, from_path, _label = PAGES[key]
+    currency = {"LSE": "GBP", "TSX": "CAD"}.get(key)
     news = list(bundle.get("news_items") or [])
     scores = list((bundle.get("sent_result") or {}).get("headline_scores") or [])
     headlines = []
@@ -612,6 +597,9 @@ def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None
         "price": bundle.get("latest_price"),
         "low": bundle.get("week52_low"),
         "high": bundle.get("week52_high"),
+        "currency": currency,
+        "scale": 0.01 if key == "LSE" else 1,
+        "fx": previous.get("fx"),
         "above": previous.get("above") or COLUMN_TIPS["% Above Low"],
         "mood": previous.get("mood") or COLUMN_TIPS["Market Mood"],
         "sentiment": previous.get("sentiment") or COLUMN_TIPS["Headline Sentiment"],

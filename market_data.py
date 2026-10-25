@@ -10,7 +10,7 @@ import requests
 from app_config import get_alpha_vantage_api_key
 
 QUOTE_MAX_AGE_DAYS = 14
-# Calendar year of daily-adjusted highs and lows, ending on the scan date.
+# Calendar year of split-adjusted daily highs and lows, ending on the scan date.
 ROLLING_52W_DAYS = 365
 QUOTE_MIN_BARS = 20
 # Live quote vs latest daily close. Wide enough for a normal session, tight enough to reject a split-scale mismatch.
@@ -479,14 +479,6 @@ class MarketData:
                 row["low"] = float(row["low"]) * split_scale
             if row.get("high") is not None:
                 row["high"] = float(row["high"]) * split_scale
-
-    @staticmethod
-    def _span_window(df: pd.DataFrame, days: int) -> pd.DataFrame:
-        """Bars in the last `days` calendar days ending on the latest bar."""
-        if df.empty or "date" not in df.columns:
-            return df
-        cutoff = df["date"].max() - pd.Timedelta(days=int(days))
-        return df.loc[df["date"] >= cutoff].copy()
 
     @classmethod
     def _year_window(cls, df: pd.DataFrame, as_of: datetime | None = None) -> pd.DataFrame:

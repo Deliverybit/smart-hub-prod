@@ -1,4 +1,5 @@
-# Private snapshot API and the continuous screener worker. Not the public site.
+# Private snapshot API. Two always-on instances. Not the public site.
+# Continuous scans run on the existing worker scoop52-snapshot-worker.
 services:
   - type: web
     name: scoop52-snapshot-api
@@ -14,25 +15,4 @@ services:
       - key: PYTHON_VERSION
         value: "3.12.8"
       - key: DATABASE_URL
-        sync: false
-  - type: worker
-    name: scoop52-screener-worker
-    runtime: python
-    plan: starter
-    buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/screener_worker.py --loop
-    envVars:
-      - key: APP_ENV
-        value: production
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: DATABASE_URL
-        sync: false
-      - key: ALPHA_VANTAGE_API_KEY
-        sync: false
-      - key: GITHUB_TOKEN
-        sync: false
-      - key: CLOUDFLARE_ZONE_ID
-        sync: false
-      - key: CLOUDFLARE_API_TOKEN
         sync: false

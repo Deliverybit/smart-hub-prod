@@ -47,9 +47,78 @@ def _print_payloads(payloads: list[dict], *, dry_run: bool) -> None:
         )
 
 
+def _git_with_token(args: list[str], *, cwd: Path, token: str) -> subprocess.CompletedProcess:
+    """Run git against GitHub without putting the token in the command line."""
+    basic = "x-access-token:" + token
+    import base64
+
+    header = "AUTHORIZATION: Basic " + base64.b64encode(basic.encode()).decode()
+    return subprocess.run(
+        ["git", "-c", f"http.extraheader={header}", *args],
+        cwd=cwd,
+        check=False,
+    )
+
+
+def _publish_from_clone(written: list[str], token: str) -> None:
+    """Publish from a host that does not have the git checkout, such as Render."""
+    import shutil
+    import tempfile
+
+    remote = "https://github.com/Deliverybit/smart-hub-prod.git"
+    with tempfile.TemporaryDirectory() as tmp:
+        clone = Path(tmp)
+        cloned = _git_with_token(
+            ["clone", "--depth", "1", "--branch", "master", remote, str(clone)],
+            cwd=ROOT,
+            token=token,
+        )
+        if cloned.returncode != 0:
+            raise RuntimeError("Could not clone master to publish snapshots.")
+        for name in written:
+            source = ROOT / "preview" / name
+            if source.exists():
+                shutil.copy2(source, clone / "preview" / name)
+        for extra_name in ("analyze-assets.json", "analyze-chart.js"):
+            source = ROOT / "preview" / extra_name
+            if source.exists():
+                shutil.copy2(source, clone / "preview" / extra_name)
+        subprocess.run(["git", "add", "--", "preview"], cwd=clone, check=True)
+        staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=clone)
+        if staged.returncode == 0:
+            print("Saved pages match master. Nothing to push.", flush=True)
+            return
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.name=Scoop Snapshot",
+                "-c",
+                "user.email=snapshots@thescoop52.com",
+                "commit",
+                "-m",
+                "Publish the latest screener snapshots.",
+            ],
+            cwd=clone,
+            check=True,
+        )
+        pushed = _git_with_token(["push", "origin", "HEAD:master"], cwd=clone, token=token)
+        if pushed.returncode != 0:
+            raise RuntimeError("Could not push snapshots to master.")
+    print("Pushed saved pages to master.", flush=True)
+    _purge_edge_cache()
+
+
 def _publish_saved_pages(written: list[str]) -> None:
     """Commit the refreshed preview files and push them to production master."""
     if not written:
+        return
+    if os.environ.get("RENDER") == "true":
+        token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+        if not token:
+            print("Saved pages were not pushed. Set GITHUB_TOKEN on the Render worker.", flush=True)
+            return
+        _publish_from_clone(written, token)
         return
     paths = [str(ROOT / "preview" / name) for name in written]
     assets = ROOT / "preview" / "analyze-assets.json"

@@ -40,7 +40,7 @@ import html
 
 # ── Page config ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="CME Commodities",
+    page_title="CME — Chicago Mercantile Exchange",
     page_icon=logo_path_str(),
     layout="wide",
     initial_sidebar_state="expanded",
@@ -3235,7 +3235,7 @@ if _cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("🌾 CME Markets")
+st.title("🌾 CME — Chicago Mercantile Exchange")
 render_screener_landing_intro(
     st,
     market="CME",

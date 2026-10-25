@@ -13,6 +13,7 @@ from legal_consent_logger import ensure_timezone_cookie, log_terms_acceptance, r
 from branding import logo_path_str, render_environment_banner
 from theme_mode import install_theme_support
 from market_data import MarketData
+from price_display import CURRENCY_SWITCH_CSS, currency_abbrev_tip, format_listing_price, usd_per_unit
 from app_config import get_screener_symbol_limit, SCREENER_CACHE_VERSION
 from screener_headlines import enrich_headline_sentiment
 from screener_page_data import load_screener_page_data
@@ -40,7 +41,7 @@ import html
 
 # ── Page config ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="TSX",
+    page_title="TSX — Toronto Stock Exchange",
     page_icon=logo_path_str(),
     layout="wide",
     initial_sidebar_state="expanded",
@@ -3061,67 +3062,67 @@ COMPANY_SUMMARIES = {
     'FTS.TRT': 'Electric and gas utility holding company in Canada, the US, and the Caribbean.',
     'EMA.TRT': 'Energy company owning electric utilities and related infrastructure.',
     'PPL.TRT': 'Energy infrastructure company transporting and processing hydrocarbons.',
-    'GWO.TRT': 'Great-West Lifeco Inc common shares listed on the Toronto Stock Exchange.',
-    'POW.TRT': 'Power Corporation of Canada common shares listed on the Toronto Stock Exchange.',
-    'FFH.TRT': 'Fairfax Financial Holdings Ltd common shares listed on the Toronto Stock Exchange.',
-    'IFC.TRT': 'Intact Financial Corporation common shares listed on the Toronto Stock Exchange.',
-    'GIB-A.TRT': 'CGI Inc common shares listed on the Toronto Stock Exchange.',
-    'CTC-A.TRT': 'Canadian Tire Corporation common shares listed on the Toronto Stock Exchange.',
-    'WN.TRT': 'George Weston Limited common shares listed on the Toronto Stock Exchange.',
-    'SAP.TRT': 'Saputo Inc common shares listed on the Toronto Stock Exchange.',
-    'EMP-A.TRT': 'Empire Company Limited common shares listed on the Toronto Stock Exchange.',
-    'CAE.TRT': 'CAE Inc common shares listed on the Toronto Stock Exchange.',
-    'AC.TRT': 'Air Canada common shares listed on the Toronto Stock Exchange.',
-    'TFII.TRT': 'TFI International Inc common shares listed on the Toronto Stock Exchange.',
-    'WSP.TRT': 'WSP Global Inc common shares listed on the Toronto Stock Exchange.',
-    'STN.TRT': 'Stantec Inc common shares listed on the Toronto Stock Exchange.',
-    'CCO.TRT': 'Cameco Corp common shares listed on the Toronto Stock Exchange.',
-    'K.TRT': 'Kinross Gold Corp common shares listed on the Toronto Stock Exchange.',
-    'FM.TRT': 'First Quantum Minerals Ltd common shares listed on the Toronto Stock Exchange.',
-    'TOU.TRT': 'Tourmaline Oil Corp common shares listed on the Toronto Stock Exchange.',
-    'WCP.TRT': 'Whitecap Resources Inc common shares listed on the Toronto Stock Exchange.',
-    'PAAS.TRT': 'Pan American Silver Corp common shares listed on the Toronto Stock Exchange.',
-    'GIL.TRT': 'Gildan Activewear Inc common shares listed on the Toronto Stock Exchange.',
-    'GOOS.TRT': 'Canada Goose Holdings Inc common shares listed on the Toronto Stock Exchange.',
-    'ATZ.TRT': 'Aritzia Inc common shares listed on the Toronto Stock Exchange.',
-    'RCI-B.TRT': 'Rogers Communications Inc common shares listed on the Toronto Stock Exchange.',
-    'QBR-B.TRT': 'Quebecor Inc common shares listed on the Toronto Stock Exchange.',
-    'H.TRT': 'Hydro One Ltd common shares listed on the Toronto Stock Exchange.',
-    'CU.TRT': 'Canadian Utilities Limited common shares listed on the Toronto Stock Exchange.',
-    'AQN.TRT': 'Algonquin Power & Utilities Corp common shares listed on the Toronto Stock Exchange.',
-    'KEY.TRT': 'Keyera Corp common shares listed on the Toronto Stock Exchange.',
-    'ALA.TRT': 'AltaGas Ltd common shares listed on the Toronto Stock Exchange.',
-    'GFL.TRT': 'GFL Environmental Inc common shares listed on the Toronto Stock Exchange.',
-    'TIH.TRT': 'Toromont Industries Ltd common shares listed on the Toronto Stock Exchange.',
-    'FSV.TRT': 'FirstService Corp common shares listed on the Toronto Stock Exchange.',
-    'DSG.TRT': 'Descartes Systems Group Inc common shares listed on the Toronto Stock Exchange.',
-    'KXS.TRT': 'Kinaxis Inc common shares listed on the Toronto Stock Exchange.',
-    'BB.TRT': 'BlackBerry Ltd common shares listed on the Toronto Stock Exchange.',
-    'DOO.TRT': 'BRP Inc common shares listed on the Toronto Stock Exchange.',
-    'BBD-B.TRT': 'Bombardier Inc common shares listed on the Toronto Stock Exchange.',
-    'IAG.TRT': 'iA Financial Corporation Inc common shares listed on the Toronto Stock Exchange.',
-    'EQB.TRT': 'EQB Inc common shares listed on the Toronto Stock Exchange.',
-    'PBH.TRT': 'Premium Brands Holdings Corporation common shares listed on the Toronto Stock Exchange.',
-    'WFG.TRT': 'West Fraser Timber Co. Ltd common shares listed on the Toronto Stock Exchange.',
-    'SJ.TRT': 'Stella-Jones Inc common shares listed on the Toronto Stock Exchange.',
-    'LUN.TRT': 'Lundin Mining Corporation common shares listed on the Toronto Stock Exchange.',
-    'IVN.TRT': 'Ivanhoe Mines Ltd common shares listed on the Toronto Stock Exchange.',
-    'AGI.TRT': 'Alamos Gold Inc common shares listed on the Toronto Stock Exchange.',
-    'TECK-B.TRT': 'Teck Resources Limited common shares listed on the Toronto Stock Exchange.',
-    'BEP-UN.TRT': 'Brookfield Renewable Partners common shares listed on the Toronto Stock Exchange.',
-    'BIP-UN.TRT': 'Brookfield Infrastructure Partners common shares listed on the Toronto Stock Exchange.',
-    'NPI.TRT': 'Northland Power Inc common shares listed on the Toronto Stock Exchange.',
-    'CCL-B.TRT': 'CCL Industries Inc common shares listed on the Toronto Stock Exchange.',
-    'LSPD.TRT': 'Lightspeed Commerce Inc common shares listed on the Toronto Stock Exchange.',
-    'CIGI.TRT': 'Colliers International Group Inc common shares listed on the Toronto Stock Exchange.',
-    'BYD.TRT': 'Boyd Group Services Inc common shares listed on the Toronto Stock Exchange.',
-    'CLS.TRT': 'Celestica Inc common shares listed on the Toronto Stock Exchange.',
-    'WPK.TRT': 'Winpak Ltd common shares listed on the Toronto Stock Exchange.',
-    'CAR-UN.TRT': 'Canadian Apartment Properties REIT common shares listed on the Toronto Stock Exchange.',
-    'X.TRT': 'TMX Group Limited common shares listed on the Toronto Stock Exchange.',
-    'BEPC.TRT': 'Brookfield Renewable Corporation common shares listed on the Toronto Stock Exchange.',
-    'BIPC.TRT': 'Brookfield Infrastructure Corporation common shares listed on the Toronto Stock Exchange.',
-    'REI-UN.TRT': 'RioCan Real Estate Investment Trust common shares listed on the Toronto Stock Exchange.',
+    'GWO.TRT': 'Life and health insurer operating Canada Life and related wealth businesses.',
+    'POW.TRT': 'Holding company that owns stakes in insurance and asset-management businesses.',
+    'FFH.TRT': 'Insurance and investment company writing property and casualty coverage worldwide.',
+    'IFC.TRT': 'Property and casualty insurer selling home, auto, and commercial coverage.',
+    'GIB-A.TRT': 'IT services company that builds and runs systems for governments and businesses.',
+    'CTC-A.TRT': 'Retailer of automotive, hardware, sports, and housewares goods under Canadian Tire.',
+    'WN.TRT': 'Food holding company that controls Loblaw grocery stores and bakery brands.',
+    'SAP.TRT': 'Dairy company making cheese, milk, and other dairy products.',
+    'EMP-A.TRT': 'Grocery retailer that owns Sobeys, Safeway, and related food stores.',
+    'CAE.TRT': 'Maker of flight simulators and training services for airlines and defense.',
+    'AC.TRT': 'Canada\'s largest airline, flying passengers and cargo domestically and abroad.',
+    'TFII.TRT': 'Trucking and logistics company moving freight across North America.',
+    'WSP.TRT': 'Engineering firm designing buildings, transport, and environmental projects.',
+    'STN.TRT': 'Engineering and design firm for infrastructure, buildings, and water projects.',
+    'CCO.TRT': 'Uranium miner and fuel supplier for nuclear power plants.',
+    'K.TRT': 'Gold mining company with mines in the Americas, West Africa, and elsewhere.',
+    'FM.TRT': 'Copper mining company with operations in Africa, Latin America, and elsewhere.',
+    'TOU.TRT': 'Natural-gas producer focused on western Canada.',
+    'WCP.TRT': 'Oil and natural-gas producer in western Canada.',
+    'PAAS.TRT': 'Silver and gold mining company with mines in the Americas.',
+    'GIL.TRT': 'Apparel maker of blank T-shirts, underwear, and activewear sold to brands and retailers.',
+    'GOOS.TRT': 'Outerwear brand known for parkas and other cold-weather clothing.',
+    'ATZ.TRT': 'Clothing retailer selling women\'s apparel through its own stores and website.',
+    'RCI-B.TRT': 'Communications company providing wireless, cable, internet, and media services.',
+    'QBR-B.TRT': 'Communications company providing wireless, internet, and French-language media in Quebec.',
+    'H.TRT': 'Electricity transmission and distribution utility serving Ontario.',
+    'CU.TRT': 'Utility company providing electricity and natural gas, mainly in Alberta.',
+    'AQN.TRT': 'Utility and power company owning regulated electric and water systems.',
+    'KEY.TRT': 'Midstream company gathering, processing, and storing natural gas and natural-gas liquids.',
+    'ALA.TRT': 'Energy company in natural-gas distribution, processing, and storage.',
+    'GFL.TRT': 'Waste and environmental-services company collecting and disposing of solid waste.',
+    'TIH.TRT': 'Equipment dealer selling and servicing Caterpillar machinery in Canada.',
+    'FSV.TRT': 'Property-services company in residential management and essential property services.',
+    'DSG.TRT': 'Software company providing logistics and supply-chain routing tools.',
+    'KXS.TRT': 'Software company providing supply-chain planning tools for manufacturers.',
+    'BB.TRT': 'Software company providing cybersecurity and automotive embedded software.',
+    'DOO.TRT': 'Maker of powersports vehicles including Ski-Doo, Sea-Doo, and Can-Am.',
+    'BBD-B.TRT': 'Business-jet maker designing and building aircraft.',
+    'IAG.TRT': 'Insurer and wealth manager offering life, health, and retirement products.',
+    'EQB.TRT': 'Bank holding company that owns Equitable Bank, a digital and specialty lender.',
+    'PBH.TRT': 'Food company making specialty sandwiches, meats, and packaged foods.',
+    'WFG.TRT': 'Wood-products company making lumber, panels, and pulp.',
+    'SJ.TRT': 'Wood-products company making railway ties, utility poles, and related lumber.',
+    'LUN.TRT': 'Mining company producing copper, zinc, and other base metals.',
+    'IVN.TRT': 'Mining company developing copper and other mineral projects, mainly in Africa.',
+    'AGI.TRT': 'Gold mining company with mines in Canada and Mexico.',
+    'TECK-B.TRT': 'Mining company producing copper, zinc, and steelmaking coal.',
+    'BEP-UN.TRT': 'Owner and operator of hydro, wind, solar, and other renewable power assets.',
+    'BIP-UN.TRT': 'Owner and operator of utilities, transport, and data-infrastructure assets.',
+    'NPI.TRT': 'Power producer operating wind, solar, and natural-gas plants.',
+    'CCL-B.TRT': 'Packaging company making labels, containers, and related products.',
+    'LSPD.TRT': 'Software company providing point-of-sale and commerce tools for retailers.',
+    'CIGI.TRT': 'Commercial real-estate services firm in brokerage, management, and investment.',
+    'BYD.TRT': 'Collision-repair company operating auto-body shops in North America.',
+    'CLS.TRT': 'Electronics manufacturer building hardware for communications, aerospace, and industry.',
+    'WPK.TRT': 'Packaging company making flexible and rigid plastic packaging.',
+    'CAR-UN.TRT': 'Apartment landlord owning rental housing across Canada.',
+    'X.TRT': 'Operator of the Toronto Stock Exchange and related trading and data businesses.',
+    'BEPC.TRT': 'Corporation that owns a stake in Brookfield\'s renewable-power business.',
+    'BIPC.TRT': 'Corporation that owns a stake in Brookfield\'s infrastructure business.',
+    'REI-UN.TRT': 'Retail property landlord owning shopping centers, mainly in Canada.',
 }
 
 # Keywords that disqualify a stock
@@ -3255,7 +3256,7 @@ if _desktop_cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("💹 TSX")
+st.title("💹 TSX — Toronto Stock Exchange")
 render_screener_landing_intro(
     st,
     market="TSX",
@@ -3294,6 +3295,21 @@ else:
     selection = loaded.selection
 
     render_screener_last_updated(st, last_updated)
+    st.markdown(CURRENCY_SWITCH_CSS, unsafe_allow_html=True)
+    with st.container(key="tsx_currency"):
+        cad_col, switch_col, usd_col = st.columns([1, 1, 1], gap="small", vertical_alignment="center")
+        with cad_col:
+            st.markdown(currency_abbrev_tip("CAD"), unsafe_allow_html=True)
+        with switch_col:
+            show_usd = st.toggle("USD", key="tsx_show_usd", label_visibility="collapsed")
+        with usd_col:
+            st.markdown(currency_abbrev_tip("USD"), unsafe_allow_html=True)
+    usd_rate = usd_per_unit("CAD") if show_usd else None
+    if show_usd and not usd_rate:
+        st.caption("USD conversion is unavailable right now. Prices stay in Canadian dollars.")
+
+    def _px(value) -> str:
+        return format_listing_price(value, "TSX", usd_rate)
 
     if not all_results:
         st.warning(
@@ -3340,7 +3356,7 @@ else:
                     delta_txt = f"{row['% Above Low']:+.1f}% above 52W low"
                     st.metric(
                         label=f"#{idx + 1} 🔥  {row['Ticker']}",
-                        value=f"C${row['Price']:,.2f}",
+                        value=_px(row["Price"]),
                         delta=delta_txt,
                         delta_color="normal",
                     )
@@ -3356,8 +3372,8 @@ else:
                         f'<span class="tip-wrap scoop-name-tip" style="font-weight:700;">'
                         f'{row["Company"]}'
                         f'<span class="tip-text">{tip}</span></span><br>'
-                        f'52W Low: <b style="color:#22c55e;">C${row["52W Low"]:,.2f}</b> · '
-                        f'52W High: <b>C${row["52W High"]:,.2f}</b><br>'
+                        f'52W Low: <b style="color:#22c55e;">{_px(row["52W Low"])}</b> · '
+                        f'52W High: <b>{_px(row["52W High"])}</b><br>'
                         f'Sentiment: <b>{row["Headline Sentiment"]:+.3f}</b><br>'
                         f'<b>{badge}</b>'
                         f'</div>',
@@ -3377,9 +3393,9 @@ else:
         source_ticker_map = build_source_ticker_map(df)
 
         display_df = df.drop(columns=["_source_ticker", "_headline_texts", "_headline_urls"], errors="ignore").copy()
-        display_df["Price"] = display_df["Price"].apply(lambda x: f"C${x:,.2f}")
-        display_df["52W Low"] = display_df["52W Low"].apply(lambda x: f"C${x:,.2f}")
-        display_df["52W High"] = display_df["52W High"].apply(lambda x: f"C${x:,.2f}")
+        display_df["Price"] = display_df["Price"].apply(_px)
+        display_df["52W Low"] = display_df["52W Low"].apply(_px)
+        display_df["52W High"] = display_df["52W High"].apply(_px)
         display_df["% Above Low"] = display_df["% Above Low"].apply(lambda x: f"{x:.2f}%")
         display_df["Headline Sentiment"] = display_df["Headline Sentiment"].apply(lambda x: f"{x:+.3f}")
         display_df["Analyze"] = ""

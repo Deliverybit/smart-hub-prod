@@ -30,6 +30,30 @@ HOME_NAV_MARKETS: tuple[tuple[str, str], ...] = (
     ("pages/3c_TSX_Top_10.py", "💹 TSX 10"),
 )
 
+# Hover copy for landing links. Key is matched against the page-link href.
+MARKET_NAV_TIPS: dict[str, tuple[str, str]] = {
+    "NYSE_Top_10": (
+        "New York Stock Exchange",
+        "Well-known US companies listed in New York, screened for names trading near their 52-week lows.",
+    ),
+    "NASDAQ_Top_10": (
+        "Nasdaq Stock Market",
+        "US growth and technology listings, screened for names trading near their 52-week lows.",
+    ),
+    "Crypto_Top_10": (
+        "Cryptocurrency",
+        "Major digital coins and tokens, screened for names trading near their 52-week lows.",
+    ),
+    "LSE_Top_10": (
+        "London Stock Exchange",
+        "Well-known UK companies priced in British pounds, screened for names trading near their 52-week lows.",
+    ),
+    "TSX_Top_10": (
+        "Toronto Stock Exchange",
+        "Well-known Canadian companies priced in Canadian dollars, screened for names trading near their 52-week lows.",
+    ),
+}
+
 # Market screener paths (mobile/tablet: visit home first, then consent on these pages).
 MOBILE_MARKET_SCREENER_PAGES: frozenset[str] = frozenset(path for path, _ in HOME_NAV_MARKETS)
 
@@ -386,6 +410,237 @@ def install_responsive_tab_nav() -> None:
     )
 
 
+def _inject_market_nav_tips() -> None:
+    """Dashed landing links. Hover uses the company-name tooltip box."""
+    import json
+
+    payload = json.dumps(
+        {key: {"title": title, "body": body} for key, (title, body) in MARKET_NAV_TIPS.items()}
+    )
+    st.html(
+        f"""
+<style id="scoop-market-nav-tip-css">
+[data-testid="stSidebar"] a[data-testid="stPageLink-NavLink"] .tip-wrap.scoop-market-tip,
+html[data-scoop-home-page="1"] a[data-testid="stPageLink-NavLink"] .tip-wrap.scoop-market-tip {{
+  border-bottom: 1px dashed #888 !important;
+  cursor: help !important;
+  position: relative !important;
+  font-weight: 700 !important;
+}}
+html[data-scoop-theme="dark"] [data-testid="stSidebar"] a[data-testid="stPageLink-NavLink"] .tip-wrap.scoop-market-tip {{
+  border-bottom: 1px dashed #ffffff !important;
+}}
+html[data-scoop-home-page="1"] a[data-testid="stPageLink-NavLink"] .tip-wrap.scoop-market-tip,
+html[data-scoop-theme="dark"][data-scoop-home-page="1"] .stMarkdown div .tip-wrap.scoop-market-tip,
+html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] .tip-wrap.scoop-market-tip {{
+  border-bottom-width: 1px !important;
+  border-bottom-style: dashed !important;
+  border-bottom-color: #888 !important;
+}}
+html[data-scoop-theme="dark"][data-scoop-home-page="1"] a[data-testid="stPageLink-NavLink"] .tip-wrap.scoop-market-tip,
+html[data-scoop-theme="dark"][data-scoop-home-page="1"] .stMarkdown div .tip-wrap.scoop-market-tip {{
+  border-bottom-color: #ffffff !important;
+}}
+html body .stApp a[data-testid="stPageLink-NavLink"],
+html body .stApp [data-testid="stSidebar"] [data-testid="stPageLink"] {{
+  overflow: visible !important;
+}}
+html body .stApp .tip-wrap.scoop-market-tip > .tip-text {{
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  position: fixed !important;
+  left: 12px !important;
+  top: 12px !important;
+  bottom: auto !important;
+  right: auto !important;
+  min-width: 0 !important;
+  max-width: min(700px, calc(100vw - 1.5rem)) !important;
+  background-color: #1e1e2f !important;
+  background-image: none !important;
+  color: #e2e8f0 !important;
+  border: 2px solid #22c55e !important;
+  border-radius: 8px !important;
+  padding: 1.15rem 1.35rem !important;
+  font-size: 1.25rem !important;
+  line-height: 1.55 !important;
+  font-weight: 500 !important;
+  white-space: normal !important;
+  z-index: 2147483000 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45) !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+}}
+html body .stApp .tip-wrap.scoop-market-tip.scoop-market-tip-open > .tip-text {{
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: #1e1e2f !important;
+  background-image: none !important;
+}}
+@media (max-width: 1366px) {{
+  html[data-scoop-home-page="1"] body .stApp [data-testid="stAppViewContainer"] .tip-wrap.scoop-market-tip:hover > .tip-text,
+  html[data-scoop-home-page="1"] body .stApp [data-testid="stAppViewContainer"] .tip-wrap.scoop-market-tip:focus-within > .tip-text,
+  html[data-scoop-home-page="1"] body .stApp [data-testid="stAppViewContainer"] .tip-wrap.scoop-market-tip.scoop-market-tip-open > .tip-text {{
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    position: fixed !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 45vh !important;
+    overflow: auto !important;
+    background-color: #1e1e2f !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+    z-index: 2147483000 !important;
+    transform: none !important;
+  }}
+}}
+html body .stApp .tip-wrap.scoop-market-tip > .tip-text .scoop-tip-title {{
+  display: block !important;
+  font-weight: 700 !important;
+  margin: 0 0 0.35rem 0 !important;
+  background-color: #1e1e2f !important;
+  color: #f8fafc !important;
+}}
+</style>
+<script>
+(() => {{
+  let appDoc = document;
+  let appWin = window;
+  try {{
+    if (window.parent && window.parent !== window && window.parent.document) {{
+      appDoc = window.parent.document;
+      appWin = window.parent;
+    }}
+  }} catch (e) {{}}
+  const tips = {payload};
+  const enhance = () => {{
+    appDoc.querySelectorAll('a[data-testid="stPageLink-NavLink"]').forEach((link) => {{
+      const href = link.getAttribute("href") || "";
+      const key = Object.keys(tips).find((name) => href.indexOf(name) >= 0);
+      if (!key) return;
+      const spec = tips[key];
+      let wrap = link.querySelector(".scoop-market-tip");
+      if (!wrap) {{
+        const label = (link.textContent || "").trim();
+        wrap = appDoc.createElement("span");
+        wrap.className = "tip-wrap scoop-market-tip";
+        wrap.appendChild(appDoc.createTextNode(label));
+        const tip = appDoc.createElement("span");
+        tip.className = "tip-text";
+        const title = appDoc.createElement("span");
+        title.className = "scoop-tip-title";
+        title.textContent = spec.title;
+        const body = appDoc.createElement("span");
+        body.textContent = spec.body;
+        tip.appendChild(title);
+        tip.appendChild(body);
+        wrap.appendChild(tip);
+        link.textContent = "";
+        link.appendChild(wrap);
+      }}
+      if (wrap.dataset.scoopBound === "1") return;
+      wrap.dataset.scoopBound = "1";
+      wrap.addEventListener("mouseenter", () => open(wrap));
+      wrap.addEventListener("mouseleave", () => close(wrap));
+      wrap.addEventListener("pointerenter", () => open(wrap));
+      wrap.addEventListener("pointerleave", () => close(wrap));
+    }});
+  }};
+  const place = (wrap) => {{
+    const tip = wrap.querySelector(":scope > .tip-text");
+    if (!tip) return;
+    const gap = 12;
+    const vw = appWin.innerWidth || 800;
+    const vh = appWin.innerHeight || 600;
+    const onLanding = appDoc.documentElement.getAttribute("data-scoop-home-page") === "1";
+    if (onLanding && vw <= 1366) {{
+      tip.style.setProperty("left", "0.75rem", "important");
+      tip.style.setProperty("right", "0.75rem", "important");
+      tip.style.setProperty("width", "auto", "important");
+      tip.style.setProperty("max-width", "none", "important");
+      tip.style.setProperty("bottom", "auto", "important");
+      const raw = wrap.getBoundingClientRect();
+      const boxH = Math.min(tip.getBoundingClientRect().height || 110, vh - 16);
+      let top = raw.top - boxH - 8;
+      if (top < 8) top = raw.bottom + 8;
+      if (top + boxH > vh - 8) top = Math.max(8, vh - boxH - 8);
+      tip.style.setProperty("top", Math.round(top) + "px", "important");
+      return;
+    }}
+    const sidebar = appDoc.querySelector('[data-testid="stSidebar"]');
+    const sbRight = sidebar ? sidebar.getBoundingClientRect().right : 0;
+    const maxW = Math.max(200, Math.min(420, vw - sbRight - gap * 2));
+    tip.style.setProperty("transform", "none", "important");
+    tip.style.setProperty("bottom", "auto", "important");
+    tip.style.setProperty("right", "auto", "important");
+    tip.style.setProperty("max-width", maxW + "px", "important");
+    tip.style.setProperty("width", maxW + "px", "important");
+    tip.style.setProperty("max-height", (vh - gap * 2) + "px", "important");
+    tip.style.setProperty("overflow", "auto", "important");
+    const raw = wrap.getBoundingClientRect();
+    const boxH = Math.min(tip.getBoundingClientRect().height || 120, vh - gap * 2);
+    let left = sbRight + gap;
+    if (left + maxW > vw - gap) left = Math.max(gap, vw - gap - maxW);
+    let top = raw.top;
+    if (top + boxH > vh - gap) top = vh - gap - boxH;
+    if (top < gap) top = gap;
+    tip.style.setProperty("left", Math.round(left) + "px", "important");
+    tip.style.setProperty("top", Math.round(top) + "px", "important");
+  }};
+  const open = (wrap) => {{
+    appDoc.querySelectorAll(".scoop-market-tip-open").forEach((other) => {{
+      if (other !== wrap) other.classList.remove("scoop-market-tip-open");
+    }});
+    wrap.classList.add("scoop-market-tip-open");
+    place(wrap);
+    appWin.requestAnimationFrame(() => place(wrap));
+  }};
+  const close = (wrap) => wrap.classList.remove("scoop-market-tip-open");
+  if (!appWin.__scoopMarketTipBound) {{
+    appWin.__scoopMarketTipBound = true;
+    const onPoint = (event) => {{
+      const el = event.target && event.target.closest && event.target.closest(".scoop-market-tip");
+      if (!el) return;
+      const landing = appDoc.documentElement.getAttribute("data-scoop-home-page") === "1";
+      const narrow = (appWin.innerWidth || 0) <= 1366;
+      if (narrow && !landing) return;
+      open(el);
+    }};
+    appDoc.addEventListener("mouseover", onPoint, true);
+    appDoc.addEventListener("pointerover", onPoint, true);
+    appDoc.addEventListener("mouseout", (event) => {{
+      const el = event.target && event.target.closest && event.target.closest(".scoop-market-tip");
+      if (!el) return;
+      const next = event.relatedTarget;
+      if (next && (el.contains(next) || (next.closest && next.closest(".scoop-market-tip") === el))) return;
+      close(el);
+    }}, true);
+    appDoc.addEventListener("focusin", (event) => {{
+      const el = event.target && event.target.closest && event.target.closest(".scoop-market-tip");
+      if (el) open(el);
+    }}, true);
+    appDoc.addEventListener("focusout", (event) => {{
+      const el = event.target && event.target.closest && event.target.closest(".scoop-market-tip");
+      if (el) close(el);
+    }}, true);
+  }}
+  enhance();
+  [200, 800, 1600].forEach((ms) => setTimeout(enhance, ms));
+}})();
+</script>
+""",
+        unsafe_allow_javascript=True,
+    )
+
+
 def render_desktop_sidebar_nav() -> None:
     """Desktop-only sidebar navigation."""
     from branding import logo_path_str
@@ -407,6 +662,7 @@ def render_desktop_sidebar_nav() -> None:
     st.sidebar.markdown("---")
     for path, label in HOME_NAV_MARKETS:
         st.sidebar.page_link(path, label=label, use_container_width=True)
+    _inject_market_nav_tips()
     st.sidebar.markdown("---")
     st.sidebar.page_link(TERMS_PAGE, label="📜 Terms of Service", use_container_width=True)
 

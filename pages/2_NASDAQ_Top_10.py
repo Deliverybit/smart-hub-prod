@@ -40,7 +40,7 @@ import html
 
 # ── Page config ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="NASDAQ",
+    page_title="NASDAQ — Nasdaq Stock Market",
     page_icon=logo_path_str(),
     layout="wide",
     initial_sidebar_state="expanded",
@@ -3269,7 +3269,7 @@ if _desktop_cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("💹 NASDAQ")
+st.title("💹 NASDAQ — Nasdaq Stock Market")
 render_screener_landing_intro(
     st,
     market="NASDAQ",

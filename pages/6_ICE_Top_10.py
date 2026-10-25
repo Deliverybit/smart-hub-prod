@@ -40,7 +40,7 @@ import html
 
 # ── Page config ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="ICE Commodities",
+    page_title="ICE — Intercontinental Exchange",
     page_icon=logo_path_str(),
     layout="wide",
     initial_sidebar_state="expanded",
@@ -3230,7 +3230,7 @@ if _cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("🛢️ ICE Markets")
+st.title("🛢️ ICE — Intercontinental Exchange")
 render_screener_landing_intro(
     st,
     market="ICE",

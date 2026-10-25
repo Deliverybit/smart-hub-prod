@@ -833,10 +833,10 @@ _DESKTOP_TOOLTIP_TYPE_CSS = """
         font-size: 1.25rem !important;
         line-height: 1.55 !important;
     }
-    .stMarkdown .tip-wrap:not(.headlines-tip):not(.scoop-name-tip) .tip-text,
-    .full-results-wrap .full-results-table .tip-wrap:not(.headlines-tip):not(.scoop-name-tip) .tip-text,
+    .stMarkdown .tip-wrap:not(.headlines-tip):not(.scoop-name-tip):not(.currency-abbrev) .tip-text,
+    .full-results-wrap .full-results-table .tip-wrap:not(.headlines-tip):not(.scoop-name-tip):not(.currency-abbrev) .tip-text,
     .full-results-table thead .tip-wrap .tip-text,
-    [data-testid="stMarkdownContainer"] .tip-wrap:not(.headlines-tip):not(.scoop-name-tip) .tip-text {
+    [data-testid="stMarkdownContainer"] .tip-wrap:not(.headlines-tip):not(.scoop-name-tip):not(.currency-abbrev) .tip-text {
         padding: 1.15rem 1.35rem !important;
         min-width: 24rem !important;
         max-width: min(44rem, calc(100vw - 2rem)) !important;

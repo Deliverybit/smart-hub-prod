@@ -239,8 +239,8 @@ _SCREENER_LANDING_SUMMARY_FULL: dict[str, str] = {
 _SCREENER_LANDING_SUMMARY_COMPACT: dict[str, str] = {
     "NYSE": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official NYSE universe). Headline sentiment on shown rows.",
     "NASDAQ": "**{n}** curated well-known stocks near **52-week lows** (selected sample, not an official Nasdaq universe). Headline sentiment on shown rows.",
-    "LSE": "**{n}** curated well-known London stocks near **52-week lows** (selected sample, not an official LSE universe). Prices in pounds. Headline sentiment on shown rows.",
-    "TSX": "**{n}** curated well-known Toronto stocks near **52-week lows** (selected sample, not an official TSX universe). Prices in Canadian dollars. Headline sentiment on shown rows.",
+    "LSE": "**{n}** curated well-known London stocks near **52-week lows** (selected sample, not an official LSE universe). Prices in pounds (or USD when that switch is on). Headline sentiment on shown rows.",
+    "TSX": "**{n}** curated well-known Toronto stocks near **52-week lows** (selected sample, not an official TSX universe). Prices in Canadian dollars (or USD when that switch is on). Headline sentiment on shown rows.",
     "CRYPTO": "**{n}** well-known cryptocurrencies near **52-week lows** (selected sample, not an official market universe). Headline sentiment on shown rows.",
     "CME": "**{n}** CME Group futures markets near **52-week lows** (selected sample, not an official CME universe). Market quotes, not a list of products to buy.",
     "ICE": "**{n}** ICE futures markets near **52-week lows** (selected sample, not an official ICE universe). Market quotes, not a list of products to buy.",

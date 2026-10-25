@@ -42,6 +42,14 @@ def _news_from_row(row: dict[str, Any]) -> list[dict[str, str]]:
     return items
 
 
+def _history_usable(history: list | None) -> bool:
+    """A chart needs at least two dated prices."""
+    rows = list(history or [])
+    if len(rows) < 2:
+        return False
+    return all(str(row.get("date") or "").strip() for row in rows[:3])
+
+
 def _slice_history(history: list, days) -> list:
     """Keep bars inside the last N calendar days. `max` is 730 calendar days."""
     try:
@@ -239,7 +247,7 @@ def ensure_analyze_bundle(
         except Exception:
             payload = None
         raw = _raw_bundle_from_payload(payload, ticker)
-        if raw:
+        if raw and _history_usable(raw.get("history")):
             return {
                 **raw,
                 "history": _slice_history(raw.get("history"), days),

@@ -40,7 +40,7 @@ import html
 
 # ── Page config ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="NYSE",
+    page_title="NYSE — New York Stock Exchange",
     page_icon=logo_path_str(),
     layout="wide",
     initial_sidebar_state="expanded",
@@ -3252,7 +3252,7 @@ if _cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("🏦 NYSE")
+st.title("🏦 NYSE — New York Stock Exchange")
 render_screener_landing_intro(
     st,
     market="NYSE",

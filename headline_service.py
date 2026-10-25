@@ -41,7 +41,48 @@ def asset_mention_labels(ticker: str, company_name: str = "") -> list[str]:
         name = name[4:].strip()
     if len(_fold(name)) >= 3:
         labels.append(name)
+    generic = {
+        "group", "holdings", "company", "corporation", "limited", "international",
+        "financial", "property", "properties", "resources", "services", "capital",
+        "energy", "mining", "power", "global", "brands", "communications",
+        "industries", "partners", "bank", "canadian", "british", "american",
+        "national", "general", "united", "royal", "first",
+    }
+    for token in _fold(name).split():
+        if len(token) >= 5 and token not in generic and token not in {_fold(label) for label in labels}:
+            labels.append(token)
     return labels
+
+
+def _listing_close_match(title: str, company_name: str) -> bool:
+    """True when a London or Toronto headline nearly spells the company name."""
+    from difflib import SequenceMatcher
+
+    generic = {
+        "group", "holdings", "company", "corporation", "limited", "international",
+        "financial", "property", "properties", "resources", "services", "capital",
+        "energy", "mining", "power", "global", "brands", "communications",
+        "industries", "partners", "bank", "canadian", "british", "american",
+        "national", "general", "united", "royal", "first",
+    }
+    tokens = [token for token in _fold(company_name).split() if len(token) >= 5 and token not in generic]
+    words = _fold(title).split()
+    if not tokens or not words:
+        return False
+    for token in tokens:
+        for word in words:
+            if abs(len(word) - len(token)) > 2:
+                continue
+            if SequenceMatcher(None, token, word).ratio() >= 0.84:
+                return True
+    if len(tokens) >= 2:
+        phrase = " ".join(tokens)
+        width = len(tokens)
+        for index in range(0, len(words) - width + 1):
+            window = " ".join(words[index:index + width])
+            if SequenceMatcher(None, phrase, window).ratio() >= 0.8:
+                return True
+    return False
 
 
 def title_mentions_asset(title: str, ticker: str, company_name: str = "") -> bool:
@@ -55,6 +96,9 @@ def title_mentions_asset(title: str, ticker: str, company_name: str = "") -> boo
             continue
         if f" {needle} " in padded:
             return True
+    raw = (ticker or "").strip().upper()
+    if raw.endswith((".LON", ".TRT")) and _listing_close_match(title, company_name):
+        return True
     return False
 
 

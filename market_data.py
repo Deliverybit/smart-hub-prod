@@ -805,14 +805,51 @@ class MarketData:
         items = self.get_news_items(ticker)
         return [item["title"] for item in items]
 
+    def _yahoo_listing_headlines(self, symbol: str) -> list[dict]:
+        """Headlines for the London (.L) or Toronto (.TO) listing."""
+        import xml.etree.ElementTree as ET
+        from html import unescape
+
+        cache_key = (f"YAHOO:{symbol}", False)
+        if cache_key in self._news_cache:
+            return [dict(item) for item in self._news_cache[cache_key]]
+
+        yahoo_symbol = symbol.replace(".LON", ".L").replace(".TRT", ".TO")
+        url = (
+            "https://feeds.finance.yahoo.com/rss/2.0/headline"
+            f"?s={yahoo_symbol}&region=US&lang=en-US"
+        )
+        headlines = []
+        seen = set()
+        try:
+            response = self.session.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+            response.raise_for_status()
+            root = ET.fromstring(response.content)
+        except (requests.RequestException, ET.ParseError, ValueError):
+            root = None
+        if root is not None:
+            for item in root.iter("item"):
+                title = unescape((item.findtext("title") or "")).strip()
+                link = unescape((item.findtext("link") or "")).strip()
+                key = (title, link)
+                if title and link and key not in seen:
+                    seen.add(key)
+                    headlines.append({"title": title, "url": link, "source": "Yahoo Finance", "relevance": 0.0})
+        result = headlines if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]
+        self._news_cache[cache_key] = [dict(item) for item in result]
+        return [dict(item) for item in result]
+
     def get_news_items(self, ticker, *, fail_fast: bool = False):
         """Pulls headline + source URL pairs for the specific asset."""
         symbol = self._format_ticker(ticker)
         is_crypto = self._is_crypto(ticker)
-        # NEWS_SENTIMENT has no London or Toronto feed. Use the US listing when the bare code is a different company.
+        # NEWS_SENTIMENT has no London or Toronto feed. A mapped US listing is the same company.
+        # The bare ticker is often a different US company, so unmapped names use the Yahoo listing feed.
         news_symbol = self._LISTING_NEWS_SYMBOLS.get(symbol)
+        if symbol.endswith((".LON", ".TRT")) and not news_symbol:
+            return self._yahoo_listing_headlines(symbol)
         if not news_symbol:
-            news_symbol = symbol.split(".", 1)[0] if symbol.endswith((".LON", ".TRT")) else symbol
+            news_symbol = symbol
         cache_key = (news_symbol, is_crypto)
         if cache_key in self._news_cache:
             return [dict(item) for item in self._news_cache[cache_key]]

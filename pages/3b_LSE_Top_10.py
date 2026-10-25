@@ -13,6 +13,7 @@ from legal_consent_logger import ensure_timezone_cookie, log_terms_acceptance, r
 from branding import logo_path_str, render_environment_banner
 from theme_mode import install_theme_support
 from market_data import MarketData
+from price_display import CURRENCY_SWITCH_CSS, currency_abbrev_tip, format_listing_price, usd_per_unit
 from app_config import get_screener_symbol_limit, SCREENER_CACHE_VERSION
 from screener_headlines import enrich_headline_sentiment
 from screener_page_data import load_screener_page_data
@@ -40,7 +41,7 @@ import html
 
 # ── Page config ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="LSE",
+    page_title="LSE — London Stock Exchange",
     page_icon=logo_path_str(),
     layout="wide",
     initial_sidebar_state="expanded",
@@ -3062,66 +3063,66 @@ COMPANY_SUMMARIES = {
     'AUTO.LON': 'Online automotive marketplace connecting buyers and sellers.',
     'INF.LON': 'Events, academic publishing, and business-intelligence company.',
     'ABF.LON': 'Food and retail group that owns Primark and grocery ingredients businesses.',
-    'BT-A.LON': 'BT Group plc shares listed on the London Stock Exchange.',
-    'CNA.LON': 'Centrica plc shares listed on the London Stock Exchange.',
-    'UU.LON': 'United Utilities Group plc shares listed on the London Stock Exchange.',
-    'SVT.LON': 'Severn Trent plc shares listed on the London Stock Exchange.',
-    'BNZL.LON': 'Bunzl plc shares listed on the London Stock Exchange.',
-    'DCC.LON': 'DCC plc shares listed on the London Stock Exchange.',
-    'SMIN.LON': 'Smiths Group plc shares listed on the London Stock Exchange.',
-    'WEIR.LON': 'Weir Group plc shares listed on the London Stock Exchange.',
-    'IMI.LON': 'IMI plc shares listed on the London Stock Exchange.',
-    'SPX.LON': 'Spirax Group plc shares listed on the London Stock Exchange.',
-    'CRDA.LON': 'Croda International plc shares listed on the London Stock Exchange.',
-    'RTO.LON': 'Rentokil Initial plc shares listed on the London Stock Exchange.',
-    'SGE.LON': 'Sage Group plc shares listed on the London Stock Exchange.',
-    'RMV.LON': 'Rightmove plc shares listed on the London Stock Exchange.',
-    'WPP.LON': 'WPP plc shares listed on the London Stock Exchange.',
-    'PSON.LON': 'Pearson plc shares listed on the London Stock Exchange.',
-    'ITRK.LON': 'Intertek Group plc shares listed on the London Stock Exchange.',
-    'KGF.LON': 'Kingfisher plc shares listed on the London Stock Exchange.',
-    'PSN.LON': 'Persimmon plc shares listed on the London Stock Exchange.',
-    'TW.LON': 'Taylor Wimpey plc shares listed on the London Stock Exchange.',
-    'BKG.LON': 'Berkeley Group Holdings plc shares listed on the London Stock Exchange.',
-    'LAND.LON': 'Land Securities Group plc shares listed on the London Stock Exchange.',
-    'SGRO.LON': 'Segro plc shares listed on the London Stock Exchange.',
-    'BLND.LON': 'British Land Company plc shares listed on the London Stock Exchange.',
-    'VTY.LON': 'Vistry Group plc shares listed on the London Stock Exchange.',
-    'IAG.LON': 'International Consolidated Airlines Group shares listed on the London Stock Exchange.',
-    'EZJ.LON': 'easyJet plc shares listed on the London Stock Exchange.',
-    'ENT.LON': 'Entain plc shares listed on the London Stock Exchange.',
-    'JD.LON': 'JD Sports Fashion plc shares listed on the London Stock Exchange.',
-    'MKS.LON': 'Marks and Spencer Group plc shares listed on the London Stock Exchange.',
-    'ITV.LON': 'ITV plc shares listed on the London Stock Exchange.',
-    'ADM.LON': 'Admiral Group plc shares listed on the London Stock Exchange.',
-    'MNG.LON': 'M&G plc shares listed on the London Stock Exchange.',
-    'HSX.LON': 'Hiscox Ltd shares listed on the London Stock Exchange.',
-    'FRES.LON': 'Fresnillo plc shares listed on the London Stock Exchange.',
-    'CCH.LON': 'Coca-Cola HBC AG shares listed on the London Stock Exchange.',
-    'HIK.LON': 'Hikma Pharmaceuticals plc shares listed on the London Stock Exchange.',
-    'DPLM.LON': 'Diploma plc shares listed on the London Stock Exchange.',
-    'WTB.LON': 'Whitbread plc shares listed on the London Stock Exchange.',
-    'SMT.LON': 'Scottish Mortgage Investment Trust plc shares listed on the London Stock Exchange.',
-    'BRBY.LON': 'Burberry Group plc shares listed on the London Stock Exchange.',
-    'EDV.LON': 'Endeavour Mining plc shares listed on the London Stock Exchange.',
-    'PSH.LON': 'Pershing Square Holdings Ltd shares listed on the London Stock Exchange.',
-    'ICG.LON': 'Intermediate Capital Group plc shares listed on the London Stock Exchange.',
-    'SBRY.LON': 'J Sainsbury plc shares listed on the London Stock Exchange.',
-    'MNDI.LON': 'Mondi plc shares listed on the London Stock Exchange.',
-    'OCDO.LON': 'Ocado Group plc shares listed on the London Stock Exchange.',
-    'TATE.LON': 'Tate & Lyle plc shares listed on the London Stock Exchange.',
-    'ABDN.LON': 'abrdn plc shares listed on the London Stock Exchange.',
-    'HWDN.LON': 'Howden Joinery Group plc shares listed on the London Stock Exchange.',
-    'AAF.LON': 'Airtel Africa plc shares listed on the London Stock Exchange.',
-    'CTEC.LON': 'ConvaTec Group plc shares listed on the London Stock Exchange.',
-    'FCIT.LON': 'F&C Investment Trust plc shares listed on the London Stock Exchange.',
-    'LMP.LON': 'LondonMetric Property plc shares listed on the London Stock Exchange.',
-    'HAS.LON': 'Hays plc shares listed on the London Stock Exchange.',
-    'GAW.LON': 'Games Workshop Group plc shares listed on the London Stock Exchange.',
-    'CWK.LON': 'Cranswick plc shares listed on the London Stock Exchange.',
-    'INVP.LON': 'Investec plc shares listed on the London Stock Exchange.',
-    'EMG.LON': 'Man Group plc shares listed on the London Stock Exchange.',
-    'GRG.LON': 'Greggs plc shares listed on the London Stock Exchange.',
+    'BT-A.LON': 'UK telecom company providing broadband, mobile, and business networks under the BT and EE brands.',
+    'CNA.LON': 'Energy supplier that owns British Gas and also produces and trades energy.',
+    'UU.LON': 'Water and wastewater utility serving northwest England.',
+    'SVT.LON': 'Water and wastewater utility serving the Midlands and parts of Wales.',
+    'BNZL.LON': 'Distributor of everyday supplies such as packaging, cleaning products, and safety equipment.',
+    'DCC.LON': 'Sales and distribution group in energy, healthcare, and technology products.',
+    'SMIN.LON': 'Engineering group making detection equipment, seals, and other industrial components.',
+    'WEIR.LON': 'Engineering company making pumps, valves, and other equipment for mining.',
+    'IMI.LON': 'Engineering company making fluid-control valves and related industrial products.',
+    'SPX.LON': 'Engineering company making steam systems and pumps for industrial plants.',
+    'CRDA.LON': 'Specialty-chemicals company making ingredients for personal care, crop care, and industry.',
+    'RTO.LON': 'Pest-control and hygiene company operating Rentokil and related brands.',
+    'SGE.LON': 'Software company providing accounting and payroll tools for small and midsize businesses.',
+    'RMV.LON': 'UK property portal listing homes for sale and rent.',
+    'WPP.LON': 'Advertising and marketing group that owns agencies serving global brands.',
+    'PSON.LON': 'Education company publishing textbooks, assessments, and digital learning products.',
+    'ITRK.LON': 'Testing, inspection, and certification company for products and supply chains.',
+    'KGF.LON': 'Home-improvement retailer operating B&Q, Screwfix, and related chains.',
+    'PSN.LON': 'UK housebuilder selling new homes, mainly in England.',
+    'TW.LON': 'UK housebuilder developing residential communities across Britain.',
+    'BKG.LON': 'UK housebuilder focused on homes in London and the South East.',
+    'LAND.LON': 'Property company owning offices, retail, and mixed-use sites in the UK.',
+    'SGRO.LON': 'Owner and developer of warehouses and industrial property.',
+    'BLND.LON': 'Property company owning offices, retail, and campuses, mainly in London.',
+    'VTY.LON': 'UK housebuilder and partnerships developer of new homes.',
+    'IAG.LON': 'Airline group that owns British Airways, Iberia, Aer Lingus, and Vueling.',
+    'EZJ.LON': 'Short-haul airline flying within Europe from UK and continental bases.',
+    'ENT.LON': 'Betting and gaming company that owns Ladbrokes, Coral, and online brands.',
+    'JD.LON': 'Sports-fashion retailer selling sneakers and athletic clothing.',
+    'MKS.LON': 'UK retailer selling clothing, home goods, and food under the Marks & Spencer brand.',
+    'ITV.LON': 'UK broadcaster and producer of television programmes and streaming content.',
+    'ADM.LON': 'UK insurer known for car, home, and travel insurance sold online.',
+    'MNG.LON': 'Asset manager and insurer offering savings, investments, and retirement products.',
+    'HSX.LON': 'Specialty insurer covering risks such as catastrophe, cyber, and marine.',
+    'FRES.LON': 'Mining company producing silver and gold, mainly in Mexico.',
+    'CCH.LON': 'Bottler that makes and sells Coca-Cola drinks across Europe and Africa.',
+    'HIK.LON': 'Pharmaceutical company making generic and branded medicines.',
+    'DPLM.LON': 'Distributor of specialized technical parts for industry, seals, and controls.',
+    'WTB.LON': 'Hospitality company that owns Premier Inn hotels and related restaurants.',
+    'SMT.LON': 'Investment trust that owns a portfolio of growth companies worldwide.',
+    'BRBY.LON': 'Luxury fashion house known for trench coats, leather goods, and apparel.',
+    'EDV.LON': 'Gold mining company with mines in West Africa.',
+    'PSH.LON': 'Investment company that holds a concentrated portfolio of public companies.',
+    'ICG.LON': 'Alternative asset manager investing in private debt and equity.',
+    'SBRY.LON': 'UK grocery retailer operating Sainsbury\'s stores and Argos.',
+    'MNDI.LON': 'Packaging and paper company making corrugated boxes and related products.',
+    'OCDO.LON': 'Online grocery retailer that also sells warehouse technology to other grocers.',
+    'TATE.LON': 'Food-ingredients company making sweeteners, starches, and specialty ingredients.',
+    'ABDN.LON': 'Asset manager offering investment funds and wealth services.',
+    'HWDN.LON': 'Kitchen supplier selling cabinets and joinery to trade customers.',
+    'AAF.LON': 'Telecom company providing mobile services across Africa.',
+    'CTEC.LON': 'Medical-products company making wound care, ostomy, and infusion devices.',
+    'FCIT.LON': 'Investment trust that owns a diversified global portfolio of companies.',
+    'LMP.LON': 'Property company owning warehouses, stores, and other commercial buildings.',
+    'HAS.LON': 'Recruitment company placing workers in professional and skilled jobs.',
+    'GAW.LON': 'Maker of Warhammer miniatures, games, and related books and licensing.',
+    'CWK.LON': 'Food producer of poultry, pork, and prepared foods in the UK.',
+    'INVP.LON': 'Bank and wealth manager serving clients in the UK, South Africa, and elsewhere.',
+    'EMG.LON': 'Hedge-fund manager offering alternative investment strategies to institutions.',
+    'GRG.LON': 'UK bakery chain selling pastries, sandwiches, and coffee in its shops.',
 }
 
 # Keywords that disqualify a stock
@@ -3255,7 +3256,7 @@ if _desktop_cards:
     )
 
 # ── UI ────────────────────────────────────────────────────────────────
-st.title("💹 LSE")
+st.title("💹 LSE — London Stock Exchange")
 render_screener_landing_intro(
     st,
     market="LSE",
@@ -3294,6 +3295,21 @@ else:
     selection = loaded.selection
 
     render_screener_last_updated(st, last_updated)
+    st.markdown(CURRENCY_SWITCH_CSS, unsafe_allow_html=True)
+    with st.container(key="lse_currency"):
+        gbp_col, switch_col, usd_col = st.columns([1, 1, 1], gap="small", vertical_alignment="center")
+        with gbp_col:
+            st.markdown(currency_abbrev_tip("GBP"), unsafe_allow_html=True)
+        with switch_col:
+            show_usd = st.toggle("USD", key="lse_show_usd", label_visibility="collapsed")
+        with usd_col:
+            st.markdown(currency_abbrev_tip("USD"), unsafe_allow_html=True)
+    usd_rate = usd_per_unit("GBP") if show_usd else None
+    if show_usd and not usd_rate:
+        st.caption("USD conversion is unavailable right now. Prices stay in pounds.")
+
+    def _px(value) -> str:
+        return format_listing_price(value, "LSE", usd_rate)
 
     if not all_results:
         st.warning(
@@ -3340,7 +3356,7 @@ else:
                     delta_txt = f"{row['% Above Low']:+.1f}% above 52W low"
                     st.metric(
                         label=f"#{idx + 1} 🔥  {row['Ticker']}",
-                        value=f"£{row['Price']:,.2f}",
+                        value=_px(row["Price"]),
                         delta=delta_txt,
                         delta_color="normal",
                     )
@@ -3356,8 +3372,8 @@ else:
                         f'<span class="tip-wrap scoop-name-tip" style="font-weight:700;">'
                         f'{row["Company"]}'
                         f'<span class="tip-text">{tip}</span></span><br>'
-                        f'52W Low: <b style="color:#22c55e;">£{row["52W Low"]:,.2f}</b> · '
-                        f'52W High: <b>£{row["52W High"]:,.2f}</b><br>'
+                        f'52W Low: <b style="color:#22c55e;">{_px(row["52W Low"])}</b> · '
+                        f'52W High: <b>{_px(row["52W High"])}</b><br>'
                         f'Sentiment: <b>{row["Headline Sentiment"]:+.3f}</b><br>'
                         f'<b>{badge}</b>'
                         f'</div>',
@@ -3377,9 +3393,9 @@ else:
         source_ticker_map = build_source_ticker_map(df)
 
         display_df = df.drop(columns=["_source_ticker", "_headline_texts", "_headline_urls"], errors="ignore").copy()
-        display_df["Price"] = display_df["Price"].apply(lambda x: f"£{x:,.2f}")
-        display_df["52W Low"] = display_df["52W Low"].apply(lambda x: f"£{x:,.2f}")
-        display_df["52W High"] = display_df["52W High"].apply(lambda x: f"£{x:,.2f}")
+        display_df["Price"] = display_df["Price"].apply(_px)
+        display_df["52W Low"] = display_df["52W Low"].apply(_px)
+        display_df["52W High"] = display_df["52W High"].apply(_px)
         display_df["% Above Low"] = display_df["% Above Low"].apply(lambda x: f"{x:.2f}%")
         display_df["Headline Sentiment"] = display_df["Headline Sentiment"].apply(lambda x: f"{x:+.3f}")
         display_df["Analyze"] = ""

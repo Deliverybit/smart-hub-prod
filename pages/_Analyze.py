@@ -23,6 +23,13 @@ from analyze_page import (
     render_analyze_back_button,
 )
 from asset_names import resolve_asset_display_name, resolve_asset_summary
+from price_display import (
+    CURRENCY_SWITCH_CSS,
+    currency_abbrev_tip,
+    local_prefix,
+    quote_scale,
+    usd_per_unit,
+)
 from predictor import Predictor
 from market_data import MarketData
 import importlib
@@ -139,6 +146,17 @@ def _analyze_desktop_tip(
     )
 
 
+def _analyze_listing_market(ticker: str, screener_key: str | None) -> str | None:
+    """London and Toronto listings use the currency switch. Other markets stay in USD."""
+    upper = (ticker or "").strip().upper()
+    key = (screener_key or "").strip().upper()
+    if upper.endswith(".LON") or key == "LSE":
+        return "LSE"
+    if upper.endswith(".TRT") or key == "TSX":
+        return "TSX"
+    return None
+
+
 def _format_search_price(value) -> str:
     """Currency display: cents above $1, up to 8 decimals below $1."""
     try:
@@ -146,15 +164,16 @@ def _format_search_price(value) -> str:
     except (TypeError, ValueError):
         return "N/A"
 
+    prefix = st.session_state.get("analyze_price_prefix", "$")
     if abs(price) > 1:
-        return f"${price:,.2f}"
+        return f"{prefix}{price:,.2f}"
 
     formatted = f"{price:,.8f}"
     whole, _, decimal = formatted.partition(".")
     decimal = decimal.rstrip("0")
     if len(decimal) < 2:
         decimal = decimal.ljust(2, "0")
-    return f"${whole}.{decimal}"
+    return f"{prefix}{whole}.{decimal}"
 
 
 def _build_search_price_figure(
@@ -1498,7 +1517,7 @@ def _ensured_analyze_bundle(
     ticker: str,
     screener_key: str | None,
     days,
-    _hist_span_v: int = 7,
+    _hist_span_v: int = 8,
 ) -> dict | None:
     """Snapshot hit, or first-user compute persisted for 15 minutes."""
     snap = _live_analyze_snapshot()
@@ -2340,6 +2359,39 @@ def _render_search_dashboard(ticker: str) -> None:
         last_price = 0
     prev_price = df.iloc[-2]["price"] if len(df) >= 2 else last_price
     change_24h_pct = ((last_price - prev_price) / prev_price * 100) if prev_price else 0
+    listing = _analyze_listing_market(ticker, screener_key)
+    st.session_state["analyze_price_prefix"] = "$"
+    live_currency = "USD"
+    if listing:
+        local_code = "GBP" if listing == "LSE" else "CAD"
+        toggle_key = "lse_show_usd" if listing == "LSE" else "tsx_show_usd"
+        box_key = "lse_currency" if listing == "LSE" else "tsx_currency"
+        st.markdown(CURRENCY_SWITCH_CSS, unsafe_allow_html=True)
+        with st.container(key=box_key):
+            local_col, switch_col, usd_col = st.columns([1, 1, 1], gap="small", vertical_alignment="center")
+            with local_col:
+                st.markdown(currency_abbrev_tip(local_code), unsafe_allow_html=True)
+            with switch_col:
+                show_usd = st.toggle("USD", key=toggle_key, label_visibility="collapsed")
+            with usd_col:
+                st.markdown(currency_abbrev_tip("USD"), unsafe_allow_html=True)
+        usd_rate = usd_per_unit(local_code) if show_usd else None
+        if show_usd and not usd_rate:
+            st.caption("USD conversion is unavailable right now. Prices stay in the local currency.")
+        factor = quote_scale(listing) * (float(usd_rate) if usd_rate else 1.0)
+        if usd_rate:
+            live_currency = "USD"
+            st.session_state["analyze_price_prefix"] = "$"
+        else:
+            live_currency = local_code
+            st.session_state["analyze_price_prefix"] = local_prefix(listing)
+        last_price *= factor
+        if week52_low:
+            week52_low *= factor
+        if week52_high:
+            week52_high *= factor
+        if not df.empty and "price" in df.columns:
+            df["price"] = df["price"] * factor
     combined = result["combined_score"]
     direction = "BULLISH" if combined > 0 else "BEARISH"
     arrow = "⬆️" if combined > 0 else "⬇️"
@@ -2433,7 +2485,7 @@ def _render_search_dashboard(ticker: str) -> None:
             high_date=high_date,
         )
         st.metric(
-            label="Live Price (USD)",
+            label=f"Live Price ({live_currency})",
             value=_format_search_price(last_price),
             delta=f"{change_24h_pct:+.2f}% (24h)",
         )
@@ -2455,7 +2507,7 @@ def _render_search_dashboard(ticker: str) -> None:
                 high_date=high_date,
             )
             st.metric(
-                label="Live Price (USD)",
+                label=f"Live Price ({live_currency})",
                 value=_format_search_price(last_price),
                 delta=f"{change_24h_pct:+.2f}% (24h)",
             )
@@ -2488,32 +2540,37 @@ def _render_search_dashboard(ticker: str) -> None:
         )
         has_compare = False
         plot_df = df.copy()
-        plot_df["date_dt"] = pd.to_datetime(plot_df["date"])
-        comp_df = None
+        if plot_df.empty or "date" not in plot_df.columns:
+            st.info("Price history is not available for this listing yet.")
+            plot_df = None
+        else:
+            plot_df["date_dt"] = pd.to_datetime(plot_df["date"])
+        if plot_df is not None:
+            comp_df = None
 
-        ax_tick, ax_title = _search_price_chart_axis_px()
-        margin_top = _search_price_chart_margin_top(has_compare)
-        fig = _build_search_price_figure(
-            has_compare=has_compare,
-            plot_df=plot_df,
-            comp_df=comp_df,
-            ticker=ticker,
-            compare_ticker="",
-            axis_tick=ax_tick,
-            axis_title=ax_title,
-            margin_top=margin_top,
-        )
+            ax_tick, ax_title = _search_price_chart_axis_px()
+            margin_top = _search_price_chart_margin_top(has_compare)
+            fig = _build_search_price_figure(
+                has_compare=has_compare,
+                plot_df=plot_df,
+                comp_df=comp_df,
+                ticker=ticker,
+                compare_ticker="",
+                axis_tick=ax_tick,
+                axis_title=ax_title,
+                margin_top=margin_top,
+            )
 
-        _plotly_cfg = (
-            {"displayModeBar": False}
-            if is_desktop_viewport(page="pages/_Analyze.py") is False
-            else {}
-        )
-        st.plotly_chart(fig, width="stretch", config=_plotly_cfg)
-        _install_snapshot_price_chart(
-            history,
-            st.session_state.get("search_price_history_range", ""),
-        )
+            _plotly_cfg = (
+                {"displayModeBar": False}
+                if is_desktop_viewport(page="pages/_Analyze.py") is False
+                else {}
+            )
+            st.plotly_chart(fig, width="stretch", config=_plotly_cfg)
+            _install_snapshot_price_chart(
+                history,
+                st.session_state.get("search_price_history_range", ""),
+            )
 
     with col_mood:
         st.markdown("<div class='mood-column'>", unsafe_allow_html=True)

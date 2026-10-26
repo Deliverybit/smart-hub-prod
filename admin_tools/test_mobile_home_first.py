@@ -73,6 +73,8 @@ def test_home_ipad13_surface_pro10_css_is_scoped() -> None:
     assert "data-scoop-home-mini-type" in _home_mini_type_flag_script()
     assert "data-scoop-home-surface-pro10" in _home_mini_type_flag_script()
     assert "scoop_home_device_family" in js
+    assert "screenW" in js
+    assert "Math.min(info.w || screenW, screenW || info.w || 0)" in js
     assert "ipadMini || ipad13 || surfacePro10" in js
     assert "orientationchange" in _home_mini_type_flag_script()
 

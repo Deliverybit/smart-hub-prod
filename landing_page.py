@@ -98,7 +98,8 @@ def _large_tablet_home_detect_js() -> str:
         "  ipadMini = family === 'mini';"
         "  ipad13 = family === 'ipad13';"
         "  surfacePro10 = family === 'surface';"
-        "  return {w, h, ipadMini, ipad13, surfacePro10, match: !!(ipadMini || ipad13 || surfacePro10)};"
+        "  const screenW = (win.screen && win.screen.width) || 0;"
+        "  return {w, h, screenW, ipadMini, ipad13, surfacePro10, match: !!(ipadMini || ipad13 || surfacePro10)};"
         "})()"
     )
 
@@ -107,7 +108,9 @@ def _responsive_viewport_js() -> str:
     return (
         "(() => {"
         f"  const info = {_large_tablet_home_detect_js()};"
-        f"  return ((info.w || 0) <= {RESPONSIVE_MAX_WIDTH} || info.match) ? '1' : '0';"
+        "  const screenW = info.screenW || 0;"
+        "  const layoutW = Math.min(info.w || screenW, screenW || info.w || 0);"
+        f"  return (layoutW <= {RESPONSIVE_MAX_WIDTH} || info.match) ? '1' : '0';"
         "})()"
     )
 

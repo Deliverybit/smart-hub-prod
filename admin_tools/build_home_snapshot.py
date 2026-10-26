@@ -186,11 +186,17 @@ html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-testid="stPag
 }
 </style>
 <script>
-if (window.innerWidth >= 1367) {
+function scoopLayoutWide() {
+  var w = window.innerWidth || 0;
+  var sw = (window.screen && window.screen.width) || 0;
+  var layout = Math.min(w || sw, sw || w || 0);
+  return layout >= 1367;
+}
+if (scoopLayoutWide()) {
   window.location.replace("nyse.html");
 }
 window.addEventListener("resize", function () {
-  if (window.innerWidth >= 1367 && !/nyse\.html$/.test(window.location.pathname)) {
+  if (scoopLayoutWide() && !/nyse\.html$/.test(window.location.pathname)) {
     window.location.replace("nyse.html");
   }
 });

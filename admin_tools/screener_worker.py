@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -26,8 +27,32 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-# Snapshot publishes must not redeploy this worker. A code deploy still restarts it.
-PUBLISH_MESSAGE = "Publish the latest screener snapshots.\n\n[skip render]"
+# Snapshot publishes from Render must not redeploy this worker.
+# A push from this machine omits the skip line so Render starts the worker.
+def _publish_message(*, start_worker: bool) -> str:
+    message = "Publish the latest screener snapshots."
+    if not start_worker:
+        message += "\n\n[skip render]"
+    return message
+
+
+_stop_after_snapshot = False
+
+
+def _request_stop(signum, _frame) -> None:
+    """A deploy arrived. Finish this market, then let the new process run the next scan."""
+    global _stop_after_snapshot
+    _stop_after_snapshot = True
+    print(
+        "Deploy received. This snapshot will finish and publish. "
+        "The new code is included in the next scan.",
+        flush=True,
+    )
+
+
+def _install_stop_handler() -> None:
+    signal.signal(signal.SIGTERM, _request_stop)
+    signal.signal(signal.SIGINT, _request_stop)
 
 
 # This process is not `streamlit run`. Decorating cache_data at import logs
@@ -106,7 +131,7 @@ def _publish_from_clone(written: list[str], token: str) -> None:
                 "user.email=snapshots@thescoop52.com",
                 "commit",
                 "-m",
-                PUBLISH_MESSAGE,
+                _publish_message(start_worker=False),
             ],
             cwd=clone,
             check=True,
@@ -118,7 +143,7 @@ def _publish_from_clone(written: list[str], token: str) -> None:
     _purge_edge_cache()
 
 
-def _publish_saved_pages(written: list[str]) -> None:
+def _publish_saved_pages(written: list[str], *, start_worker: bool) -> None:
     """Commit the refreshed preview files and push them to production master."""
     if not written:
         return
@@ -149,7 +174,7 @@ def _publish_saved_pages(written: list[str]) -> None:
             "user.email=snapshots@thescoop52.com",
             "commit",
             "-m",
-            PUBLISH_MESSAGE,
+            _publish_message(start_worker=start_worker),
         ],
         cwd=ROOT,
         check=True,
@@ -157,8 +182,12 @@ def _publish_saved_pages(written: list[str]) -> None:
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token:
         remote = f"https://x-access-token:{token}@github.com/Deliverybit/smart-hub-prod.git"
+        subprocess.run(["git", "fetch", remote, "master"], cwd=ROOT, check=True)
+        subprocess.run(["git", "rebase", "FETCH_HEAD"], cwd=ROOT, check=True)
         subprocess.run(["git", "push", remote, "HEAD:master"], cwd=ROOT, check=True)
     else:
+        subprocess.run(["git", "fetch", "prod", "master"], cwd=ROOT, check=True)
+        subprocess.run(["git", "rebase", "prod/master"], cwd=ROOT, check=True)
         subprocess.run(["git", "push", "prod", "HEAD:master"], cwd=ROOT, check=True)
     print("Pushed saved pages to master.", flush=True)
     _purge_edge_cache()
@@ -198,7 +227,7 @@ def _purge_edge_cache() -> None:
     print("Edge cache purge was not accepted.", flush=True)
 
 
-def _finish_payload(payload: dict, *, persist: bool, dry_run: bool) -> None:
+def _finish_payload(payload: dict, *, persist: bool, dry_run: bool, start_worker: bool) -> None:
     """Publish one finished screener so a later market cannot hold the site."""
     if persist:
         apply_last_scan_time([payload], persist=True)
@@ -215,7 +244,7 @@ def _finish_payload(payload: dict, *, persist: bool, dry_run: bool) -> None:
         flush=True,
     )
     try:
-        _publish_saved_pages(written)
+        _publish_saved_pages(written, start_worker=start_worker)
     except Exception:
         traceback.print_exc()
         print("Saved pages were not pushed.", flush=True)
@@ -248,6 +277,8 @@ def main() -> int:
         return 2
 
     persist = not args.dry_run
+    on_render = os.environ.get("RENDER") == "true"
+    _install_stop_handler()
     definitions = (
         [get_definition(args.screener)]
         if args.screener
@@ -256,7 +287,7 @@ def main() -> int:
     while True:
         saved = 0
         last_display = ""
-        for defn in definitions:
+        for index, defn in enumerate(definitions):
             print(f"Starting {defn.key}.", flush=True)
             try:
                 payload = refresh_screener(defn, persist=persist)
@@ -266,16 +297,28 @@ def main() -> int:
                 continue
             saved += 1
             last_display = str(payload.get("last_updated_display") or last_display)
-            _finish_payload(payload, persist=persist, dry_run=args.dry_run)
+            last_market = index == len(definitions) - 1
+            _finish_payload(
+                payload,
+                persist=persist,
+                dry_run=args.dry_run,
+                start_worker=last_market and not on_render,
+            )
+            if _stop_after_snapshot:
+                print(
+                    "Snapshot published. The staged deploy is included in the next scan.",
+                    flush=True,
+                )
+                return 0
         if saved == 0:
             print("Full scan finished with no screener saved.", flush=True)
-            if not args.loop:
+            if not args.loop or _stop_after_snapshot:
                 return 1
             print("Retrying in 30 seconds.", flush=True)
             time.sleep(30)
             continue
         print(f"Full scan finished. Last scan time: {last_display}", flush=True)
-        if not args.loop:
+        if not on_render or not args.loop or _stop_after_snapshot:
             return 0
         print("Starting the next full scan.", flush=True)
 

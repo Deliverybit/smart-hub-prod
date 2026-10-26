@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -24,6 +25,65 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+# Snapshot publishes must not redeploy this worker. A code deploy still restarts it.
+PUBLISH_MESSAGE = "Publish the latest screener snapshots.\n\n[skip render]"
+SCAN_LOCK_ID = 52052052
+_stop_after_publish = False
+
+
+def _request_stop(signum, _frame) -> None:
+    """A deploy may arrive mid-scan. Finish this pass, then let the new process run."""
+    global _stop_after_publish
+    _stop_after_publish = True
+    print(
+        "Deploy signal received. This scan will finish and publish. "
+        "The new code runs on the next scan.",
+        flush=True,
+    )
+
+
+def _install_stop_handler() -> None:
+    signal.signal(signal.SIGTERM, _request_stop)
+    signal.signal(signal.SIGINT, _request_stop)
+
+
+class _ScanLock:
+    """One scan at a time. A new deploy waits here until the current publish finishes."""
+
+    def __init__(self) -> None:
+        self._conn = None
+
+    def __enter__(self):
+        from app_config import get_database_url
+
+        url = get_database_url()
+        if not url:
+            print("Scan lock skipped. DATABASE_URL is not set.", flush=True)
+            return self
+        import psycopg
+
+        self._conn = psycopg.connect(url)
+        self._conn.autocommit = True
+        with self._conn.cursor() as cur:
+            cur.execute("SELECT pg_try_advisory_lock(%s)", (SCAN_LOCK_ID,))
+            if not cur.fetchone()[0]:
+                print(
+                    "A scan is already running. This deploy will start after that scan publishes.",
+                    flush=True,
+                )
+                cur.execute("SELECT pg_advisory_lock(%s)", (SCAN_LOCK_ID,))
+        return self
+
+    def __exit__(self, *_args) -> None:
+        if self._conn is None:
+            return
+        try:
+            with self._conn.cursor() as cur:
+                cur.execute("SELECT pg_advisory_unlock(%s)", (SCAN_LOCK_ID,))
+        finally:
+            self._conn.close()
+            self._conn = None
 
 from screener_engine import (  # noqa: E402
     SCREENER_DEFINITIONS,
@@ -97,7 +157,7 @@ def _publish_from_clone(written: list[str], token: str) -> None:
                 "user.email=snapshots@thescoop52.com",
                 "commit",
                 "-m",
-                "Publish the latest screener snapshots.",
+                PUBLISH_MESSAGE,
             ],
             cwd=clone,
             check=True,
@@ -140,7 +200,7 @@ def _publish_saved_pages(written: list[str]) -> None:
             "user.email=snapshots@thescoop52.com",
             "commit",
             "-m",
-            "Publish the latest screener snapshots.",
+            PUBLISH_MESSAGE,
         ],
         cwd=ROOT,
         check=True,
@@ -223,44 +283,58 @@ def main() -> int:
         return 2
 
     persist = not args.dry_run
+    _install_stop_handler()
     while True:
-        try:
-            payloads = run_once(screener=args.screener, persist=persist)
-        except Exception:
-            traceback.print_exc()
-            if not args.loop:
-                return 1
-            print("Full scan failed. Retrying in 30 seconds.", flush=True)
-            time.sleep(30)
-            continue
-
-        _print_payloads(payloads, dry_run=args.dry_run)
-        if persist and payloads:
-            import importlib
-            import preview_tables
-
-            importlib.reload(preview_tables)
-            written = preview_tables.refresh_preview_from_payloads(payloads)
+        if _stop_after_publish:
             print(
-                "Saved pages updated: " + (", ".join(written) if written else "none"),
+                "Stopping so the new deploy can start its scan.",
                 flush=True,
             )
+            return 0
+        with _ScanLock():
             try:
-                _publish_saved_pages(written)
+                payloads = run_once(screener=args.screener, persist=persist)
             except Exception:
                 traceback.print_exc()
-                print("Saved pages were not pushed.", flush=True)
-        if not payloads:
-            print("Full scan finished with no screener saved.", flush=True)
-            if not args.loop:
-                return 1
-            print("Retrying in 30 seconds.", flush=True)
-            time.sleep(30)
-            continue
-        print(
-            f"Full scan finished. Last scan time: {payloads[0].get('last_updated_display')}",
-            flush=True,
-        )
+                if not args.loop or _stop_after_publish:
+                    return 1
+                print("Full scan failed. Retrying in 30 seconds.", flush=True)
+                time.sleep(30)
+                continue
+
+            _print_payloads(payloads, dry_run=args.dry_run)
+            if persist and payloads:
+                import importlib
+                import preview_tables
+
+                importlib.reload(preview_tables)
+                written = preview_tables.refresh_preview_from_payloads(payloads)
+                print(
+                    "Saved pages updated: " + (", ".join(written) if written else "none"),
+                    flush=True,
+                )
+                try:
+                    _publish_saved_pages(written)
+                except Exception:
+                    traceback.print_exc()
+                    print("Saved pages were not pushed.", flush=True)
+            if not payloads:
+                print("Full scan finished with no screener saved.", flush=True)
+                if not args.loop or _stop_after_publish:
+                    return 1
+                print("Retrying in 30 seconds.", flush=True)
+                time.sleep(30)
+                continue
+            print(
+                f"Full scan finished. Last scan time: {payloads[0].get('last_updated_display')}",
+                flush=True,
+            )
+        if _stop_after_publish:
+            print(
+                "Scan published. The new deploy applies on the next scan.",
+                flush=True,
+            )
+            return 0
         if not args.loop:
             return 0
         print("Starting the next full scan.", flush=True)

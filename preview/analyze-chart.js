@@ -42,6 +42,29 @@
   var currentAsset = null;
   var showUsd = false;
 
+  function usdStorageKey(asset) {
+    if (!asset) return "";
+    var market = String(asset.market || "");
+    if (asset.currency === "GBP" || market.indexOf("LSE") !== -1) return "scoop-usd-LSE";
+    if (asset.currency === "CAD" || market.indexOf("TSX") !== -1) return "scoop-usd-TSX";
+    return "";
+  }
+
+  function readShowUsd(asset) {
+    var key = usdStorageKey(asset);
+    if (!key) return false;
+    try {
+      var value = sessionStorage.getItem(key);
+      return value === "usd" || value === "1";
+    } catch (err) { return false; }
+  }
+
+  function writeShowUsd(asset, on) {
+    var key = usdStorageKey(asset);
+    if (!key) return;
+    try { sessionStorage.setItem(key, on ? "usd" : "local"); } catch (err) {}
+  }
+
   function sliderRoot() {
     return document.querySelector('[data-testid="stSlider"]');
   }
@@ -81,21 +104,30 @@
     var tickPx = window.innerWidth >= 1367 ? 40 : 26;
     var narrow = window.innerWidth < 1367;
     var datePx = narrow ? 24 : 28;
-    var padL = tickPx >= 40 ? 210 : 108, padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
-    var plotW = Math.max(10, w - padL - padR);
-    var plotH = h - padT - padB;
     var prices = slice.map(function (row) { return shownPrice(row.p); });
     var min = Math.min.apply(null, prices);
     var max = Math.max.apply(null, prices);
     if (min === max) { min -= 1; max += 1; }
     var span = max - min;
-    min -= span * 0.06;
-    max += span * 0.06;
+    var head = narrow ? 0.22 : 0.08;
+    min -= span * head;
+    max += span * head;
+    ctx.font = tickPx + "px \"Source Sans 3\", \"Source Sans Pro\", sans-serif";
+    var labelW = 0;
+    for (var probe = 0; probe <= 4; probe++) {
+      var sample = min + ((max - min) * probe) / 4;
+      labelW = Math.max(labelW, ctx.measureText(formatMoney(sample)).width);
+    }
+    var padL = Math.ceil(labelW + (narrow ? 18 : 28));
+    var padR = narrow ? 18 : 28;
+    var padT = narrow ? Math.ceil(tickPx + 36) : 48;
+    var padB = narrow ? 56 : 72;
+    var plotW = Math.max(10, w - padL - padR);
+    var plotH = h - padT - padB;
     function xAt(i) { return padL + (slice.length === 1 ? plotW / 2 : (i / (slice.length - 1)) * plotW); }
     function yAt(p) { return padT + (1 - (p - min) / (max - min)) * plotH; }
     ctx.strokeStyle = grid;
     ctx.lineWidth = 1;
-    ctx.font = tickPx + "px \"Source Sans 3\", \"Source Sans Pro\", sans-serif";
     ctx.fillStyle = text;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
@@ -134,6 +166,8 @@
     });
     ctx.strokeStyle = "#4ade80";
     ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
     ctx.stroke();
     var last = slice[slice.length - 1];
     ctx.fillStyle = "#4ade80";
@@ -338,7 +372,11 @@
     if (!document.getElementById("scoop-currency-switch")) {
       var style = document.createElement("style");
       style.id = "scoop-currency-switch";
-      style.textContent = ".scoop-currency{display:flex;align-items:center;gap:.45rem;width:fit-content;margin:.4rem 0 .8rem}.scoop-currency .currency-abbrev{position:relative;font-size:1.45rem;font-weight:700;letter-spacing:.04em;border-bottom:1px dashed currentColor;line-height:1.2;cursor:help}.scoop-currency .tip-text{display:none;position:absolute;left:0;top:calc(100% + .35rem);z-index:20;width:max-content;padding:.45rem .7rem;font-size:1.25rem;font-weight:500;line-height:1.35;white-space:nowrap;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-radius:8px}.scoop-currency .currency-abbrev:hover .tip-text,.scoop-currency .currency-abbrev:focus .tip-text{display:block}html[data-scoop-theme=dark] .scoop-currency .tip-text{color:#f8fafc;background:#0f172a;border-color:#334155}.scoop-currency-switch{width:3.15rem;height:1.7rem;border:0;border-radius:999px;background:#e2e8f0;padding:0;position:relative;cursor:pointer}.scoop-currency-switch::after{content:\"\";position:absolute;top:.22rem;left:.22rem;width:1.25rem;height:1.25rem;border-radius:999px;background:#2563eb}.scoop-currency-switch[aria-pressed=true]{background:#22c55e}.scoop-currency-switch[aria-pressed=true]::after{background:#f8fafc;transform:translateX(1.45rem)}";
+      style.textContent = ".scoop-currency{display:flex;align-items:center;gap:.45rem;width:fit-content;margin:.4rem 0 .8rem}.scoop-currency .currency-abbrev{position:relative;font-size:1.45rem;font-weight:700;letter-spacing:.04em;border-bottom:1px dashed currentColor;line-height:1.2;cursor:help}.scoop-currency-switch{width:3.15rem;height:1.7rem;border:0;border-radius:999px;background:#e2e8f0;padding:0;position:relative;cursor:pointer}.scoop-currency-switch::after{content:\"\";position:absolute;top:.22rem;left:.22rem;width:1.25rem;height:1.25rem;border-radius:999px;background:#2563eb}.scoop-currency-switch[aria-pressed=true]{background:#22c55e}.scoop-currency-switch[aria-pressed=true]::after{background:#f8fafc;transform:translateX(1.45rem)}.scoop-currency,.scoop-currency-switch{position:relative;z-index:6;pointer-events:auto!important}"
+        + "html .scoop-currency .currency-abbrev>.tip-text{display:none;visibility:hidden;opacity:0;position:absolute!important;left:0!important;right:auto!important;top:auto!important;bottom:calc(100% + .45rem)!important;transform:none!important;inset:auto auto calc(100% + .45rem) 0!important;width:max-content!important;max-width:none!important;height:auto!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;background:#111827!important;color:#e5e7eb!important;border:none!important;outline:2px solid #22c55e!important;outline-offset:0!important;border-radius:8px!important;padding:.55rem .8rem!important;font-size:1.05rem!important;font-weight:500!important;line-height:1.35!important;text-align:left!important;z-index:100003!important;box-shadow:0 8px 18px rgba(0,0,0,.35)!important}"
+        + "html .scoop-currency .currency-abbrev:hover>.tip-text,html .scoop-currency .currency-abbrev:focus>.tip-text,html .scoop-currency .currency-abbrev:focus-within>.tip-text{display:block!important;visibility:visible!important;opacity:1!important}"
+        + "html .scoop-currency .scoop-currency-tip-code{display:block;font-weight:800;color:#f8fafc;font-size:1.05rem;letter-spacing:.02em;margin:0 0 .35rem;padding-bottom:.28rem;border-bottom:1px solid rgba(229,231,235,.35)}"
+        + "html[data-scoop-theme=dark] .scoop-currency .currency-abbrev>.tip-text{outline:2px solid #ffffff!important;border:none!important}";
       document.head.appendChild(style);
     }
     var existing = document.querySelector(".scoop-currency");
@@ -347,7 +385,11 @@
       showUsd = false;
       return;
     }
-    if (existing) return;
+    if (existing) {
+      var current = existing.querySelector("button");
+      if (current) current.setAttribute("aria-pressed", showUsd ? "true" : "false");
+      return;
+    }
     var heading = document.querySelector("h1");
     if (!heading) return;
     var host = heading.closest('[data-testid="stElementContainer"]') || heading.parentElement;
@@ -355,14 +397,19 @@
     var names = { GBP: "British Pounds", CAD: "Canadian Dollars", USD: "United States Dollars" };
     var box = document.createElement("div");
     box.className = "scoop-currency";
-    box.innerHTML = '<span class="tip-wrap currency-abbrev" tabindex="0">' + code + '<span class="tip-text">' + names[code] + '</span></span>'
-      + '<button type="button" class="scoop-currency-switch" aria-pressed="false" aria-label="Show prices in USD"></button>'
-      + '<span class="tip-wrap currency-abbrev" tabindex="0">USD<span class="tip-text">' + names.USD + '</span></span>';
+    function currencyTip(abbrev, full) {
+      return '<span class="tip-wrap currency-abbrev" tabindex="0">' + abbrev
+        + '<span class="tip-text"><span class="scoop-currency-tip-code">' + abbrev + '</span>' + full + '</span></span>';
+    }
+    box.innerHTML = currencyTip(code, names[code])
+      + '<button type="button" class="scoop-currency-switch" aria-pressed="' + (showUsd ? "true" : "false") + '" aria-label="Show prices in USD"></button>'
+      + currencyTip("USD", names.USD);
     host.insertAdjacentElement("afterend", box);
     var button = box.querySelector("button");
     button.addEventListener("click", function () {
       showUsd = button.getAttribute("aria-pressed") !== "true";
       button.setAttribute("aria-pressed", showUsd ? "true" : "false");
+      writeShowUsd(currentAsset, showUsd);
       applyAsset(currentAsset);
       var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');
       draw(DAYS[input ? Number(input.value) : 0]);
@@ -392,6 +439,7 @@
   function applyAsset(asset) {
     if (!asset) return;
     currentAsset = asset;
+    showUsd = readShowUsd(asset);
     mountCurrencySwitch();
     document.title = asset.ticker + " — Analyze";
     var heading = document.querySelector("h1 [data-heading-text]") || document.querySelector("h1");
@@ -408,7 +456,11 @@
       if (asset.description) {
         var box = document.createElement("span");
         box.className = "tip-text";
-        box.textContent = asset.description;
+        var label = document.createElement("span");
+        label.className = "scoop-analyze-tip-label";
+        label.textContent = asset.name || asset.ticker;
+        box.appendChild(label);
+        box.appendChild(document.createTextNode(asset.description));
         tip.appendChild(box);
       }
       nameEl.appendChild(tip);

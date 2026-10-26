@@ -42,6 +42,36 @@ async function sha256(value) {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+function isPublicIp(ip) {
+  if (!ip || ip === "0.0.0.0" || ip === "::1") return false;
+  if (ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("127.")) return false;
+  const second = Number((ip.split(".")[1] || ""));
+  if (ip.startsWith("172.") && second >= 16 && second <= 31) return false;
+  return true;
+}
+
+async function detectVpn(ip, env) {
+  if (!isPublicIp(ip)) return { isVpn: null, provider: null };
+  const params = new URLSearchParams({ vpn: "1", asn: "1", risk: "1", seen: "1", tag: "scoop52-consent" });
+  const key = (env.PROXYCHECK_API_KEY || "").trim();
+  if (key) params.set("key", key);
+  try {
+    const response = await fetch(`https://proxycheck.io/v2/${encodeURIComponent(ip)}?${params}`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    if (!response.ok) return { isVpn: null, provider: null };
+    const payload = await response.json();
+    const row = payload[ip];
+    if (!row || typeof row !== "object") return { isVpn: null, provider: null };
+    const flag = String(row.proxy || "").toLowerCase();
+    const isVpn = flag === "yes" ? true : flag === "no" ? false : null;
+    const provider = row.provider || row.organisation || row.asn || null;
+    return { isVpn, provider: provider ? String(provider).slice(0, 255) : null };
+  } catch {
+    return { isVpn: null, provider: null };
+  }
+}
+
 function offsetMinutes(timeZone, date) {
   try {
     const raw = new Intl.DateTimeFormat("en-US", {
@@ -110,12 +140,14 @@ export default {
     const gpc = request.headers.get("Sec-GPC") === "1";
     const now = new Date();
     const fingerprint = await sha256(`${userAgent}|${acceptLanguage}|public`);
+    const vpn = await detectVpn(ip, env);
 
     try {
       await db(env)`
         INSERT INTO legal_consents (
           id, timestamp_utc, timestamp_local, timezone_name, timezone_offset, ip_address, user_agent,
           tos_version, fingerprint_hash, consent_action,
+          is_vpn, vpn_service_provider,
           gpc_signal, manual_opt_out, opt_out_effective, opt_out_source, tracking_mode
         ) VALUES (
           ${crypto.randomUUID()},
@@ -128,6 +160,8 @@ export default {
           ${"2026-03-16"},
           ${fingerprint},
           ${"click_wrap_accept"},
+          ${vpn.isVpn},
+          ${vpn.provider},
           ${gpc},
           ${false},
           ${gpc},

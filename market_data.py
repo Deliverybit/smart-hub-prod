@@ -100,6 +100,10 @@ class MarketData:
         self.api_key = get_alpha_vantage_api_key(required=True)
         self.base_url = "https://www.alphavantage.co/query"
         self.session = requests.Session()
+        self._daily_cache: dict[tuple[str, str], pd.DataFrame] = {}
+        self._news_cache: dict[tuple[str, bool], list] = {}
+        self._screener_quote_cache: dict[str, dict] = {}
+        self._symbol_search_cache: dict[str, list] = {}
 
     def _new_session(self) -> None:
         try:
@@ -132,10 +136,6 @@ class MarketData:
             if use_alarm:
                 signal.alarm(0)
                 signal.signal(signal.SIGALRM, previous)
-        self._daily_cache: dict[tuple[str, str], pd.DataFrame] = {}
-        self._news_cache: dict[tuple[str, bool], list] = {}
-        self._screener_quote_cache: dict[str, dict] = {}
-        self._symbol_search_cache: dict[str, list] = {}
 
     _CRYPTO_SYMBOLS = {
         "BTC", "ETH", "DOGE", "SOL", "ADA", "SHIB", "XRP", "BNB", "AVAX",

@@ -186,14 +186,7 @@ html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-testid="stPag
 }
 </style>
 <script>
-if (window.innerWidth >= 1367) {
-  window.location.replace("nyse.html");
-}
-window.addEventListener("resize", function () {
-  if (window.innerWidth >= 1367 && !/nyse\.html$/.test(window.location.pathname)) {
-    window.location.replace("nyse.html");
-  }
-});
+window.location.replace("nyse.html");
 function scoopSetTheme(next) {
   var mode = next ? "dark" : "light";
   document.documentElement.setAttribute("data-scoop-theme", mode);

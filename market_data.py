@@ -519,6 +519,20 @@ class MarketData:
                 row["high"] = float(row["high"]) * split_scale
 
     @classmethod
+    def _span_window(cls, df: pd.DataFrame, days: int, as_of: datetime | None = None) -> pd.DataFrame:
+        """Split-adjusted daily bars in the last ``days`` calendar days."""
+        if df.empty or "date" not in df.columns:
+            return df
+        if as_of is None:
+            as_of = datetime.now(timezone.utc)
+        if getattr(as_of, "tzinfo", None) is not None:
+            as_of = as_of.astimezone(timezone.utc).replace(tzinfo=None)
+        end = pd.Timestamp(as_of).normalize()
+        start = end - pd.Timedelta(days=int(days))
+        dates = pd.to_datetime(df["date"]).dt.normalize()
+        return df.loc[(dates >= start) & (dates <= end)].copy()
+
+    @classmethod
     def _year_window(cls, df: pd.DataFrame, as_of: datetime | None = None) -> pd.DataFrame:
         """Split-adjusted daily bars in the last 365 calendar days."""
         if df.empty or "date" not in df.columns:
@@ -838,51 +852,25 @@ class MarketData:
         items = self.get_news_items(ticker)
         return [item["title"] for item in items]
 
-    def _yahoo_listing_headlines(self, symbol: str) -> list[dict]:
-        """Headlines for the London (.L) or Toronto (.TO) listing."""
-        import xml.etree.ElementTree as ET
-        from html import unescape
+    def _listing_news_symbol(self, symbol: str) -> str:
+        """Alpha Vantage news tickers cannot contain dots or hyphens.
 
-        cache_key = (f"YAHOO:{symbol}", False)
-        if cache_key in self._news_cache:
-            return [dict(item) for item in self._news_cache[cache_key]]
-
-        yahoo_symbol = symbol.replace(".LON", ".L").replace(".TRT", ".TO")
-        url = (
-            "https://feeds.finance.yahoo.com/rss/2.0/headline"
-            f"?s={yahoo_symbol}&region=US&lang=en-US"
-        )
-        headlines = []
-        seen = set()
-        try:
-            response = self._get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
-            response.raise_for_status()
-            root = ET.fromstring(response.content)
-        except (requests.RequestException, ET.ParseError, ValueError):
-            root = None
-        if root is not None:
-            for item in root.iter("item"):
-                title = unescape((item.findtext("title") or "")).strip()
-                link = unescape((item.findtext("link") or "")).strip()
-                key = (title, link)
-                if title and link and key not in seen:
-                    seen.add(key)
-                    headlines.append({"title": title, "url": link, "source": "Yahoo Finance", "relevance": 0.0})
-        result = headlines if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]
-        self._news_cache[cache_key] = [dict(item) for item in result]
-        return [dict(item) for item in result]
+        A mapped US listing is used when the bare root is a different company.
+        Other London and Toronto names use the root symbol, such as SHEL or RY.
+        """
+        mapped = self._LISTING_NEWS_SYMBOLS.get(symbol)
+        if mapped:
+            return mapped
+        if symbol.endswith((".LON", ".TRT")):
+            root = symbol.split(".", 1)[0].split("-", 1)[0]
+            return "".join(ch for ch in root if ch.isalnum())
+        return symbol
 
     def get_news_items(self, ticker, *, fail_fast: bool = False):
         """Pulls headline + source URL pairs for the specific asset."""
         symbol = self._format_ticker(ticker)
         is_crypto = self._is_crypto(ticker)
-        # NEWS_SENTIMENT has no London or Toronto feed. A mapped US listing is the same company.
-        # The bare ticker is often a different US company, so unmapped names use the Yahoo listing feed.
-        news_symbol = self._LISTING_NEWS_SYMBOLS.get(symbol)
-        if symbol.endswith((".LON", ".TRT")) and not news_symbol:
-            return self._yahoo_listing_headlines(symbol)
-        if not news_symbol:
-            news_symbol = symbol
+        news_symbol = self._listing_news_symbol(symbol)
         cache_key = (news_symbol, is_crypto)
         if cache_key in self._news_cache:
             return [dict(item) for item in self._news_cache[cache_key]]
@@ -963,15 +951,6 @@ class MarketData:
                     "relevance": relevance,
                 })
 
-        if is_crypto and not headlines:
-            yahoo_symbol = symbol if str(symbol).endswith("-USD") else f"{symbol}-USD"
-            yahoo = [
-                item for item in self._yahoo_listing_headlines(yahoo_symbol)
-                if item.get("url")
-            ]
-            if yahoo:
-                self._news_cache[cache_key] = [dict(item) for item in yahoo]
-                return [dict(item) for item in yahoo]
         result = headlines if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]
         self._news_cache[cache_key] = [dict(item) for item in result]
         return [dict(item) for item in result]

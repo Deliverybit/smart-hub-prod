@@ -197,6 +197,10 @@ def run_once(*, screener: str | None, persist: bool) -> list[dict]:
 
 
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:
+        pass
     parser = argparse.ArgumentParser(description="Refresh precomputed screener snapshots.")
     parser.add_argument(
         "--screener",

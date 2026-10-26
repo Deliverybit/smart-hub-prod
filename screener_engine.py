@@ -263,7 +263,10 @@ def run_screener_scan(
     results: list[dict[str, Any]] = []
     batched = defn.kind in {"crypto", "commodity"}
     preloaded = md.get_screener_snapshots(scan_universe) if batched else {}
-    for ticker in scan_universe:
+    total = len(scan_universe)
+    print(f"Scanning {defn.key}: {total} names", flush=True)
+    for index, ticker in enumerate(scan_universe, start=1):
+        print(f"{defn.key} {index}/{total} {ticker}", flush=True)
         row = screen_ticker(
             md,
             ticker,

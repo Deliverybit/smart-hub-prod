@@ -100,6 +100,38 @@ class MarketData:
         self.api_key = get_alpha_vantage_api_key(required=True)
         self.base_url = "https://www.alphavantage.co/query"
         self.session = requests.Session()
+
+    def _new_session(self) -> None:
+        try:
+            self.session.close()
+        except Exception:
+            pass
+        self.session = requests.Session()
+
+    def _get(self, url: str, *, timeout: int, **kwargs):
+        """HTTP GET that cannot stall the scan. A quiet socket is abandoned."""
+        import signal
+        import threading
+
+        def _alarm(_signum, _frame):
+            raise TimeoutError("quote request timed out")
+
+        use_alarm = (
+            threading.current_thread() is threading.main_thread()
+            and hasattr(signal, "SIGALRM")
+        )
+        if use_alarm:
+            previous = signal.signal(signal.SIGALRM, _alarm)
+            signal.alarm(timeout + 5)
+        try:
+            return self.session.get(url, timeout=timeout, **kwargs)
+        except TimeoutError:
+            self._new_session()
+            raise requests.Timeout("quote request timed out")
+        finally:
+            if use_alarm:
+                signal.alarm(0)
+                signal.signal(signal.SIGALRM, previous)
         self._daily_cache: dict[tuple[str, str], pd.DataFrame] = {}
         self._news_cache: dict[tuple[str, bool], list] = {}
         self._screener_quote_cache: dict[str, dict] = {}
@@ -324,7 +356,7 @@ class MarketData:
         max_attempts = 1 if fail_fast else 4
         for attempt in range(max_attempts):
             try:
-                response = self.session.get(
+                response = self._get(
                     self.base_url,
                     params={**params, "apikey": self.api_key},
                     timeout=12 if fail_fast else 20,
@@ -342,7 +374,13 @@ class MarketData:
 
             if "Note" in data or "Information" in data:
                 if attempt + 1 < max_attempts:
-                    time.sleep(12 * (attempt + 1))
+                    wait = 12 * (attempt + 1)
+                    label = params.get("symbol") or params.get("keywords") or ""
+                    print(
+                        f"Alpha Vantage is busy for {params.get('function')} {label}. Waiting {wait}s.",
+                        flush=True,
+                    )
+                    time.sleep(wait)
                     continue
                 return {}
 
@@ -817,7 +855,7 @@ class MarketData:
         headlines = []
         seen = set()
         try:
-            response = self.session.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+            response = self._get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
             response.raise_for_status()
             root = ET.fromstring(response.content)
         except (requests.RequestException, ET.ParseError, ValueError):

@@ -854,6 +854,9 @@ def prepare_mobile_home_landing() -> None:
     st.html(
         """
         <style id="scoop-tablet-home-early">
+        html:not([data-scoop-home-ready="1"]) [data-testid="stMainBlockContainer"] {
+          visibility: hidden !important;
+        }
         @media (min-width: 744px) and (max-width: 1366px) {
           html:has(.scoop-home-landing) [data-testid="stMainBlockContainer"] { padding-top: 0 !important; }
           html:has(.scoop-home-landing) [data-testid="stImage"],
@@ -1238,6 +1241,7 @@ html[data-scoop-home-page="1"][data-scoop-tab-nav="1"] body .stApp [data-testid=
   }
 }
 </style>
+<script>document.documentElement.setAttribute("data-scoop-home-ready","1");</script>
 """,
         unsafe_allow_javascript=True,
     )

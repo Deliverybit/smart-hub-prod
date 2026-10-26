@@ -151,8 +151,6 @@ def screen_ticker(
     snapshot: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     try:
-        if snapshot is None and defn.kind in {"crypto", "commodity"}:
-            return None
         if snapshot is None:
             snapshot = market_data.get_market_snapshot(ticker)
         if not snapshot:
@@ -261,8 +259,6 @@ def run_screener_scan(
     md = market_data or MarketData()
 
     results: list[dict[str, Any]] = []
-    batched = defn.kind in {"crypto", "commodity"}
-    preloaded = md.get_screener_snapshots(scan_universe) if batched else {}
     total = len(scan_universe)
     print(f"Scanning {defn.key}: {total} names", flush=True)
     for index, ticker in enumerate(scan_universe, start=1):
@@ -272,7 +268,6 @@ def run_screener_scan(
             ticker,
             defn=defn,
             env=env,
-            snapshot=preloaded.get(ticker) if batched else None,
         )
         if row is not None:
             results.append(row)

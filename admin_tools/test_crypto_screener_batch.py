@@ -54,27 +54,22 @@ def test_crypto_snapshots_use_alpha_vantage_only() -> None:
     assert snaps["COIN0-USD"]["current_price"] == 10.0
 
 
-def test_run_screener_scan_uses_batched_crypto_snapshots() -> None:
+def test_run_screener_scan_quotes_crypto_like_other_markets() -> None:
     md = _market_data()
     env = load_page_env(_crypto_defn())
     universe = env["_universe"][:4]
-    fake_snaps = {
-        ticker: {
-            "current_price": 10.0,
-            "year_low": 8.0,
-            "year_high": 20.0,
-            "source": "alpha_vantage",
-        }
-        for ticker in universe
-    }
 
-    with patch.object(md, "get_screener_snapshots", return_value=fake_snaps) as batch_mock:
-        with patch.object(md, "get_market_snapshot") as av_mock:
+    def _snap(ticker: str) -> dict:
+        return {"current_price": 10.0, "year_low": 8.0, "year_high": 20.0}
+
+    with patch.object(md, "get_screener_snapshots") as batch_mock:
+        with patch.object(md, "get_market_snapshot", side_effect=_snap) as av_mock:
             with patch("screener_engine.get_screener_symbol_limit", return_value=4):
                 results, scanned, total = run_screener_scan(_crypto_defn(), market_data=md)
 
-    batch_mock.assert_called_once()
-    assert av_mock.call_count == 0
+    batch_mock.assert_not_called()
+    assert av_mock.call_count == 4
+    assert [call.args[0] for call in av_mock.call_args_list] == universe
     assert scanned == 4
     assert total == 100
     assert len(results) == 4
@@ -85,7 +80,7 @@ def main() -> int:
     tests = [
         test_crypto_universe_has_100_names,
         test_crypto_snapshots_use_alpha_vantage_only,
-        test_run_screener_scan_uses_batched_crypto_snapshots,
+        test_run_screener_scan_quotes_crypto_like_other_markets,
     ]
     for fn in tests:
         fn()

@@ -291,7 +291,11 @@ def build_snapshot_payload(
     all_results, scanned_count, universe_size = run_screener_scan(defn, market_data=market_data)
     selection = select_proximity_results(all_results)
     display_results = enrich_result_rows(selection.results)
-    analyze_bundles = build_analyze_bundles(display_results, market_data)
+    try:
+        analyze_bundles = build_analyze_bundles(display_results, market_data)
+    except Exception as exc:
+        print(f"[ERROR] {defn.key} analyze bundles: {exc}", file=sys.stderr)
+        analyze_bundles = {}
     updated = datetime.now(timezone.utc)
     payload = {
         "screener_key": defn.key,

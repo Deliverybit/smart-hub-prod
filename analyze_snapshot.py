@@ -92,35 +92,39 @@ def build_analyze_bundles(
             "52W Low": row.get("52W Low"),
             "52W High": row.get("52W High"),
         }
-        price = md.get_analyze_price_bundle(sym, 730, snapshot=snapshot, fail_fast=False)
-        if not price:
+        try:
+            price = md.get_analyze_price_bundle(sym, 730, snapshot=snapshot, fail_fast=False)
+            if not price:
+                continue
+            news_items = _news_from_row(row)
+            headlines = [item["title"] for item in news_items]
+            sent_result = sentiment_eng.analyze_headlines(sym, headlines)
+            history = list(price.get("history") or [])
+            latest_price = price.get("latest_price") or 0
+            if len(history) >= 2:
+                prev_price = history[-2]["price"]
+                price_change_pct = (latest_price - prev_price) / prev_price if prev_price else 0
+            else:
+                price_change_pct = 0
+            result = predictor_eng.predict(
+                sym,
+                headlines,
+                market_data=md,
+                latest_price=latest_price,
+                price_change_pct=price_change_pct,
+                sentiment_score=sent_result["score"],
+            )
+            bundle = _finalize_bundle(
+                news_items,
+                sent_result,
+                result,
+                history,
+                latest_price,
+                price,
+            )
+        except Exception as exc:
+            print(f"Skip analyze {sym}: {exc}", flush=True)
             continue
-        news_items = _news_from_row(row)
-        headlines = [item["title"] for item in news_items]
-        sent_result = sentiment_eng.analyze_headlines(sym, headlines)
-        history = list(price.get("history") or [])
-        latest_price = price.get("latest_price") or 0
-        if len(history) >= 2:
-            prev_price = history[-2]["price"]
-            price_change_pct = (latest_price - prev_price) / prev_price if prev_price else 0
-        else:
-            price_change_pct = 0
-        result = predictor_eng.predict(
-            sym,
-            headlines,
-            market_data=md,
-            latest_price=latest_price,
-            price_change_pct=price_change_pct,
-            sentiment_score=sent_result["score"],
-        )
-        bundle = _finalize_bundle(
-            news_items,
-            sent_result,
-            result,
-            history,
-            latest_price,
-            price,
-        )
         for key in _ticker_identity_variants(sym):
             bundles[key] = bundle
     return bundles

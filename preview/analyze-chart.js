@@ -470,11 +470,21 @@
       if (el.querySelector("p, div")) return;
       el.textContent = "Analyzing: " + asset.ticker;
     });
-    var back = document.querySelector("a.scoop-analyze-back");
-    if (back && asset.page) {
-      back.setAttribute("href", asset.page + "?scoop_from_analyze=1");
-      back.textContent = "← Back to " + asset.market;
+    var snapshot = String(asset.page || "").split("?")[0].split("/").pop();
+    if (snapshot.indexOf(".html") === -1) {
+      var marketName = String(asset.market || "");
+      if (marketName.indexOf("NASDAQ") !== -1) snapshot = "nasdaq.html";
+      else if (marketName.indexOf("LSE") !== -1) snapshot = "lse.html";
+      else if (marketName.indexOf("TSX") !== -1) snapshot = "tsx.html";
+      else if (marketName.indexOf("Crypto") !== -1) snapshot = "crypto.html";
+      else snapshot = "nyse.html";
     }
+    var backHref = snapshot + "?scoop_from_analyze=1";
+    var backLabel = "← Back to " + (asset.market || "market");
+    document.querySelectorAll("a.scoop-analyze-back, a.scoop-mobile-back-home").forEach(function (back) {
+      back.setAttribute("href", backHref);
+      back.textContent = backLabel;
+    });
     var pageFile = String(asset.page || "").split("?")[0].split("/").pop();
     document.querySelectorAll('[data-testid="stSidebar"] [data-testid="stPageLink"]').forEach(function (box) {
       var link = box.querySelector("a");

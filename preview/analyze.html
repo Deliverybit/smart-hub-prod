@@ -10573,7 +10573,7 @@ document.addEventListener("click", function (event) {
   var home = event.target.closest && event.target.closest("a.scoop-mobile-back-home");
   if (home) {
     event.preventDefault();
-    window.location.href = "/index.html";
+    window.location.href = home.getAttribute("href") || "nyse.html";
     return;
   }
   var dark = event.target.closest && event.target.closest('[data-testid="stCheckbox"]');
@@ -10614,7 +10614,7 @@ document.addEventListener("pointermove", function () {
   document.documentElement.classList.remove("scoop-tip-hold");
 });
 </script>
-<script src="analyze-chart.js?v=108"></script>
+<script src="analyze-chart.js?v=109"></script>
 <style>
 html[data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"],
 html[data-scoop-analyze-active="1"] [data-testid="stMain"] [data-testid="stCaptionContainer"] p,

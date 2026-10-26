@@ -135,6 +135,39 @@ def currency_abbrev_tip(code: str) -> str:
     )
 
 
+_USD_FIELDS = ("Price", "52W Low", "52W High")
+
+
+def stamp_usd_prices(payload: dict, rate: float | None) -> dict:
+    """Store a USD copy of each listing price on the snapshot. No network call."""
+    key = str(payload.get("screener_key") or "").upper()
+    if key not in {"LSE", "TSX"}:
+        return payload
+    try:
+        factor = quote_scale(key) * float(rate) if rate else None
+    except (TypeError, ValueError):
+        factor = None
+    payload["usd_per_local"] = factor and float(rate)
+    rows = list(payload.get("all_results") or []) + list(payload.get("display_results") or [])
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        for field in _USD_FIELDS:
+            value = row.get(field)
+            if factor is None or value is None:
+                row.pop(f"{field} USD", None)
+                continue
+            try:
+                row[f"{field} USD"] = float(value) * factor
+            except (TypeError, ValueError):
+                row.pop(f"{field} USD", None)
+    for bundle in (payload.get("analyze_bundles") or {}).values():
+        if isinstance(bundle, dict):
+            bundle["fx"] = float(rate) if factor else None
+            bundle["quote_scale"] = quote_scale(key)
+    return payload
+
+
 def usd_per_unit(code: str) -> float | None:
     """Spot units of USD per one unit of ``code`` (GBP or CAD)."""
     from market_data import MarketData

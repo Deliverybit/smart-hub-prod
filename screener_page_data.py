@@ -24,6 +24,7 @@ class ScreenerPageLoad:
     from_snapshot: bool
     snapshot_stale: bool
     headlines_enriched: bool
+    usd_per_local: float | None = None
 
 
 def _display_last_updated(payload: dict) -> str:
@@ -62,6 +63,7 @@ def load_screener_page_data(
             from_snapshot=bool(payload),
             snapshot_stale=bool(payload) and not snapshot_is_fresh(payload),
             headlines_enriched=bool(payload.get("headlines_enriched")) if payload else False,
+            usd_per_local=payload.get("usd_per_local") if payload else None,
         )
     if has_rows:
         stale = not snapshot_is_fresh(payload)
@@ -77,6 +79,7 @@ def load_screener_page_data(
             from_snapshot=True,
             snapshot_stale=stale,
             headlines_enriched=bool(payload.get("headlines_enriched")),
+            usd_per_local=payload.get("usd_per_local"),
         )
 
     all_results, last_updated = run_live()

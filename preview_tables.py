@@ -599,7 +599,7 @@ def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None
         "high": bundle.get("week52_high"),
         "currency": currency,
         "scale": 0.01 if key == "LSE" else 1,
-        "fx": previous.get("fx"),
+        "fx": payload.get("usd_per_local") or previous.get("fx"),
         "above": previous.get("above") or COLUMN_TIPS["% Above Low"],
         "mood": previous.get("mood") or COLUMN_TIPS["Market Mood"],
         "sentiment": previous.get("sentiment") or COLUMN_TIPS["Headline Sentiment"],

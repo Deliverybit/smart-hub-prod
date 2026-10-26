@@ -295,7 +295,7 @@ def build_snapshot_payload(
     display_results = enrich_result_rows(selection.results)
     analyze_bundles = build_analyze_bundles(display_results, market_data)
     updated = datetime.now(timezone.utc)
-    return {
+    payload = {
         "screener_key": defn.key,
         "updated_at": updated.isoformat(),
         "last_updated_display": format_scan_display(updated),
@@ -311,6 +311,12 @@ def build_snapshot_payload(
         "asset_noun": defn.asset_noun,
         "headlines_enriched": True,
     }
+    if defn.key in {"LSE", "TSX"}:
+        from price_display import stamp_usd_prices, usd_per_unit
+
+        code = "GBP" if defn.key == "LSE" else "CAD"
+        stamp_usd_prices(payload, usd_per_unit(code))
+    return payload
 
 
 def refresh_screener(defn: ScreenerDefinition, *, persist: bool = True) -> dict[str, Any]:

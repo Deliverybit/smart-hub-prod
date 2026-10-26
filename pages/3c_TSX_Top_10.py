@@ -13,7 +13,7 @@ from legal_consent_logger import ensure_timezone_cookie, log_terms_acceptance, r
 from branding import logo_path_str, render_environment_banner
 from theme_mode import install_theme_support
 from market_data import MarketData
-from price_display import CURRENCY_SWITCH_CSS, currency_abbrev_tip, format_listing_price, usd_per_unit
+from price_display import CURRENCY_SWITCH_CSS, currency_abbrev_tip, format_listing_price
 from app_config import get_screener_symbol_limit, SCREENER_CACHE_VERSION
 from screener_headlines import enrich_headline_sentiment
 from screener_page_data import load_screener_page_data
@@ -3304,12 +3304,14 @@ else:
             show_usd = st.toggle("USD", key="tsx_show_usd", label_visibility="collapsed")
         with usd_col:
             st.markdown(currency_abbrev_tip("USD"), unsafe_allow_html=True)
-    usd_rate = usd_per_unit("CAD") if show_usd else None
-    if show_usd and not usd_rate:
-        st.caption("USD conversion is unavailable right now. Prices stay in Canadian dollars.")
+    if show_usd and loaded.usd_per_local is None:
+        st.caption("USD prices are not in this scan yet. Prices stay in Canadian dollars.")
+        show_usd = False
 
-    def _px(value) -> str:
-        return format_listing_price(value, "TSX", usd_rate)
+    def _px(row, field: str) -> str:
+        if show_usd and row.get(f"{field} USD") is not None:
+            return f"${float(row[f'{field} USD']):,.2f}"
+        return format_listing_price(row[field], "TSX")
 
     if not all_results:
         st.warning(
@@ -3356,7 +3358,7 @@ else:
                     delta_txt = f"{row['% Above Low']:+.1f}% above 52W low"
                     st.metric(
                         label=f"#{idx + 1} 🔥  {row['Ticker']}",
-                        value=_px(row["Price"]),
+                        value=_px(row, "Price"),
                         delta=delta_txt,
                         delta_color="normal",
                     )
@@ -3372,8 +3374,8 @@ else:
                         f'<span class="tip-wrap scoop-name-tip" style="font-weight:700;">'
                         f'{row["Company"]}'
                         f'<span class="tip-text">{tip}</span></span><br>'
-                        f'52W Low: <b style="color:#22c55e;">{_px(row["52W Low"])}</b> · '
-                        f'52W High: <b>{_px(row["52W High"])}</b><br>'
+                        f'52W Low: <b style="color:#22c55e;">{_px(row, "52W Low")}</b> · '
+                        f'52W High: <b>{_px(row, "52W High")}</b><br>'
                         f'Sentiment: <b>{row["Headline Sentiment"]:+.3f}</b><br>'
                         f'<b>{badge}</b>'
                         f'</div>',
@@ -3393,9 +3395,9 @@ else:
         source_ticker_map = build_source_ticker_map(df)
 
         display_df = df.drop(columns=["_source_ticker", "_headline_texts", "_headline_urls"], errors="ignore").copy()
-        display_df["Price"] = display_df["Price"].apply(_px)
-        display_df["52W Low"] = display_df["52W Low"].apply(_px)
-        display_df["52W High"] = display_df["52W High"].apply(_px)
+        for field in ("Price", "52W Low", "52W High"):
+            display_df[field] = display_df.apply(lambda row, field=field: _px(row, field), axis=1)
+        display_df = display_df.drop(columns=[col for col in display_df.columns if str(col).endswith(" USD")], errors="ignore")
         display_df["% Above Low"] = display_df["% Above Low"].apply(lambda x: f"{x:.2f}%")
         display_df["Headline Sentiment"] = display_df["Headline Sentiment"].apply(lambda x: f"{x:+.3f}")
         display_df["Analyze"] = ""

@@ -28,7 +28,6 @@ from price_display import (
     currency_abbrev_tip,
     local_prefix,
     quote_scale,
-    usd_per_unit,
 )
 from predictor import Predictor
 from market_data import MarketData
@@ -2035,6 +2034,16 @@ html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-analyze-last
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card {
     padding: 0.28rem 0.85rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-wrap: anywhere !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stMarkdownContainer"]:has(.scoop-selected-asset-card),
+  html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(.scoop-selected-asset-card) {
+    max-width: 100% !important;
+    min-width: 0 !important;
   }
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted {
@@ -2046,16 +2055,30 @@ html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-analyze-last
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span:not(.tip-text):not(.scoop-analyze-tip-label),
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span:not(.tip-text):not(.scoop-analyze-tip-label) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
     font-size: clamp(2.1rem, 6.2vw, 3rem) !important;
-    line-height: 1.02 !important;
+    line-height: 1.15 !important;
     margin: 0.02rem 0 !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+  html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span.scoop-selected-name-tip:not(.tip-text):not(.scoop-analyze-tip-label) {
+    display: inline !important;
+    width: auto !important;
+    line-height: 1.55 !important;
+    box-decoration-break: clone !important;
+    -webkit-box-decoration-break: clone !important;
   }
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-subtitle-text,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-subtitle-text {
     font-size: 1.45rem !important;
     line-height: 1.05 !important;
-    margin-top: 0.02rem !important;
+    margin-top: 0.35rem !important;
   }
   html[data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] h1,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] [data-testid="stMainBlockContainer"] h1 {
@@ -2375,9 +2398,18 @@ def _render_search_dashboard(ticker: str) -> None:
                 show_usd = st.toggle("USD", key=toggle_key, label_visibility="collapsed")
             with usd_col:
                 st.markdown(currency_abbrev_tip("USD"), unsafe_allow_html=True)
-        usd_rate = usd_per_unit(local_code) if show_usd else None
-        if show_usd and not usd_rate:
-            st.caption("USD conversion is unavailable right now. Prices stay in the local currency.")
+        usd_rate = None
+        if show_usd:
+            usd_rate = bundle.get("fx")
+            if usd_rate is None and screener_key:
+                from screener_snapshots import fetch_snapshot
+                usd_rate = (fetch_snapshot(screener_key) or {}).get("usd_per_local")
+            try:
+                usd_rate = float(usd_rate) if usd_rate else None
+            except (TypeError, ValueError):
+                usd_rate = None
+            if not usd_rate:
+                st.caption("USD prices are not in this scan yet. Prices stay in the local currency.")
         factor = quote_scale(listing) * (float(usd_rate) if usd_rate else 1.0)
         if usd_rate:
             live_currency = "USD"
@@ -2402,7 +2434,9 @@ def _render_search_dashboard(ticker: str) -> None:
     asset_summary = resolve_asset_summary(ticker)
     name_html = html.escape(asset_name)
     if asset_summary:
-        name_html = _analyze_desktop_tip(name_html, asset_summary, "scoop-selected-name-tip")
+        name_html = _analyze_desktop_tip(
+            name_html, asset_summary, "scoop-selected-name-tip", label=asset_name
+        )
     st.markdown(
         f"""
         <div class="scoop-selected-asset-card" style="

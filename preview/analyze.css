@@ -4804,16 +4804,6 @@ html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-test
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card {
     padding: 0.28rem 0.85rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow-wrap: anywhere !important;
-  }
-  html[data-scoop-analyze-active="1"] [data-testid="stMarkdownContainer"]:has(.scoop-selected-asset-card),
-  html[data-scoop-analyze-active="1"] [data-testid="stElementContainer"]:has(.scoop-selected-asset-card) {
-    max-width: 100% !important;
-    min-width: 0 !important;
   }
   html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-muted {
@@ -4850,7 +4840,7 @@ html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-test
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-subtitle-text {
     font-size: 1.45rem !important;
     line-height: 1.05 !important;
-    margin-top: 0.35rem !important;
+    margin-top: 0.02rem !important;
   }
   html[data-scoop-analyze-active="1"] a.scoop-analyze-back,
   html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] a.scoop-analyze-back {

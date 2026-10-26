@@ -93,7 +93,7 @@ def build_analyze_bundles(
             "52W High": row.get("52W High"),
         }
         try:
-            price = md.get_analyze_price_bundle(sym, 730, snapshot=snapshot, fail_fast=False)
+            price = md.get_analyze_price_bundle(sym, 730, snapshot=snapshot, fail_fast=True)
             if not price:
                 continue
             news_items = _news_from_row(row)

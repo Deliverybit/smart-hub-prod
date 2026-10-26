@@ -36,8 +36,8 @@ logging.getLogger("streamlit.runtime.caching.cache_data_api").setLevel(logging.E
 
 from screener_engine import (  # noqa: E402
     SCREENER_DEFINITIONS,
+    apply_last_scan_time,
     get_definition,
-    refresh_all_screeners,
     refresh_screener,
 )
 
@@ -198,11 +198,27 @@ def _purge_edge_cache() -> None:
     print("Edge cache purge was not accepted.", flush=True)
 
 
-def run_once(*, screener: str | None, persist: bool) -> list[dict]:
-    if screener:
-        defn = get_definition(screener)
-        return [refresh_screener(defn, persist=persist)]
-    return refresh_all_screeners(persist=persist)
+def _finish_payload(payload: dict, *, persist: bool, dry_run: bool) -> None:
+    """Publish one finished screener so a later market cannot hold the site."""
+    if persist:
+        apply_last_scan_time([payload], persist=True)
+    _print_payloads([payload], dry_run=dry_run)
+    if not persist:
+        return
+    import importlib
+    import preview_tables
+
+    importlib.reload(preview_tables)
+    written = preview_tables.refresh_preview_from_payloads([payload])
+    print(
+        "Saved pages updated: " + (", ".join(written) if written else "none"),
+        flush=True,
+    )
+    try:
+        _publish_saved_pages(written)
+    except Exception:
+        traceback.print_exc()
+        print("Saved pages were not pushed.", flush=True)
 
 
 def main() -> int:
@@ -232,44 +248,33 @@ def main() -> int:
         return 2
 
     persist = not args.dry_run
+    definitions = (
+        [get_definition(args.screener)]
+        if args.screener
+        else list(SCREENER_DEFINITIONS)
+    )
     while True:
-        try:
-            payloads = run_once(screener=args.screener, persist=persist)
-        except Exception:
-            traceback.print_exc()
-            if not args.loop:
-                return 1
-            print("Full scan failed. Retrying in 30 seconds.", flush=True)
-            time.sleep(30)
-            continue
-
-        _print_payloads(payloads, dry_run=args.dry_run)
-        if persist and payloads:
-            import importlib
-            import preview_tables
-
-            importlib.reload(preview_tables)
-            written = preview_tables.refresh_preview_from_payloads(payloads)
-            print(
-                "Saved pages updated: " + (", ".join(written) if written else "none"),
-                flush=True,
-            )
+        saved = 0
+        last_display = ""
+        for defn in definitions:
+            print(f"Starting {defn.key}.", flush=True)
             try:
-                _publish_saved_pages(written)
+                payload = refresh_screener(defn, persist=persist)
             except Exception:
                 traceback.print_exc()
-                print("Saved pages were not pushed.", flush=True)
-        if not payloads:
+                print(f"{defn.key} was not saved. Continuing.", flush=True)
+                continue
+            saved += 1
+            last_display = str(payload.get("last_updated_display") or last_display)
+            _finish_payload(payload, persist=persist, dry_run=args.dry_run)
+        if saved == 0:
             print("Full scan finished with no screener saved.", flush=True)
             if not args.loop:
                 return 1
             print("Retrying in 30 seconds.", flush=True)
             time.sleep(30)
             continue
-        print(
-            f"Full scan finished. Last scan time: {payloads[0].get('last_updated_display')}",
-            flush=True,
-        )
+        print(f"Full scan finished. Last scan time: {last_display}", flush=True)
         if not args.loop:
             return 0
         print("Starting the next full scan.", flush=True)

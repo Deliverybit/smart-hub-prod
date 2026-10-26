@@ -3475,7 +3475,7 @@ else:
                 else:
                     header_cells += f"<th>{c}</th>"
             for idx_row, (i, r) in enumerate(dataframe.iterrows()):
-                cells = _td("#", str(i))
+                cells = _td("#", str(idx_row + 1))
                 for c in cols:
                     val = r[c]
                     if c == "Company":

@@ -3878,10 +3878,26 @@ _RESPONSIVE_ANALYZE_TOP_COMPACT_RULES = """
     html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span:not(.tip-text):not(.scoop-analyze-tip-label),
     html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text,
     html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span:not(.tip-text):not(.scoop-analyze-tip-label) {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
         font-size: clamp(2.1rem, 6.2vw, 3rem) !important;
-        line-height: 1.02 !important;
+        line-height: 1.15 !important;
         margin: 0.02rem 0 !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+    }
+    html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span.scoop-selected-name-tip:not(.tip-text):not(.scoop-analyze-tip-label),
+    html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-title-text span.scoop-selected-name-tip:not(.tip-text):not(.scoop-analyze-tip-label) {
+        display: inline !important;
+        width: auto !important;
+        border-bottom: 2px dashed currentColor !important;
+        line-height: 1.55 !important;
+        box-decoration-break: clone !important;
+        -webkit-box-decoration-break: clone !important;
     }
     html[data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-subtitle-text,
     html[data-scoop-desktop-layout="1"][data-scoop-analyze-active="1"] .scoop-selected-asset-card .scoop-subtitle-text {

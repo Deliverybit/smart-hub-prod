@@ -334,12 +334,43 @@
     return formatMoney(shownPrice(value));
   }
 
+  function currencyStorageKey(code) {
+    if (code === "GBP") return "scoop-usd-LSE";
+    if (code === "CAD") return "scoop-usd-TSX";
+    return "";
+  }
+
+  function readShowUsd(code) {
+    var key = currencyStorageKey(code);
+    if (!key) return false;
+    try { return localStorage.getItem(key) === "usd"; } catch (err) { return false; }
+  }
+
+  function writeShowUsd(code, usd) {
+    var key = currencyStorageKey(code);
+    if (!key) return;
+    try { localStorage.setItem(key, usd ? "usd" : "local"); } catch (err) {}
+  }
+
+  function chooseCurrency(usd) {
+    showUsd = usd;
+    writeShowUsd(currentAsset && currentAsset.currency, usd);
+    var button = document.querySelector(".scoop-currency-switch");
+    if (button) {
+      button.setAttribute("aria-pressed", usd ? "true" : "false");
+      button.setAttribute("aria-label", usd ? "Show prices in local currency" : "Show prices in USD");
+    }
+    applyAsset(currentAsset);
+    var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');
+    draw(DAYS[input ? Number(input.value) : 0]);
+  }
+
   function mountCurrencySwitch() {
     if (!document.getElementById("scoop-currency-switch")) {
       var style = document.createElement("style");
       style.id = "scoop-currency-switch";
-      style.textContent = ".scoop-currency{display:flex;align-items:center;gap:.45rem;width:fit-content;margin:.4rem 0 .8rem}.scoop-currency .currency-abbrev{position:relative;font-size:1.45rem;font-weight:700;letter-spacing:.04em;border-bottom:1px dashed currentColor;line-height:1.2;cursor:help}.scoop-currency .tip-text{display:none;position:absolute;left:0;top:calc(100% + .35rem);z-index:20;width:max-content;padding:.45rem .7rem;font-size:1.25rem;font-weight:500;line-height:1.35;white-space:nowrap;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-radius:8px}.scoop-currency .currency-abbrev:hover .tip-text,.scoop-currency .currency-abbrev:focus .tip-text{display:block}html[data-scoop-theme=dark] .scoop-currency .tip-text{color:#f8fafc;background:#0f172a;border-color:#334155}.scoop-currency-switch{width:3.15rem;height:1.7rem;border:0;border-radius:999px;background:#e2e8f0;padding:0;position:relative;cursor:pointer}.scoop-currency-switch::after{content:\"\";position:absolute;top:.22rem;left:.22rem;width:1.25rem;height:1.25rem;border-radius:999px;background:#2563eb}.scoop-currency-switch[aria-pressed=true]{background:#22c55e}.scoop-currency-switch[aria-pressed=true]::after{background:#f8fafc;transform:translateX(1.45rem)}";
-      document.head.appendChild(style);
+      style.textContent = ".scoop-currency{display:flex;align-items:center;gap:.45rem;width:fit-content;margin:.4rem 0 .8rem}.scoop-currency .currency-abbrev{position:relative !important;font-size:1.45rem;font-weight:700;letter-spacing:.04em;border-bottom:1px dashed currentColor;line-height:1.2;cursor:help}.scoop-currency .currency-abbrev>.tip-text{display:none !important;visibility:hidden !important;opacity:0 !important;position:absolute !important;left:0 !important;right:auto !important;bottom:calc(100% + 10px) !important;top:auto !important;transform:none !important;z-index:100002 !important;width:max-content !important;min-width:0 !important;max-width:16rem !important;height:auto !important;padding:14px 18px !important;font-family:Source Sans,sans-serif !important;font-size:1.08rem !important;font-weight:400 !important;line-height:1.42 !important;white-space:normal !important;text-align:left !important;color:#e2e8f0 !important;background:#1e1e2f !important;border:2px solid #22c55e !important;outline:none !important;border-radius:8px !important;box-shadow:0 4px 16px rgba(0,0,0,.45) !important;box-sizing:border-box !important}.scoop-currency .currency-abbrev>.tip-text::before,.scoop-currency .currency-abbrev>.tip-text::after{content:none !important;display:none !important}.scoop-currency .currency-abbrev>.tip-text>.scoop-tip-title{display:block !important;font-weight:700 !important;font-size:1.12rem !important;line-height:1.25 !important;margin:0 0 .45rem !important;padding:0 0 .4rem !important;border-bottom:1px solid rgba(148,163,184,.45) !important;color:#f8fafc !important}.scoop-currency .currency-abbrev:hover>.tip-text,.scoop-currency .currency-abbrev:focus>.tip-text,.scoop-currency .currency-abbrev:focus-within>.tip-text{display:block !important;visibility:visible !important;opacity:1 !important}html[data-scoop-theme=dark] .scoop-currency .currency-abbrev>.tip-text{border-color:#fff !important}.scoop-currency-switch{width:3.15rem;height:1.7rem;border:0;border-radius:999px;background:#e2e8f0;padding:0;position:relative;cursor:pointer}.scoop-currency-switch::after{content:\"\";position:absolute;top:.22rem;left:.22rem;width:1.25rem;height:1.25rem;border-radius:999px;background:#2563eb}.scoop-currency-switch[aria-pressed=true]{background:#22c55e}.scoop-currency-switch[aria-pressed=true]::after{background:#f8fafc;transform:translateX(1.45rem)}";
+      document.body.appendChild(style);
     }
     var existing = document.querySelector(".scoop-currency");
     if (!currentAsset || !currentAsset.currency) {
@@ -347,7 +378,12 @@
       showUsd = false;
       return;
     }
-    if (existing) return;
+    showUsd = readShowUsd(currentAsset.currency);
+    if (existing) {
+      var held = existing.querySelector(".scoop-currency-switch");
+      if (held) held.setAttribute("aria-pressed", showUsd ? "true" : "false");
+      return;
+    }
     var heading = document.querySelector("h1");
     if (!heading) return;
     var host = heading.closest('[data-testid="stElementContainer"]') || heading.parentElement;
@@ -355,18 +391,17 @@
     var names = { GBP: "British Pounds", CAD: "Canadian Dollars", USD: "United States Dollars" };
     var box = document.createElement("div");
     box.className = "scoop-currency";
-    box.innerHTML = '<span class="tip-wrap currency-abbrev" tabindex="0">' + code + '<span class="tip-text">' + names[code] + '</span></span>'
-      + '<button type="button" class="scoop-currency-switch" aria-pressed="false" aria-label="Show prices in USD"></button>'
-      + '<span class="tip-wrap currency-abbrev" tabindex="0">USD<span class="tip-text">' + names.USD + '</span></span>';
+    box.innerHTML = '<span class="tip-wrap currency-abbrev" tabindex="0">' + code + '<span class="tip-text"><div class="scoop-tip-title">' + code + '</div>' + names[code] + '</span></span>'
+      + '<button type="button" class="scoop-currency-switch" aria-pressed="' + (showUsd ? "true" : "false") + '" aria-label="' + (showUsd ? "Show prices in local currency" : "Show prices in USD") + '"></button>'
+      + '<span class="tip-wrap currency-abbrev" tabindex="0">USD<span class="tip-text"><div class="scoop-tip-title">USD</div>' + names.USD + '</span></span>';
     host.insertAdjacentElement("afterend", box);
     var button = box.querySelector("button");
     button.addEventListener("click", function () {
-      showUsd = button.getAttribute("aria-pressed") !== "true";
-      button.setAttribute("aria-pressed", showUsd ? "true" : "false");
-      applyAsset(currentAsset);
-      var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');
-      draw(DAYS[input ? Number(input.value) : 0]);
+      chooseCurrency(button.getAttribute("aria-pressed") !== "true");
     });
+    var labels = box.querySelectorAll(".currency-abbrev");
+    if (labels[0]) labels[0].addEventListener("click", function () { chooseCurrency(false); });
+    if (labels[1]) labels[1].addEventListener("click", function () { chooseCurrency(true); });
   }
 
   function escapeHtml(value) {

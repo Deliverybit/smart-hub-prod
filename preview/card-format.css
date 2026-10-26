@@ -128,10 +128,12 @@
     justify-content: center !important;
     justify-self: end !important;
     margin-left: auto !important;
-    width: 1.85rem !important;
+    width: auto !important;
     height: 1.85rem !important;
     min-width: 1.85rem !important;
-    padding: 0 !important;
+    padding: 0 0.4rem !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
     border-radius: 0.4rem !important;
     background: #16a34a !important;
     color: #ffffff !important;
@@ -207,6 +209,13 @@
     border: 2px solid #22c55e !important;
     background: #f0fdf4 !important;
     color: #0f172a !important;
+  }
+}
+@media (min-width: 1367px) {
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table th:first-child,
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table td[data-label="#"],
+  html body .stApp .stMarkdown .full-results-wrap .full-results-table td[data-label="#"] .fr-val {
+    white-space: nowrap !important;
   }
 }
 @media (max-width: 768px) {

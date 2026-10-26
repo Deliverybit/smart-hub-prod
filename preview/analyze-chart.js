@@ -42,6 +42,29 @@
   var currentAsset = null;
   var showUsd = false;
 
+  function usdStorageKey(asset) {
+    if (!asset) return "";
+    var market = String(asset.market || "");
+    if (asset.currency === "GBP" || market.indexOf("LSE") !== -1) return "scoop-usd-LSE";
+    if (asset.currency === "CAD" || market.indexOf("TSX") !== -1) return "scoop-usd-TSX";
+    return "";
+  }
+
+  function readShowUsd(asset) {
+    var key = usdStorageKey(asset);
+    if (!key) return false;
+    try {
+      var value = sessionStorage.getItem(key);
+      return value === "usd" || value === "1";
+    } catch (err) { return false; }
+  }
+
+  function writeShowUsd(asset, on) {
+    var key = usdStorageKey(asset);
+    if (!key) return;
+    try { sessionStorage.setItem(key, on ? "usd" : "local"); } catch (err) {}
+  }
+
   function sliderRoot() {
     return document.querySelector('[data-testid="stSlider"]');
   }
@@ -81,21 +104,30 @@
     var tickPx = window.innerWidth >= 1367 ? 40 : 26;
     var narrow = window.innerWidth < 1367;
     var datePx = narrow ? 24 : 28;
-    var padL = tickPx >= 40 ? 210 : 108, padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
-    var plotW = Math.max(10, w - padL - padR);
-    var plotH = h - padT - padB;
     var prices = slice.map(function (row) { return shownPrice(row.p); });
     var min = Math.min.apply(null, prices);
     var max = Math.max.apply(null, prices);
     if (min === max) { min -= 1; max += 1; }
     var span = max - min;
-    min -= span * 0.06;
-    max += span * 0.06;
+    var head = narrow ? 0.22 : 0.08;
+    min -= span * head;
+    max += span * head;
+    ctx.font = tickPx + "px \"Source Sans 3\", \"Source Sans Pro\", sans-serif";
+    var labelW = 0;
+    for (var probe = 0; probe <= 4; probe++) {
+      var sample = min + ((max - min) * probe) / 4;
+      labelW = Math.max(labelW, ctx.measureText(formatMoney(sample)).width);
+    }
+    var padL = Math.ceil(labelW + (narrow ? 18 : 28));
+    var padR = narrow ? 18 : 28;
+    var padT = narrow ? Math.ceil(tickPx + 36) : 48;
+    var padB = narrow ? 56 : 72;
+    var plotW = Math.max(10, w - padL - padR);
+    var plotH = h - padT - padB;
     function xAt(i) { return padL + (slice.length === 1 ? plotW / 2 : (i / (slice.length - 1)) * plotW); }
     function yAt(p) { return padT + (1 - (p - min) / (max - min)) * plotH; }
     ctx.strokeStyle = grid;
     ctx.lineWidth = 1;
-    ctx.font = tickPx + "px \"Source Sans 3\", \"Source Sans Pro\", sans-serif";
     ctx.fillStyle = text;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
@@ -134,6 +166,8 @@
     });
     ctx.strokeStyle = "#4ade80";
     ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
     ctx.stroke();
     var last = slice[slice.length - 1];
     ctx.fillStyle = "#4ade80";
@@ -427,6 +461,7 @@
   function applyAsset(asset) {
     if (!asset) return;
     currentAsset = asset;
+    showUsd = readShowUsd(asset);
     mountCurrencySwitch();
     document.title = asset.ticker + " — Analyze";
     var heading = document.querySelector("h1 [data-heading-text]") || document.querySelector("h1");
@@ -443,7 +478,11 @@
       if (asset.description) {
         var box = document.createElement("span");
         box.className = "tip-text";
-        box.textContent = asset.description;
+        var label = document.createElement("span");
+        label.className = "scoop-analyze-tip-label";
+        label.textContent = asset.name || asset.ticker;
+        box.appendChild(label);
+        box.appendChild(document.createTextNode(asset.description));
         tip.appendChild(box);
       }
       nameEl.appendChild(tip);
@@ -453,11 +492,21 @@
       if (el.querySelector("p, div")) return;
       el.textContent = "Analyzing: " + asset.ticker;
     });
-    var back = document.querySelector("a.scoop-analyze-back");
-    if (back && asset.page) {
-      back.setAttribute("href", asset.page + "?scoop_from_analyze=1");
-      back.textContent = "← Back to " + asset.market;
+    var snapshot = String(asset.page || "").split("?")[0].split("/").pop();
+    if (snapshot.indexOf(".html") === -1) {
+      var marketName = String(asset.market || "");
+      if (marketName.indexOf("NASDAQ") !== -1) snapshot = "nasdaq.html";
+      else if (marketName.indexOf("LSE") !== -1) snapshot = "lse.html";
+      else if (marketName.indexOf("TSX") !== -1) snapshot = "tsx.html";
+      else if (marketName.indexOf("Crypto") !== -1) snapshot = "crypto.html";
+      else snapshot = "nyse.html";
     }
+    var backHref = snapshot + "?scoop_from_analyze=1";
+    var backLabel = "← Back to " + (asset.market || "market");
+    document.querySelectorAll("a.scoop-analyze-back, a.scoop-mobile-back-home").forEach(function (back) {
+      back.setAttribute("href", backHref);
+      back.textContent = backLabel;
+    });
     var pageFile = String(asset.page || "").split("?")[0].split("/").pop();
     document.querySelectorAll('[data-testid="stSidebar"] [data-testid="stPageLink"]').forEach(function (box) {
       var link = box.querySelector("a");

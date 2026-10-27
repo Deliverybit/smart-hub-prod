@@ -6,7 +6,82 @@
     <link rel="preload" href="fonts/SourceSansVF-Upright.woff2" as="font" type="font/woff2" crossorigin="">
 
     <title>The Scoop 52</title>
-    <script>(function(){function wide(){var w=window.innerWidth||0;var sw=(window.screen&&window.screen.width)||0;var layout=Math.min(w||sw,sw||w||0);return layout>=1367;}if(wide())location.replace("nyse.html");})();</script>
+    <script>(function(){function wide(){var w=window.innerWidth||0;return w>=1367;}function apply(){var root=document.documentElement;var side=document.querySelector('[data-testid="stSidebar"]');var view=document.querySelector('[data-testid="stAppViewContainer"]');if(wide()){root.setAttribute("data-scoop-desktop-layout","1");root.removeAttribute("data-scoop-tab-nav");if(side){side.style.cssText="";side.setAttribute("aria-expanded","true");side.querySelectorAll("[data-testid='stSidebarNav'],[data-testid='stSidebarContent'],[data-testid='stSidebarNavItems']").forEach(function(el){el.style.cssText="";});}if(view){view.style.cssText="";}}else{root.removeAttribute("data-scoop-desktop-layout");root.setAttribute("data-scoop-tab-nav","1");}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",apply);}else{apply();}window.addEventListener("resize",apply);})();</script>
+    <style id="scoop-desktop-home">
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stApp"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stAppViewContainer"] {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stSidebar"] a,
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stSidebar"] p,
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stSidebar"] span,
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMain"] h1,
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMain"] p,
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMain"] span {
+  color: #0f172a !important;
+}
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stApp"],
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stAppViewContainer"] {
+  background: #0e1117 !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] section[data-testid="stSidebar"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  transform: none !important;
+  width: 22rem !important;
+  min-width: 22rem !important;
+  max-width: 22rem !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: auto !important;
+  background: #f8fafc !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-home-page="1"] section[data-testid="stSidebar"] {
+  background: #262730 !important;
+  border-right-color: #3d424d !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMain"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] section.main {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  background: #ffffff !important;
+}
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMain"],
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"][data-scoop-home-page="1"] section.main {
+  background: #0e1117 !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] {
+  max-width: 42rem !important;
+  margin: 0 auto !important;
+  padding: 2rem 1.5rem 3rem !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] {
+  display: none !important;
+}
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stMainMenu"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stToolbar"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stDecoration"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stSidebarCollapseButton"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="stExpandSidebarButton"],
+html[data-scoop-desktop-layout="1"][data-scoop-home-page="1"] [data-testid="collapsedControl"] {
+  display: none !important;
+}
+    </style>
 
     <!-- initialize window.prerenderReady to false and then set to true in React app when app is ready for indexing -->
   <style media=""></style><style data-emotion="st-emotion-cache-global" data-s=""></style><style data-emotion="st-emotion-cache" data-s=""></style><style id="scoop-responsive-sidebar-bootstrap-css">
@@ -2061,7 +2136,7 @@
     }
 }
 
-@media (max-width: 1366px) {
+@media (max-width: 10000px) {
     html[data-scoop-home-page="1"] [data-testid="stHeader"],
     html[data-scoop-home-page="1"] [data-testid="stToolbar"],
     html[data-scoop-home-page="1"] [data-testid="stDecoration"],
@@ -9759,7 +9834,7 @@ html body .stApp [data-testid="stSidebarNav"] {
     }
 }
 
-@media (max-width: 1366px) {
+@media (max-width: 10000px) {
     html[data-scoop-home-page="1"] [data-testid="stHeader"],
     html[data-scoop-home-page="1"] [data-testid="stToolbar"],
     html[data-scoop-home-page="1"] [data-testid="stDecoration"],
@@ -14179,7 +14254,7 @@ html body .stApp [data-testid="stSidebarNav"] {
     }
 }
 
-@media (max-width: 1366px) {
+@media (max-width: 10000px) {
     html[data-scoop-home-page="1"] [data-testid="stHeader"],
     html[data-scoop-home-page="1"] [data-testid="stToolbar"],
     html[data-scoop-home-page="1"] [data-testid="stDecoration"],
@@ -17245,6 +17320,55 @@ document.addEventListener("click", function (event) {
   html[data-scoop-theme="dark"][data-scoop-home-page="1"] [data-testid="stMainBlockContainer"] [data-testid="stPageLink"] a p {
     color: #f1f5f9 !important;
   }
+}
+</style>
+<style id="scoop-desktop-home-nav">
+html[data-scoop-desktop-layout="1"] body .stApp section[data-testid="stSidebar"] {
+  background: #e8eef7 !important;
+  transform: none !important;
+  opacity: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 22rem !important;
+  min-width: 22rem !important;
+  overflow: visible !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  position: relative !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0.85rem 0 1rem !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] li:not(:has(a[href="nyse.html"])):not(:has(a[href="nasdaq.html"])):not(:has(a[href="crypto.html"])):not(:has(a[href="lse.html"])):not(:has(a[href="tsx.html"])):not(:has(a[href*="terms"])) {
+  display: none !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] a {
+  display: flex !important;
+  align-items: center !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #7dd3fc !important;
+  border-radius: 0.5rem !important;
+  margin: 0.35rem 0.75rem !important;
+  padding: 0.55rem 0.85rem !important;
+  text-decoration: none !important;
+}
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] a,
+html[data-scoop-theme="dark"][data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] p {
+  color: #f8fafc !important;
+  background: #262730 !important;
 }
 </style>
 </body></html>

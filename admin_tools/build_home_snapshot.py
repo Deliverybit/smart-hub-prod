@@ -187,19 +187,25 @@ html[data-scoop-theme="dark"] body [data-testid="stSidebar"] [data-testid="stPag
 </style>
 <script>
 function scoopLayoutWide() {
-  var w = window.innerWidth || 0;
-  var sw = (window.screen && window.screen.width) || 0;
-  var layout = Math.min(w || sw, sw || w || 0);
-  return layout >= 1367;
+  return (window.innerWidth || 0) >= 1367;
 }
-if (scoopLayoutWide()) {
-  window.location.replace("nyse.html");
-}
-window.addEventListener("resize", function () {
-  if (scoopLayoutWide() && !/nyse\.html$/.test(window.location.pathname)) {
-    window.location.replace("nyse.html");
+function scoopApplyHomeLayout() {
+  var root = document.documentElement;
+  var side = document.querySelector('[data-testid="stSidebar"]');
+  if (scoopLayoutWide()) {
+    root.setAttribute("data-scoop-desktop-layout", "1");
+    root.removeAttribute("data-scoop-tab-nav");
+    if (side) {
+      side.style.cssText = "";
+      side.setAttribute("aria-expanded", "true");
+    }
+  } else {
+    root.removeAttribute("data-scoop-desktop-layout");
+    root.setAttribute("data-scoop-tab-nav", "1");
   }
-});
+}
+scoopApplyHomeLayout();
+window.addEventListener("resize", scoopApplyHomeLayout);
 function scoopSetTheme(next) {
   var mode = next ? "dark" : "light";
   document.documentElement.setAttribute("data-scoop-theme", mode);
@@ -231,6 +237,47 @@ document.addEventListener("click", function (event) {
   link.setAttribute("aria-current", "page");
 });
 </script>
+<style id="scoop-desktop-home-nav">
+html[data-scoop-desktop-layout="1"] body .stApp section[data-testid="stSidebar"] {
+  background: #e8eef7 !important;
+  transform: none !important;
+  opacity: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 22rem !important;
+  min-width: 22rem !important;
+  overflow: visible !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  width: 100% !important;
+  height: auto !important;
+  position: relative !important;
+  pointer-events: auto !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0.85rem 0 1rem !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] li:not(:has(a[href="nyse.html"])):not(:has(a[href="nasdaq.html"])):not(:has(a[href="crypto.html"])):not(:has(a[href="lse.html"])):not(:has(a[href="tsx.html"])):not(:has(a[href*="terms"])) {
+  display: none !important;
+}
+html[data-scoop-desktop-layout="1"] body .stApp [data-testid="stSidebarNav"] a {
+  display: flex !important;
+  align-items: center !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #7dd3fc !important;
+  border-radius: 0.5rem !important;
+  margin: 0.35rem 0.75rem !important;
+  padding: 0.55rem 0.85rem !important;
+  text-decoration: none !important;
+}
+</style>
 """
 for origin in ORIGINS:
     html = html.replace(

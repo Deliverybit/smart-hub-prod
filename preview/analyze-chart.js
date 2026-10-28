@@ -510,9 +510,41 @@
           if (parent.indexOf("Current Mood") >= 0 && /Neutral|Bullish|Bearish/i.test(el.textContent)) el.textContent = mood;
           if (parent.indexOf("Score:") >= 0 && /^[+-]?\d+\.\d+$/.test(el.textContent.trim())) el.textContent = signed;
         });
+        paintMoodFace(mood);
+        paintBannerMood(mood);
       }
     }
     series = asset.series || [];
+  }
+
+  function paintMoodFace(mood) {
+    var label = document.querySelector(".scoop-mood-label");
+    if (!label) return;
+    var face = label.querySelector(".scoop-mood-face");
+    if (!face) {
+      face = document.createElement("span");
+      face.className = "scoop-mood-face";
+      face.setAttribute("aria-hidden", "true");
+      face.style.fontSize = "1.15rem";
+      face.style.lineHeight = "1";
+      label.appendChild(face);
+    }
+    label.querySelectorAll("span").forEach(function (dot) {
+      if (dot === face || dot.classList.contains("scoop-analyze-desktop-tip") || dot.closest(".scoop-analyze-desktop-tip")) return;
+      dot.remove();
+    });
+    face.textContent = mood === "Bullish" ? "😊" : mood === "Bearish" ? "☹️" : "😐";
+  }
+
+  function paintBannerMood(mood) {
+    var face = mood === "Bullish" ? "😊" : mood === "Bearish" ? "☹️" : "😐";
+    document.querySelectorAll(".scoop-analyze-desktop-tip").forEach(function (el) {
+      el.childNodes.forEach(function (node) {
+        if (node.nodeType === 3 && node.textContent.indexOf("Market Mood:") >= 0) {
+          node.textContent = "Market Mood: " + face + " " + mood;
+        }
+      });
+    });
   }
 
   function stampSortKey(text) {

@@ -412,6 +412,138 @@ def _ready_payloads(payloads: list[dict]) -> list[dict]:
     return ready
 
 
+def _badge(mood: str) -> str:
+    text = (mood or "").strip().upper()
+    if text == "BELOW LOW":
+        return "🚨 BELOW 52W LOW — New Floor"
+    if text == "AT LOW":
+        return "AT 52W LOW"
+    return "📉 NEAR 52W LOW"
+
+
+def _plain_cell(inner: str) -> tuple[str, str]:
+    tip = re.search(r'class="tip-text">([^<]*)', inner)
+    visible = re.sub(r'<span class="tip-text".*$', "", inner, count=1, flags=re.S)
+    text = re.sub(r"<[^>]+>", "", visible)
+    text = html.unescape(re.sub(r"\s+", " ", text)).strip()
+    return text, html.unescape(tip.group(1)).strip() if tip else ""
+
+
+def _cell_inner(row_html: str, label: str) -> str:
+    match = re.search(rf'data-label="{re.escape(label)}">(.*?)</td>', row_html, re.S)
+    if not match:
+        return ""
+    value = re.search(r'<span class="fr-val">(.*)</span>\s*$', match.group(1), re.S)
+    return value.group(1) if value else ""
+
+
+def rows_from_results_table(page_html: str, label_field: str) -> list[dict]:
+    """Read the saved Full Results rows so desktop cards can match that table."""
+    start = page_html.find("full-results-table")
+    if start < 0:
+        return []
+    tbody = re.search(r"<tbody>(.*?)</tbody>", page_html[start:], re.S)
+    if not tbody:
+        return []
+    rows = []
+    for row_html in ROW.findall(tbody.group(1))[:3]:
+        ticker, _tip = _plain_cell(_cell_inner(row_html, "Ticker"))
+        name, summary = _plain_cell(_cell_inner(row_html, label_field))
+        price, _ = _plain_cell(_cell_inner(row_html, "Price"))
+        low, _ = _plain_cell(_cell_inner(row_html, "52W Low"))
+        high, _ = _plain_cell(_cell_inner(row_html, "52W High"))
+        above, _ = _plain_cell(_cell_inner(row_html, "% Above Low"))
+        mood, _ = _plain_cell(_cell_inner(row_html, "Market Mood"))
+        sentiment, _ = _plain_cell(_cell_inner(row_html, "Headline Sentiment"))
+        if not ticker:
+            continue
+        rows.append({
+            "Ticker": ticker,
+            label_field: name or ticker,
+            "Price": price,
+            "52W Low": low,
+            "52W High": high,
+            "% Above Low": above,
+            "Market Mood": mood,
+            "Headline Sentiment": sentiment,
+            "_summary": summary,
+        })
+    return rows
+
+
+def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, label_field: str = "Company") -> str:
+    """Rewrite the three desktop Top Picks cards from the current top rows."""
+    picks = [row for row in rows if str(row.get("Ticker") or "").strip()][:3]
+    labels = list(re.finditer(r"<p>#[123] [^<]*</p>", page_html))
+    if len(labels) < len(picks) or not picks:
+        return page_html
+    pieces = []
+    cursor = 0
+    for index, row in enumerate(picks):
+        label = labels[index]
+        pieces.append(page_html[cursor:label.start()])
+        ticker = str(row.get("Ticker") or "")
+        pieces.append(f"<p>#{index + 1} 🔥  {html.escape(ticker)}</p>")
+        value_at = page_html.find("<p>", label.end())
+        value_end = page_html.find("</p>", value_at)
+        delta_at = page_html.find("<p>", value_end + 4)
+        delta_end = page_html.find("</p>", delta_at)
+        price = row.get("Price")
+        price_text = price if isinstance(price, str) else _money(price, crypto=crypto)
+        above = row.get("% Above Low")
+        if isinstance(above, str):
+            number = above.replace("%", "").replace("+", "").replace(",", "").strip()
+            try:
+                delta_text = f"{float(number):+.1f}% above 52W low"
+            except ValueError:
+                delta_text = above
+        else:
+            try:
+                delta_text = f"{float(above):+.1f}% above 52W low"
+            except (TypeError, ValueError):
+                delta_text = ""
+        pieces.append(page_html[label.end():value_at])
+        pieces.append(f"<p>{html.escape(str(price_text))}</p>")
+        pieces.append(page_html[value_end + 4:delta_at])
+        pieces.append(f"<p>{html.escape(delta_text)}</p>")
+        detail_at = page_html.find('style="font-size: 1.5rem; line-height: 1.8;"', delta_end)
+        detail_open = page_html.find(">", detail_at)
+        detail_close = page_html.find("</div>", detail_open)
+        name = str(row.get(label_field) or row.get("Company") or row.get("Name") or ticker)
+        summary = str(row.get("_summary") or "")
+        if not summary:
+            summary = _description_for(ticker, "", name)
+        low = row.get("52W Low")
+        high = row.get("52W High")
+        low_text = low if isinstance(low, str) else _money(low, crypto=crypto)
+        high_text = high if isinstance(high, str) else _money(high, crypto=crypto)
+        sentiment = row.get("Headline Sentiment")
+        if isinstance(sentiment, str):
+            number = sentiment.replace("+", "").replace(",", "").strip()
+            try:
+                sentiment_text = f"{float(number):+.3f}"
+            except ValueError:
+                sentiment_text = sentiment
+        else:
+            try:
+                sentiment_text = f"{float(sentiment):+.3f}"
+            except (TypeError, ValueError):
+                sentiment_text = "N/A"
+        detail = (
+            f'<span class="tip-wrap scoop-name-tip" style="font-weight: 700;">'
+            f"{html.escape(name)}<span class=\"tip-text\">{html.escape(summary)}</span></span><br>"
+            f'52W Low: <b style="color: rgb(34, 197, 94);">{html.escape(str(low_text))}</b> · '
+            f"52W High: <b>{html.escape(str(high_text))}</b><br>"
+            f"Sentiment: <b>{html.escape(sentiment_text)}</b><br>"
+            f"<b>{html.escape(_badge(str(row.get('Market Mood') or '')))}</b>"
+        )
+        pieces.append(page_html[delta_end + 4:detail_open + 1])
+        pieces.append(detail)
+        cursor = detail_close
+    pieces.append(page_html[cursor:])
+    return "".join(pieces)
+
+
 def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
     """Write market lists and Analyze data together. Skip a market that is missing either."""
     ready = _ready_payloads(payloads)
@@ -431,6 +563,12 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
             asset_noun=str(payload.get("asset_noun") or NOUNS.get(str(payload.get("screener_key") or ""), "")),
             scanned_count=int(payload.get("scanned_count") or 0),
             universe_size=int(payload.get("universe_size") or 0),
+        )
+        updated = refill_top_picks(
+            updated,
+            rows,
+            crypto=payload.get("screener_key") == "CRYPTO",
+            label_field=label_field,
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
         updated = apply_banners(updated, str(payload.get("screener_key") or ""))

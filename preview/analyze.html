@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-scoop-theme="light" data-scoop-theme-listen="1" data-scoop-desktop-layout="1" data-scoop-analyze-active="1" data-scoop-tab-nav="1"><head><link rel="stylesheet" href="analyze.css?v=101"><script>try{if(localStorage.getItem("scoop-theme")==="dark"||sessionStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}</script>
+<html lang="en" data-scoop-theme="light" data-scoop-theme-listen="1" data-scoop-desktop-layout="1" data-scoop-analyze-active="1" data-scoop-tab-nav="1"><head><link rel="stylesheet" href="analyze.css?v=105"><script>try{if(localStorage.getItem("scoop-theme")==="dark"||sessionStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="shortcut icon" href="logo.png">
@@ -22652,6 +22652,23 @@ html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"],
 html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] p {
   font-size: 1.35rem !important;
   line-height: 1.1 !important;
+}
+@media (max-width: 1366px) {
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] p,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] label,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] > div > div > p {
+    font-size: clamp(1.85rem, 5.2vw, 2.45rem) !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] > div,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] p {
+    font-size: clamp(2.45rem, 8.6vw, 3.5rem) !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"],
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] > div,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] p,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] span {
+    font-size: clamp(1.75rem, 5vw, 2.3rem) !important;
+  }
 }
 </style>
 </body></html>

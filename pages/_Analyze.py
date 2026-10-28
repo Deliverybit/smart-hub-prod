@@ -2010,10 +2010,12 @@ html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-analyze-last
     line-height: 1.15 !important;
   }
   html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div > span .scoop-analyze-desktop-tip:not(.scoop-analyze-desktop-tip--dir) {
-    display: block !important;
-    width: 100% !important;
+    display: inline-block !important;
+    width: auto !important;
+    max-width: 100% !important;
+    align-self: center !important;
     box-sizing: border-box !important;
-    font-size: clamp(1.48rem, 4.8vw, 2.15rem) !important;
+    font-size: clamp(1.15rem, 5.5vw, 1.65rem) !important;
     white-space: nowrap !important;
     line-height: 1.15 !important;
     font-weight: 700 !important;

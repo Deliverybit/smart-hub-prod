@@ -9142,7 +9142,22 @@ html[data-scoop-theme="dark"] .landing-card p { color: rgb(203, 213, 225) !impor
 }
 
 </style>
-<style id="scoop-no-duplicate-table">table:not(.full-results-table) tr:has([data-label]){display:none !important}</style><style id="scoop-market-title-desktop">@media (min-width: 1367px) {html[data-scoop-screener-gated="1"]:not([data-scoop-analyze-active="1"]):not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1, html[data-scoop-screener-gated="1"]:not([data-scoop-analyze-active="1"]):not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 span[data-heading-text] {font-size: 3.35rem !important; font-weight: 400 !important; line-height: 1.25 !important; letter-spacing: -0.02em !important; } }</style></head>
+<style id="scoop-no-duplicate-table">table:not(.full-results-table) tr:has([data-label]){display:none !important}</style><style id="scoop-market-title-desktop">@media (min-width: 1367px) {html:not([data-scoop-analyze-active="1"]):not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1, html:not([data-scoop-analyze-active="1"]):not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 span, html:not([data-scoop-analyze-active="1"]):not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 a, html:not([data-scoop-analyze-active="1"]):not([data-scoop-home-page="1"]) [data-testid="stMainBlockContainer"] h1 strong {font-size: 4.25rem !important; font-weight: 400 !important; line-height: 1.2 !important; letter-spacing: -0.02em !important; } }</style>
+<style id="scoop-selected-market-nav">
+@media (min-width: 1367px) {
+  [data-testid="stSidebar"] [data-testid="stPageLink"]:not([data-scoop-nav-active]) a,
+  [data-testid="stSidebar"] [data-testid="stPageLink"]:not([data-scoop-nav-active]) p,
+  [data-testid="stSidebar"] [data-testid="stPageLink"]:not([data-scoop-nav-active]) span {
+    font-weight: 400 !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] a,
+  [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] p,
+  [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] span {
+    font-weight: 700 !important;
+  }
+}
+</style>
+</head>
   <body style="zoom: 1 !important;">
 <div id="scoop-results" hidden></div>
 <div id="scoop-html-gate">

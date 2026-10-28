@@ -4326,11 +4326,14 @@ _DESKTOP_SCREENER_POP_CSS = """
         box-shadow: 0 16px 34px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(56, 189, 248, 0.18) !important;
         border-radius: 16px !important;
     }
-    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1 {
+    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1,
+    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1 span,
+    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1 a,
+    html:not([data-scoop-home-page="1"]):not([data-scoop-analyze-active="1"]) [data-testid="stMainBlockContainer"] h1 strong {
         letter-spacing: -0.02em !important;
-        font-size: 3.35rem !important;
+        font-size: 4.25rem !important;
         font-weight: 400 !important;
-        line-height: 1.25 !important;
+        line-height: 1.2 !important;
         text-decoration: underline !important;
         text-decoration-color: #0284c7 !important;
         text-decoration-thickness: 4px !important;

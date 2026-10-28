@@ -110,15 +110,14 @@ _ANALYZE_COMBINED_SCORE_TIP = (
     "Not the Score in the Market Mood box.\n"
     "Above 0 leans BULLISH. Below 0 leans BEARISH. Near 0 is a weak lean."
 )
-_ANALYZE_BANNER_MOOD_TIP = (
-    "Headline tone only: Bullish, Neutral, or Bearish.\n"
-    "Price is not included.\n"
-    "Banner can say BULLISH while this says Neutral if news is mixed but price is up."
+_ANALYZE_MOOD_TIP = (
+    "😊 above +0.05 = Bullish\n"
+    "😐 −0.05 through +0.05 = Neutral\n"
+    "☹️ below −0.05 = Bearish\n"
+    "Not the same as the overall banner score."
 )
-_ANALYZE_PANEL_MOOD_TIP = (
-    "Headline tone for this ticker (dot = Bullish, Neutral, or Bearish).\n"
-    "Not the large BULLISH/BEARISH banner, which also uses price."
-)
+_ANALYZE_BANNER_MOOD_TIP = _ANALYZE_MOOD_TIP
+_ANALYZE_PANEL_MOOD_TIP = _ANALYZE_MOOD_TIP
 _ANALYZE_HEADLINE_SCORE_TIP = (
     "News-only score for this box, not the banner Score.\n"
     "Near 0 = Neutral. Positive leans Bullish. Negative leans Bearish (−1 to +1)."
@@ -2475,6 +2474,9 @@ def _render_search_dashboard(ticker: str) -> None:
         f"{html.escape(direction)}</span>"
     )
     mood_label = html.escape(sentiment_label.capitalize())
+    banner_face = {"bullish": "😊", "bearish": "☹️", "neutral": "😐"}.get(
+        sentiment_label, "😐"
+    )
     dir_tip = _analyze_desktop_tip(
         dir_inner,
         _ANALYZE_DIR_TIP,
@@ -2487,7 +2489,7 @@ def _render_search_dashboard(ticker: str) -> None:
         label=f"Score: {combined:+.4f}",
     )
     banner_mood_tip = _analyze_desktop_tip(
-        f"Market Mood: {mood_label}",
+        f"Market Mood: {banner_face} {mood_label}",
         _ANALYZE_BANNER_MOOD_TIP,
         label=f"Market Mood: {sentiment_label.capitalize()}",
     )
@@ -2608,8 +2610,8 @@ def _render_search_dashboard(ticker: str) -> None:
 
     with col_mood:
         st.markdown("<div class='mood-column'>", unsafe_allow_html=True)
-        mood_color = {"bullish": "#22c55e", "bearish": "#ef4444", "neutral": "#f59e0b"}.get(
-            sentiment_label, "#94a3b8"
+        mood_face = {"bullish": "😊", "bearish": "☹️", "neutral": "😐"}.get(
+            sentiment_label, "😐"
         )
         st.markdown(
             f"""
@@ -2622,14 +2624,7 @@ def _render_search_dashboard(ticker: str) -> None:
             ">
                 <div class="scoop-mood-label" style="display:flex;align-items:center;gap:0.6rem;font-weight:700;color:#0f172a;">
                     {_analyze_desktop_tip("Market Mood", _ANALYZE_PANEL_MOOD_TIP, label="Market Mood")}
-                    <span style="
-                        display:inline-block;
-                        width:0.9rem;
-                        height:0.9rem;
-                        border-radius:999px;
-                        background:{mood_color};
-                        box-shadow:0 0 0 2px {mood_color}33;
-                    "></span>
+                    <span class="scoop-mood-face" aria-hidden="true" style="font-size:1.15rem;line-height:1;">{mood_face}</span>
                 </div>
                 <div class="scoop-mood-detail" style="margin-top:0.45rem;color:#334155;">
                     Current Mood: <b>{mood_label}</b> &nbsp;|&nbsp; {_analyze_desktop_tip(f"Score: <b>{sentiment_score:+.4f}</b>", _ANALYZE_HEADLINE_SCORE_TIP, "scoop-analyze-desktop-tip--end", label=f"Score: {sentiment_score:+.4f}")}

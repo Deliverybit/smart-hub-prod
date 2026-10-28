@@ -544,6 +544,50 @@ def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, 
     return "".join(pieces)
 
 
+DESKTOP_INDEX_STYLE = """
+<style id="scoop-desktop-index-open">
+html[data-scoop-desktop-index="1"] [data-testid="stSidebar"] [data-testid="stPageLink"],
+html[data-scoop-desktop-index="1"] [data-testid="stSidebar"] [data-testid="stPageLink"] a,
+html[data-scoop-desktop-index="1"] [data-testid="stSidebarNav"] a[data-testid="stSidebarNavLink"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-scoop-desktop-index="1"] [data-testid="stSidebarNav"] a[aria-current="page"],
+html[data-scoop-desktop-index="1"] [data-testid="stSidebar"] [data-testid="stPageLink"][data-scoop-nav-active] {
+  background: transparent !important;
+}
+html[data-scoop-desktop-index="1"] [data-testid="stMainBlockContainer"] h1,
+html[data-scoop-desktop-index="1"] [data-testid="stMainBlockContainer"] h1 span,
+html[data-scoop-desktop-index="1"] [data-testid="stMainBlockContainer"] h1 a,
+html[data-scoop-desktop-index="1"] [data-testid="stMainBlockContainer"] h1 strong {
+  font-size: 4.25rem !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+}
+</style>
+"""
+
+
+def sync_desktop_index_from_nyse() -> bool:
+    """Copy the refreshed NYSE snapshot onto the desktop index, with no nav item selected."""
+    src = PREVIEW / "nyse.html"
+    if not src.exists():
+        return False
+    page = src.read_text(encoding="utf-8")
+    page = page.replace(' data-scoop-nav-active=""', "")
+    page = page.replace(' aria-current="page"', "")
+    page = page.replace(
+        'href="nyse.html" class="st-emotion-cache-1yak103 e1md1dwn5"',
+        'href="nyse.html" class="st-emotion-cache-jeezm1 e1md1dwn5"',
+    )
+    if 'data-scoop-desktop-index="1"' not in page:
+        page = page.replace("<html ", '<html data-scoop-desktop-index="1" ', 1)
+    if 'id="scoop-desktop-index-open"' not in page:
+        page = page.replace("</head>", DESKTOP_INDEX_STYLE + "</head>", 1)
+    (PREVIEW / "desktop-index.html").write_text(page, encoding="utf-8")
+    return True
+
+
 def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
     """Write market lists and Analyze data together. Skip a market that is missing either."""
     ready = _ready_payloads(payloads)
@@ -574,6 +618,8 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         updated = apply_banners(updated, str(payload.get("screener_key") or ""))
         path.write_text(updated, encoding="utf-8")
         written.append(filename)
+        if filename == "nyse.html" and sync_desktop_index_from_nyse():
+            written.append("desktop-index.html")
     if written:
         refresh_analyze_catalog(ready)
         stamp = _newest_stamp(str(payload.get("last_updated_display") or "") for payload in ready)

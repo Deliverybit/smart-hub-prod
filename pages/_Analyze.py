@@ -2001,7 +2001,22 @@ html[data-scoop-theme="dark"][data-scoop-analyze-active="1"] .scoop-analyze-last
 }
 @media (max-width: 1366px) {
   html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div > span {
-    font-size: 2.1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 0.45rem !important;
+    font-size: 0 !important;
+    line-height: 1.15 !important;
+  }
+  html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div > span .scoop-analyze-desktop-tip:not(.scoop-analyze-desktop-tip--dir) {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    font-size: clamp(1.48rem, 4.8vw, 2.15rem) !important;
+    white-space: nowrap !important;
+    line-height: 1.15 !important;
+    font-weight: 700 !important;
   }
   html[data-scoop-analyze-active="1"] .scoop-analyze-direction-banner > div {
     flex-wrap: wrap !important;
@@ -2109,6 +2124,21 @@ html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-test
 html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Down"]) {
   color: #ff6b6b !important;
   font-weight: 800 !important;
+}
+@media (max-width: 1366px) {
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] p,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricLabel"] label {
+    font-size: clamp(1.85rem, 5.2vw, 2.45rem) !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] > div,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricValue"] p {
+    font-size: clamp(2.45rem, 8.6vw, 3.5rem) !important;
+  }
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"],
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] p,
+  html[data-scoop-analyze-active="1"] [data-testid="stMetricDelta"] span {
+    font-size: clamp(1.75rem, 5vw, 2.3rem) !important;
+  }
 }
   color: #f8fafc !important;
 }

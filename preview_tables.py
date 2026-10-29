@@ -116,12 +116,25 @@ def _tip(text: str, tooltip: str, extra_class: str = "") -> str:
     )
 
 
-def _td(label: str, inner: str, label_tip: str = "") -> str:
+def _td(label: str, inner: str, label_tip: str = "", *, value_html: str = "") -> str:
     label_html = _tip(label, label_tip) if label_tip else _esc(label)
+    value = value_html or f'<span class="fr-val">{inner}</span>'
     return (
         f'<td data-label="{_esc(label)}">'
         f'<span class="fr-label">{label_html}</span>'
-        f'<span class="fr-val">{inner}</span></td>'
+        f"{value}</td>"
+    )
+
+
+def _switch_span(value: object, market: str, usd_per_local: float | None) -> str:
+    """Local price plus the USD copy the currency switch reads."""
+    from price_display import format_listing_price
+
+    local = format_listing_price(value, market, None)
+    usd = format_listing_price(value, market, usd_per_local) if usd_per_local else local
+    return (
+        f'<span data-local-price="{html.escape(local, quote=True)}" '
+        f'data-usd-price="{html.escape(usd, quote=True)}">{html.escape(local)}</span>'
     )
 
 
@@ -234,7 +247,16 @@ def _columns(rows: list[dict], label_field: str) -> list[str]:
     return [name for name in ordered if name == "Analyze" or name in present]
 
 
-def build_tbody(rows: list[dict], *, label_field: str, from_path: str, tips: dict[str, str], crypto: bool) -> str:
+def build_tbody(
+    rows: list[dict],
+    *,
+    label_field: str,
+    from_path: str,
+    tips: dict[str, str],
+    crypto: bool,
+    listing_market: str = "",
+    usd_per_local: float | None = None,
+) -> str:
     """Return one tbody using the same cell markup the saved pages already use."""
     columns = [name for name in _columns(rows, label_field) if name != label_field or label_field]
     body = []
@@ -262,7 +284,16 @@ def build_tbody(rows: list[dict], *, label_field: str, from_path: str, tips: dic
                     cells += _td(column, _esc(count), COLUMN_TIPS["Headlines"])
                 continue
             if column in {"Price", "52W Low", "52W High"}:
-                cells += _td(column, _esc(_money(row.get(column), crypto=crypto)))
+                if listing_market in {"LSE", "TSX"}:
+                    cells += _td(
+                        column,
+                        "",
+                        value_html=_switch_span(row.get(column), listing_market, usd_per_local).replace(
+                            "<span ", '<span class="fr-val" ', 1
+                        ),
+                    )
+                else:
+                    cells += _td(column, _esc(_money(row.get(column), crypto=crypto)))
                 continue
             if column == "% Above Low":
                 try:
@@ -360,6 +391,8 @@ def refill_page(
     asset_noun: str = "",
     scanned_count: int = 0,
     universe_size: int = 0,
+    listing_market: str = "",
+    usd_per_local: float | None = None,
 ) -> str:
     """Replace the Full Results tbody. The legend under the table stays as it is."""
     page_html = drop_stray_result_rows(page_html)
@@ -372,6 +405,8 @@ def refill_page(
         from_path=from_path,
         tips=_tips_for_rows(page_html, rows) if tips is None else tips,
         crypto=crypto,
+        listing_market=listing_market,
+        usd_per_local=usd_per_local,
     )
     updated = page_html[: match.start()] + match.group(1) + tbody[len("<tbody>") : -len("</tbody>")] + match.group(2) + page_html[match.end() :]
     return stamp_selection_status(
@@ -471,7 +506,15 @@ def rows_from_results_table(page_html: str, label_field: str) -> list[dict]:
     return rows
 
 
-def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, label_field: str = "Company") -> str:
+def refill_top_picks(
+    page_html: str,
+    rows: list[dict],
+    *,
+    crypto: bool = False,
+    label_field: str = "Company",
+    listing_market: str = "",
+    usd_per_local: float | None = None,
+) -> str:
     """Rewrite the three desktop Top Picks cards from the current top rows."""
     picks = [row for row in rows if str(row.get("Ticker") or "").strip()][:3]
     labels = list(re.finditer(r"<p>#[123] [^<]*</p>", page_html))
@@ -489,7 +532,10 @@ def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, 
         delta_at = page_html.find("<p>", value_end + 4)
         delta_end = page_html.find("</p>", delta_at)
         price = row.get("Price")
-        price_text = price if isinstance(price, str) else _money(price, crypto=crypto)
+        if listing_market in {"LSE", "TSX"} and not isinstance(price, str):
+            price_html = _switch_span(price, listing_market, usd_per_local)
+        else:
+            price_html = html.escape(price if isinstance(price, str) else _money(price, crypto=crypto))
         above = row.get("% Above Low")
         if isinstance(above, str):
             number = above.replace("%", "").replace("+", "").replace(",", "").strip()
@@ -503,7 +549,7 @@ def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, 
             except (TypeError, ValueError):
                 delta_text = ""
         pieces.append(page_html[label.end():value_at])
-        pieces.append(f"<p>{html.escape(str(price_text))}</p>")
+        pieces.append(f"<p>{price_html}</p>")
         pieces.append(page_html[value_end + 4:delta_at])
         pieces.append(f"<p>{html.escape(delta_text)}</p>")
         detail_at = page_html.find('style="font-size: 1.5rem; line-height: 1.8;"', delta_end)
@@ -515,8 +561,12 @@ def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, 
             summary = _description_for(ticker, "", name)
         low = row.get("52W Low")
         high = row.get("52W High")
-        low_text = low if isinstance(low, str) else _money(low, crypto=crypto)
-        high_text = high if isinstance(high, str) else _money(high, crypto=crypto)
+        if listing_market in {"LSE", "TSX"} and not isinstance(low, str):
+            low_html = _switch_span(low, listing_market, usd_per_local)
+            high_html = _switch_span(high, listing_market, usd_per_local)
+        else:
+            low_html = html.escape(low if isinstance(low, str) else _money(low, crypto=crypto))
+            high_html = html.escape(high if isinstance(high, str) else _money(high, crypto=crypto))
         sentiment = row.get("Headline Sentiment")
         if isinstance(sentiment, str):
             number = sentiment.replace("+", "").replace(",", "").strip()
@@ -532,8 +582,8 @@ def refill_top_picks(page_html: str, rows: list[dict], *, crypto: bool = False, 
         detail = (
             f'<span class="tip-wrap scoop-name-tip" style="font-weight: 700;">'
             f"{html.escape(name)}<span class=\"tip-text\">{html.escape(summary)}</span></span><br>"
-            f'52W Low: <b style="color: rgb(34, 197, 94);">{html.escape(str(low_text))}</b> · '
-            f"52W High: <b>{html.escape(str(high_text))}</b><br>"
+            f'52W Low: <b style="color: rgb(34, 197, 94);">{low_html}</b> · '
+            f"52W High: <b>{high_html}</b><br>"
             f"Sentiment: <b>{html.escape(sentiment_text)}</b><br>"
             f"<b>{html.escape(_badge(str(row.get('Market Mood') or '')))}</b>"
         )
@@ -598,21 +648,31 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         if not path.exists():
             continue
         rows = list(payload.get("display_results") or [])
+        listing = str(payload.get("screener_key") or "")
+        rate = payload.get("usd_per_local")
+        try:
+            rate = float(rate) if rate else None
+        except (TypeError, ValueError):
+            rate = None
         updated = refill_page(
             path.read_text(encoding="utf-8"),
             rows,
             label_field=label_field,
             from_path=from_path,
-            crypto=payload.get("screener_key") == "CRYPTO",
-            asset_noun=str(payload.get("asset_noun") or NOUNS.get(str(payload.get("screener_key") or ""), "")),
+            crypto=listing == "CRYPTO",
+            asset_noun=str(payload.get("asset_noun") or NOUNS.get(listing, "")),
             scanned_count=int(payload.get("scanned_count") or 0),
             universe_size=int(payload.get("universe_size") or 0),
+            listing_market=listing if listing in {"LSE", "TSX"} else "",
+            usd_per_local=rate,
         )
         updated = refill_top_picks(
             updated,
             rows,
-            crypto=payload.get("screener_key") == "CRYPTO",
+            crypto=listing == "CRYPTO",
             label_field=label_field,
+            listing_market=listing if listing in {"LSE", "TSX"} else "",
+            usd_per_local=rate,
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
         updated = apply_banners(updated, str(payload.get("screener_key") or ""))

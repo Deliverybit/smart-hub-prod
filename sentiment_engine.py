@@ -21,6 +21,16 @@ _SEVERE_NEGATIVE = (
     "accounting scandal",
     "delisted",
     "going out of business",
+    "workers die",
+    "fatality",
+    "killed",
+    "fined",
+    "fine of",
+    "fine",
+    "probe",
+    "hack",
+    "hacks",
+    "depeg",
 )
 
 _MILD_NEGATIVE = (
@@ -35,8 +45,28 @@ _MILD_NEGATIVE = (
     "slump",
     "investigation",
     "falls",
+    "fall",
     "crash",
     "drop",
+    "downgrades",
+    "strong sell",
+    "misses",
+    "miss",
+    "miss estimates",
+    "earnings miss",
+    "growth miss",
+    "52-week low",
+    "insider selling",
+    "insider sells",
+    "sells shares",
+    "moved down",
+    "shares down",
+    "costs rise",
+    "slide",
+    "slides",
+    "plunges",
+    "sinks",
+    "suspend",
 )
 
 _STRONG_POSITIVE = (
@@ -55,6 +85,20 @@ _STRONG_POSITIVE = (
     "raised guidance",
     "raised outlook",
     "raised revenue outlook",
+    "raises outlook",
+    "eps beat",
+    "beats estimates",
+    "tops",
+    "revenue topped",
+    "revenues increase",
+    "revenue gain",
+    "margin expands",
+    "margins improving",
+    "net income",
+    "guidance reaffirmed",
+    "fda approval",
+    "met primary endpoint",
+    "positive data",
 )
 
 _MILD_POSITIVE = (
@@ -64,6 +108,16 @@ _MILD_POSITIVE = (
     "rises",
     "gains",
     "jumps",
+    "rallies",
+    "climbs",
+    "closed up",
+    "buyback",
+    "repurchases",
+    "shareholders approve",
+    "shareholders back",
+    "adding jobs",
+    "purchases",
+    "makes new investment",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -79,6 +133,18 @@ def _declares_dividend(text: str) -> bool:
     return "dividend" in text and re.search(r"\bdeclar\w*\b", text) is not None
 
 
+def _sells_shares(text: str) -> bool:
+    return "shares" in text and re.search(r"\bsells\b", text) is not None
+
+
+def _raises_outlook(text: str) -> bool:
+    return "outlook" in text and re.search(r"\braises?\b|\braised\b", text) is not None
+
+
+def _creates_jobs(text: str) -> bool:
+    return "jobs" in text and re.search(r"\b(adding|create|creates|creating)\b", text) is not None
+
+
 def headline_polarity(headline: str) -> float:
     """Score one headline from -1 to 1.
 
@@ -88,11 +154,13 @@ def headline_polarity(headline: str) -> float:
     text = (headline or "").lower()
     if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE):
         return -1.0
-    if any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE):
+    if any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE) or _sells_shares(text):
         return -0.5
-    if any(_has_phrase(text, phrase) for phrase in _STRONG_POSITIVE):
+    if any(_has_phrase(text, phrase) for phrase in _STRONG_POSITIVE) or _raises_outlook(text):
         return 0.5
-    if _declares_dividend(text) or any(_has_phrase(text, phrase) for phrase in _MILD_POSITIVE):
+    if _declares_dividend(text) or _creates_jobs(text) or any(
+        _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
+    ):
         return 0.2
 
     polarity = TextBlob(headline or "").sentiment.polarity

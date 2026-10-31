@@ -13,10 +13,17 @@ from typing import Any, Callable
 
 from app_config import get_screener_symbol_limit
 from analyze_snapshot import build_analyze_bundles
-from headline_service import enrich_result_rows
+from headline_service import enrich_result_row
 from market_data import MarketData
-from screener_selection import ProximitySelection, select_proximity_results
+from screener_selection import (
+    INTERNAL_THRESHOLD_PCT,
+    MAX_PAD_CAP_PCT,
+    TARGET_COUNT,
+    ProximitySelection,
+    select_proximity_results,
+)
 from screener_snapshots import save_snapshot
+from sentiment_engine import headline_is_severe
 
 DISPLAY_TZ = ZoneInfo("America/Chicago")
 
@@ -171,17 +178,6 @@ def screen_ticker(
             return None
 
         pct_above_low = ((current_price - year_low) / year_low) * 100
-        disqualify_keywords = list(env.get("DISQUALIFY_KEYWORDS") or [])
-        headlines: list[str] = []
-        headline_links: list[str] = []
-        lower_headlines = " ".join(headlines).lower()
-        for keyword in disqualify_keywords:
-            if keyword in lower_headlines:
-                return None
-
-        polarity = 0.0
-        if polarity < -0.35:
-            return None
 
         names = env.get(defn.names_key) or {}
         if not isinstance(names, dict):
@@ -190,6 +186,10 @@ def screen_ticker(
             company = str(names.get(ticker) or "")
             if company and not market_data.symbol_matches_company(ticker, company):
                 return None
+
+        headlines: list[str] = []
+        headline_links: list[str] = []
+        polarity = 0.0
 
         if defn.kind == "crypto":
             display_tickers = env.get("DISPLAY_TICKERS") or {}
@@ -284,13 +284,54 @@ def format_scan_display(moment: datetime | None = None) -> str:
     return local.strftime("%b %d, %Y  %I:%M %p CT")
 
 
+def _proximity_order(all_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Names within 30% of the low, strict 15% group first, then the rest."""
+
+    def pct(row: dict[str, Any]) -> float:
+        return float(row["% Above Low"])
+
+    eligible = [row for row in all_results if pct(row) <= MAX_PAD_CAP_PCT]
+    strict = sorted((row for row in eligible if pct(row) <= INTERNAL_THRESHOLD_PCT), key=pct)
+    strict_tickers = {row.get("Ticker") for row in strict}
+    padded = sorted(
+        (row for row in eligible if row.get("Ticker") not in strict_tickers),
+        key=pct,
+    )
+    return strict + padded
+
+
+def select_display_results(
+    all_results: list[dict[str, Any]],
+    *,
+    target: int = TARGET_COUNT,
+) -> tuple[list[dict[str, Any]], ProximitySelection]:
+    """Pick the nearest names whose headlines do not hit a severe phrase.
+
+    Headlines are fetched in proximity order. A severe match drops that name
+    and the next name fills the slot. Names with no headlines stay eligible.
+    """
+    kept: list[dict[str, Any]] = []
+    for row in _proximity_order(all_results):
+        enriched = enrich_result_row(row)
+        texts = list(enriched.get("_headline_texts") or [])
+        if any(headline_is_severe(text) for text in texts):
+            print(
+                f"Excluded {enriched.get('Ticker')} for a severe headline",
+                flush=True,
+            )
+            continue
+        kept.append(enriched)
+        if len(kept) >= target:
+            break
+    return kept, select_proximity_results(kept)
+
+
 def build_snapshot_payload(
     defn: ScreenerDefinition,
     market_data: MarketData | None = None,
 ) -> dict[str, Any]:
     all_results, scanned_count, universe_size = run_screener_scan(defn, market_data=market_data)
-    selection = select_proximity_results(all_results)
-    display_results = enrich_result_rows(selection.results)
+    display_results, selection = select_display_results(all_results)
     try:
         analyze_bundles = build_analyze_bundles(display_results, market_data)
     except Exception as exc:

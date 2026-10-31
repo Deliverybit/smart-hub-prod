@@ -64,12 +64,40 @@ def test_sentiment_negative_keyword_notice_mentions_scandal_and_bankruptcy():
         assert "not** included" in text
 
 
+def test_severe_headline_drops_name_and_keeps_the_next():
+    import screener_engine
+
+    rows = [
+        {"Ticker": "BAC", "% Above Low": 8.4, "_source_ticker": "BAC"},
+        {"Ticker": "HON", "% Above Low": 11.5, "_source_ticker": "HON"},
+    ]
+
+    def fake_enrich(row):
+        enriched = dict(row)
+        if row["Ticker"] == "BAC":
+            enriched["_headline_texts"] = [
+                "Bank of America Faces Criminal Probe after a $1.21B fine"
+            ]
+        else:
+            enriched["_headline_texts"] = ["Honeywell stock falls on a quiet day"]
+        return enriched
+
+    original = screener_engine.enrich_result_row
+    screener_engine.enrich_result_row = fake_enrich
+    try:
+        kept, _selection = screener_engine.select_display_results(rows, target=1)
+    finally:
+        screener_engine.enrich_result_row = original
+    assert [row["Ticker"] for row in kept] == ["HON"]
+
+
 def main() -> int:
     test_all_strict_when_enough_within_15()
     test_pads_to_ten_from_30_cap()
     test_excludes_rows_above_30()
     test_empty_when_everything_above_30()
     test_sentiment_negative_keyword_notice_mentions_scandal_and_bankruptcy()
+    test_severe_headline_drops_name_and_keeps_the_next()
     print("screener_selection tests: PASS")
     return 0
 

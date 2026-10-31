@@ -145,6 +145,12 @@ def _creates_jobs(text: str) -> bool:
     return "jobs" in text and re.search(r"\b(adding|create|creates|creating)\b", text) is not None
 
 
+def headline_is_severe(headline: str) -> bool:
+    """True when a headline should remove the name from the Top 10."""
+    text = (headline or "").lower()
+    return any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE)
+
+
 def headline_polarity(headline: str) -> float:
     """Score one headline from -1 to 1.
 

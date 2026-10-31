@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import re
 
-from textblob import TextBlob
-
 from market_data import MarketData
+from sentiment_engine import headline_polarity
 
 _LEGAL_SUFFIX = re.compile(
     r",?\s+\b(inc|incorporated|corp|corporation|ltd|limited|llc|plc|co|company|etf|etn)\.?\b",
@@ -158,7 +157,7 @@ def headlines_from_news_items(
 def polarity_from_headlines(headlines: list[str]) -> float:
     if not headlines:
         return 0.0
-    return sum(TextBlob(headline).sentiment.polarity for headline in headlines) / len(headlines)
+    return sum(headline_polarity(headline) for headline in headlines) / len(headlines)
 
 
 def fetch_news_items(ticker: str, *, fail_fast: bool = False) -> list[dict]:

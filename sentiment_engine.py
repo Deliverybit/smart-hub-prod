@@ -67,6 +67,27 @@ _MILD_NEGATIVE = (
     "plunges",
     "sinks",
     "suspend",
+    # Downward financial-news cues (FinBERT / financial phrase style).
+    "fell",
+    "profit warning",
+    "profit fell",
+    "profits fell",
+    "profit decreased",
+    "operating loss",
+    "sales fell",
+    "sales declined",
+    "net sales decreased",
+    "lowered guidance",
+    "cut guidance",
+    "cuts guidance",
+    "job cuts",
+    "laid off",
+    "layoffs",
+    "weak demand",
+    "fell short",
+    "write-down",
+    "writedown",
+    "impairment",
 )
 
 _STRONG_POSITIVE = (
@@ -99,6 +120,19 @@ _STRONG_POSITIVE = (
     "fda approval",
     "met primary endpoint",
     "positive data",
+    # Upward financial-news cues (FinBERT / financial phrase style).
+    "profit rose",
+    "profits rose",
+    "profit increased",
+    "profits increased",
+    "earnings rose",
+    "earnings increased",
+    "sales rose",
+    "sales increased",
+    "net sales increased",
+    "margin rose",
+    "order intake",
+    "orders rose",
 )
 
 _MILD_POSITIVE = (
@@ -118,6 +152,15 @@ _MILD_POSITIVE = (
     "adding jobs",
     "purchases",
     "makes new investment",
+    "rose",
+    "signed an agreement",
+    "cooperation agreement",
+    "new contract",
+    "contract worth",
+    "won a contract",
+    "joint venture",
+    "partnership",
+    "expansion",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -145,6 +188,24 @@ def _creates_jobs(text: str) -> bool:
     return "jobs" in text and re.search(r"\b(adding|create|creates|creating)\b", text) is not None
 
 
+def _commercial_win(text: str) -> bool:
+    """Contract, plant, or revenue-scale headlines that read as ordinary English."""
+    if re.search(r"\b(decline|declines|loss|losses|lower|weak)\b", text):
+        return False
+    if re.search(r"\brevenues?\b", text) and re.search(r"\b(billion|million)\b", text):
+        return True
+    if re.search(r"\b(helping|helps)\b", text) and re.search(r"\bbuild\w*\b", text):
+        return True
+    return "world's largest" in text
+
+
+def _comparison_question(text: str) -> bool:
+    """Horse-race headlines. The word 'better' is not a rating change."""
+    if "?" not in text:
+        return False
+    return " vs" in text or "which " in text or text.startswith("should you")
+
+
 def headline_is_severe(headline: str) -> bool:
     """True when a headline should remove the name from the Top 10."""
     text = (headline or "").lower()
@@ -157,17 +218,19 @@ def headline_polarity(headline: str) -> float:
     Severe legal or fraud language wins outright. A target cut in the same
     headline as a buy rating stays negative. Ordinary wording still uses TextBlob.
     """
-    text = (headline or "").lower()
+    text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
     if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE):
         return -1.0
     if any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE) or _sells_shares(text):
         return -0.5
     if any(_has_phrase(text, phrase) for phrase in _STRONG_POSITIVE) or _raises_outlook(text):
         return 0.5
-    if _declares_dividend(text) or _creates_jobs(text) or any(
+    if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
     ):
         return 0.2
+    if _comparison_question(text):
+        return 0.0
 
     polarity = TextBlob(headline or "").sentiment.polarity
     if any(_has_phrase(text, word) for word in _BOOST_WORDS):

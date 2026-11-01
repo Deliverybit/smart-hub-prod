@@ -47,6 +47,27 @@ def test_phrases_from_other_screens():
     assert headline_polarity("GSK to Invest $800M and Create 300 New Jobs") == 0.2
 
 
+def test_honeywell_project_wins_are_mild_positive():
+    assert headline_polarity(
+        "Honeywell leaning on physical AI to net $1 billion India revenues"
+    ) == 0.2
+    assert headline_polarity(
+        "Honeywell helping Dangote build world\u2019s largest single-train refinery in Kenya"
+    ) == 0.2
+    assert headline_polarity(
+        "ZBRA vs. HON: Which Industrial Automation Stock is a Better Pick?"
+    ) == 0.0
+    assert headline_polarity("Revenue declines $1 billion after demand slump") == -0.5
+
+
+def test_finbert_style_financial_phrases():
+    assert headline_polarity("Nokia profit rose in the third quarter") == 0.5
+    assert headline_polarity("Sales increased and order intake improved") == 0.5
+    assert headline_polarity("The company issued a profit warning") == -0.5
+    assert headline_polarity("Net income fell after a write-down") == -0.5
+    assert headline_polarity("Supplier signed an agreement for a new contract") == 0.2
+
+
 def test_volatility_surge_is_not_a_boost():
     score = headline_polarity("Implied Volatility Surging for Kinross Gold Stock Options")
     assert score < 0.2
@@ -70,6 +91,8 @@ if __name__ == "__main__":
     test_target_cut_beats_a_buy_rating()
     test_strong_and_mild_positive_phrases()
     test_phrases_from_other_screens()
+    test_honeywell_project_wins_are_mild_positive()
+    test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_gildan_average_is_bearish()
     print("ok")

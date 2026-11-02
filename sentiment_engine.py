@@ -24,6 +24,7 @@ _SEVERE_NEGATIVE = (
     "workers die",
     "fatality",
     "killed",
+    "elder abuse",
     "fined",
     "fine of",
     "fine",
@@ -38,16 +39,25 @@ _MILD_NEGATIVE = (
     "deadline alert",
     "underperforms",
     "price target cut",
+    "price target lowered",
     "lowers target",
     "cuts target",
+    "guidance cut",
+    "rated \"reduce\"",
+    "reduce rating",
     "downgrade",
     "recall",
     "slump",
     "investigation",
     "falls",
     "fall",
+    "fallen",
     "crash",
     "drop",
+    "drops",
+    "decline",
+    "declines",
+    "sell-off",
     "downgrades",
     "strong sell",
     "misses",
@@ -104,6 +114,9 @@ _STRONG_POSITIVE = (
     "dividend increase",
     "raises guidance",
     "raised guidance",
+    "raised earnings guidance",
+    "raises full-year guidance",
+    "raised full-year guidance",
     "raised outlook",
     "raised revenue outlook",
     "raises outlook",
@@ -142,10 +155,13 @@ _MILD_POSITIVE = (
     "rises",
     "gains",
     "jumps",
+    "jump",
+    "pumps",
     "rallies",
     "climbs",
     "closed up",
     "buyback",
+    "buybacks",
     "repurchases",
     "shareholders approve",
     "shareholders back",
@@ -182,6 +198,17 @@ def _sells_shares(text: str) -> bool:
 
 def _raises_outlook(text: str) -> bool:
     return "outlook" in text and re.search(r"\braises?\b|\braised\b", text) is not None
+
+
+def _lowers_price_target(text: str) -> bool:
+    """'Adjusts price target to $330 from $368' is a cut even without the word cut."""
+    if "price target" not in text or " from " not in text:
+        return False
+    amounts = [
+        float(number.replace(",", ""))
+        for number in re.findall(r"\$(\d[\d,]*(?:\.\d+)?)", text)
+    ]
+    return len(amounts) >= 2 and amounts[0] < amounts[1]
 
 
 def _creates_jobs(text: str) -> bool:
@@ -221,7 +248,11 @@ def headline_polarity(headline: str) -> float:
     text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
     if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE):
         return -1.0
-    if any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE) or _sells_shares(text):
+    if (
+        any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE)
+        or _sells_shares(text)
+        or _lowers_price_target(text)
+    ):
         return -0.5
     if any(_has_phrase(text, phrase) for phrase in _STRONG_POSITIVE) or _raises_outlook(text):
         return 0.5

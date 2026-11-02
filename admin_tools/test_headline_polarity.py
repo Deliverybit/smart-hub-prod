@@ -60,6 +60,26 @@ def test_honeywell_project_wins_are_mild_positive():
     assert headline_polarity("Revenue declines $1 billion after demand slump") == -0.5
 
 
+def test_live_headline_gaps():
+    assert headline_polarity("T-Mobile price target lowered to $196 from $230") == -0.5
+    assert headline_polarity(
+        "BofA Adjusts Price Target on Take-Two to $330 From $368, Keeps Buy Rating"
+    ) == -0.5
+    assert headline_polarity("Disappointing results and guidance cut") == -0.5
+    assert headline_polarity("How Raised Earnings Guidance Will Impact the stock") == 0.5
+    assert headline_polarity("SoFi Raises Full-Year Guidance") == 0.5
+    assert headline_polarity("Can the stock jump 40%?") == 0.2
+    assert headline_polarity("Dogecoin drops 4%") == -0.5
+    assert headline_polarity("HBAR token pumps 96%") == 0.2
+    assert headline_polarity("Buybacks reach 88M shares") == 0.2
+    assert headline_polarity("One final sell-off before the correction ends") == -0.5
+    assert headline_polarity('Stock rated "reduce" by analysts') == -0.5
+    assert headline_polarity("Court revives elder abuse case against the bank") == -1.0
+    assert headline_polarity("Potential decline toward 213.5") == -0.5
+    assert headline_polarity("The stock has fallen 10%") == -0.5
+    assert headline_polarity("Price target raised to $525 from $518") == 0.5
+
+
 def test_finbert_style_financial_phrases():
     assert headline_polarity("Nokia profit rose in the third quarter") == 0.5
     assert headline_polarity("Sales increased and order intake improved") == 0.5
@@ -92,6 +112,7 @@ if __name__ == "__main__":
     test_strong_and_mild_positive_phrases()
     test_phrases_from_other_screens()
     test_honeywell_project_wins_are_mild_positive()
+    test_live_headline_gaps()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_gildan_average_is_bearish()

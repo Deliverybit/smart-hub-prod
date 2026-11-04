@@ -8,6 +8,7 @@ _SEVERE_NEGATIVE = (
     "lawsuit",
     "class action",
     "lawsuits",
+    "investor suit",
     "securities fraud",
     "fraud",
     "sec charges",
@@ -112,6 +113,12 @@ _MILD_NEGATIVE = (
     "write-down",
     "writedown",
     "impairment",
+    "discontinue",
+    "warning signs",
+    "lose signal",
+    "contamination",
+    "gambling ban",
+    "hit from",
 )
 
 _STRONG_POSITIVE = (
@@ -159,6 +166,9 @@ _STRONG_POSITIVE = (
     "margin rose",
     "order intake",
     "orders rose",
+    "guidance raise",
+    "raised to buy",
+    "upbeat",
 )
 
 _MILD_POSITIVE = (
@@ -192,6 +202,11 @@ _MILD_POSITIVE = (
     "joint venture",
     "partnership",
     "expansion",
+    "to rise",
+    "revenues rise",
+    "shareholder return",
+    "month high",
+    "in grants",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -246,6 +261,26 @@ def _raises_price_target(text: str) -> bool:
 
 def _axes_jobs(text: str) -> bool:
     return "jobs" in text and re.search(r"\baxe[sd]?\b", text) is not None
+
+
+def _how_low_can_it_go(text: str) -> bool:
+    return "how low can" in text and " go" in text
+
+
+def _rejects_merger(text: str) -> bool:
+    return "reject" in text and "merger" in text
+
+
+def _bullish_outlook(text: str) -> bool:
+    return "outlook" in text and "bullish" in text
+
+
+def _boosts_forecasts(text: str) -> bool:
+    return "forecast" in text and "boost" in text
+
+
+def _secures_funding(text: str) -> bool:
+    return "funding" in text and re.search(r"\bsecur\w*\b", text) is not None
 
 
 def _price_down_percent(text: str) -> bool:
@@ -307,6 +342,8 @@ def headline_polarity(headline: str) -> float:
         or _cuts_target(text)
         or _axes_jobs(text)
         or _price_down_percent(text)
+        or _how_low_can_it_go(text)
+        or _rejects_merger(text)
     ):
         return -0.5
     if (
@@ -315,9 +352,10 @@ def headline_polarity(headline: str) -> float:
         or _tops_estimates(text)
         or _raises_target(text)
         or _raises_price_target(text)
+        or _boosts_forecasts(text)
     ):
         return 0.5
-    if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or any(
+    if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
     ):
         return 0.2

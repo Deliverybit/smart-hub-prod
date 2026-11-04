@@ -105,6 +105,27 @@ def test_live_screen_headline_gaps():
     assert headline_polarity("Brookfield Pulls Back As Valuation Questions Grow") == -0.5
 
 
+def test_second_scan_phrases():
+    assert headline_polarity("Synthetix to discontinue usage of SNX protocol") == -0.5
+    assert headline_polarity("United Parcel Service Inc Stock Warning Signs") == -0.5
+    assert headline_polarity("How Low Can Charter Communications Stock Go?") == -0.5
+    assert headline_polarity("T-Mobile Shares Lose Signal as SpaceX seeks cell sites") == -0.5
+    assert headline_polarity("Dominion Energy combats salt contamination issue") == -0.5
+    assert headline_polarity("Entain warn over hit from Brazilian gambling ban") == -0.5
+    assert headline_polarity("urge regulators to reject Dominion-NextEra merger") == -0.5
+    assert headline_polarity("Gildan Faces Investor Suit Over Alleged Channel Stuffing") == -1.0
+    assert headline_polarity("Prudential profit to rise 8%") == 0.2
+    assert headline_polarity("Adjusted Earnings, Revenues Rise") == 0.2
+    assert headline_polarity("Goldman Sachs raised to Buy at Freedom Broker") == 0.5
+    assert headline_polarity("Brings A Third Guidance Raise") == 0.5
+    assert headline_polarity("Analysts Boost Their Forecasts Following Upbeat Q3 Earnings") == 0.5
+    assert headline_polarity("Plans a shareholder return") == 0.2
+    assert headline_polarity("Bullish On Outlook") == 0.2
+    assert headline_polarity("Dogecoin Hits 2-Month High") == 0.2
+    assert headline_polarity("Securing $200 Million in Funding") == 0.2
+    assert headline_polarity("HBAR Foundation to give $155M in grants") == 0.2
+
+
 def test_finbert_style_financial_phrases():
     assert headline_polarity("Nokia profit rose in the third quarter") == 0.5
     assert headline_polarity("Sales increased and order intake improved") == 0.5
@@ -139,6 +160,7 @@ if __name__ == "__main__":
     test_honeywell_project_wins_are_mild_positive()
     test_live_headline_gaps()
     test_live_screen_headline_gaps()
+    test_second_scan_phrases()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_gildan_average_is_bearish()

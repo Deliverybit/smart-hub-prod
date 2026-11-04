@@ -7,6 +7,7 @@ from textblob import TextBlob
 _SEVERE_NEGATIVE = (
     "lawsuit",
     "class action",
+    "lawsuits",
     "securities fraud",
     "fraud",
     "sec charges",
@@ -49,6 +50,7 @@ _MILD_NEGATIVE = (
     "recall",
     "slump",
     "investigation",
+    "investigations",
     "falls",
     "fall",
     "fallen",
@@ -75,6 +77,18 @@ _MILD_NEGATIVE = (
     "slide",
     "slides",
     "plunges",
+    "plunge",
+    "tumbles",
+    "tumble",
+    "dipped",
+    "edges lower",
+    "target cuts",
+    "pt lowered",
+    "facility cuts",
+    "losers",
+    "pulls back",
+    "share price weakness",
+    "price weakness",
     "sinks",
     "suspend",
     # Downward financial-news cues (FinBERT / financial phrase style).
@@ -122,7 +136,6 @@ _STRONG_POSITIVE = (
     "raises outlook",
     "eps beat",
     "beats estimates",
-    "tops",
     "revenue topped",
     "revenues increase",
     "revenue gain",
@@ -162,6 +175,8 @@ _MILD_POSITIVE = (
     "closed up",
     "buyback",
     "buybacks",
+    "buys back",
+    "buy back",
     "repurchases",
     "shareholders approve",
     "shareholders back",
@@ -196,8 +211,45 @@ def _sells_shares(text: str) -> bool:
     return "shares" in text and re.search(r"\bsells\b", text) is not None
 
 
+def _tops_estimates(text: str) -> bool:
+    return re.search(r"\btops?\b", text) is not None and "estimate" in text
+
+
 def _raises_outlook(text: str) -> bool:
     return "outlook" in text and re.search(r"\braises?\b|\braised\b", text) is not None
+
+
+def _mentions_target(text: str) -> bool:
+    return "target" in text and "stake" not in text
+
+
+def _cuts_target(text: str) -> bool:
+    return _mentions_target(text) and re.search(r"\bcuts?\b|\blowers?\b|\blowered\b", text) is not None
+
+
+def _raises_target(text: str) -> bool:
+    if _cuts_target(text) or not _mentions_target(text):
+        return False
+    return re.search(r"\braises?\b|\braised\b", text) is not None
+
+
+def _raises_price_target(text: str) -> bool:
+    """'to $525 from $518' is a raise even without the word raised."""
+    if "price target" not in text or " from " not in text:
+        return False
+    amounts = [
+        float(number.replace(",", ""))
+        for number in re.findall(r"\$(\d[\d,]*(?:\.\d+)?)", text)
+    ]
+    return len(amounts) >= 2 and amounts[0] > amounts[1]
+
+
+def _axes_jobs(text: str) -> bool:
+    return "jobs" in text and re.search(r"\baxe[sd]?\b", text) is not None
+
+
+def _price_down_percent(text: str) -> bool:
+    return re.search(r"\b(lost|down)\s+\d", text) is not None
 
 
 def _lowers_price_target(text: str) -> bool:
@@ -252,9 +304,18 @@ def headline_polarity(headline: str) -> float:
         any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE)
         or _sells_shares(text)
         or _lowers_price_target(text)
+        or _cuts_target(text)
+        or _axes_jobs(text)
+        or _price_down_percent(text)
     ):
         return -0.5
-    if any(_has_phrase(text, phrase) for phrase in _STRONG_POSITIVE) or _raises_outlook(text):
+    if (
+        any(_has_phrase(text, phrase) for phrase in _STRONG_POSITIVE)
+        or _raises_outlook(text)
+        or _tops_estimates(text)
+        or _raises_target(text)
+        or _raises_price_target(text)
+    ):
         return 0.5
     if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE

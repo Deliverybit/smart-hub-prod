@@ -80,6 +80,31 @@ def test_live_headline_gaps():
     assert headline_polarity("Price target raised to $525 from $518") == 0.5
 
 
+def test_live_screen_headline_gaps():
+    assert headline_polarity("Prediction: Dogecoin Will Plunge to Under a Penny in 2026") == -0.5
+    assert headline_polarity("Bitcoin Tops $37,000 after a quiet session") < 0.5
+    assert headline_polarity("Ethereum Edges Lower; Synthetix Among Top Losers") == -0.5
+    assert headline_polarity("Stock Fair Value Edges Lower After Analyst Target Revisions") == -0.5
+    assert headline_polarity("Why Cameco (CCJ) Dipped More Than Broader Market Today") == -0.5
+    assert headline_polarity("Kinross Gold shares tumble on weaker outlook") == -0.5
+    assert headline_polarity("Cameco Has Lost 38% in 6 Months") == -0.5
+    assert headline_polarity("Cameco Stock Is Down 36% From Its All-Time High") == -0.5
+    assert headline_polarity("Bernstein cuts Charter Communications stock target from USD 150 to USD 120") == -0.5
+    assert headline_polarity("How Recent Target Cuts Are Reshaping The Story For ITV") == -0.5
+    assert headline_polarity("Upstart Holdings Inc (UPST) PT Lowered to $18 at Citizens") == -0.5
+    assert headline_polarity("Baird cuts Eaton target to USD 485.00") == -0.5
+    assert headline_polarity("Royal Bank of Canada raised target for Eaton stock to USD 526") == 0.5
+    assert headline_polarity("Deutsche Bank raises Eaton stock target from USD 493.00 to USD 521.00") == 0.5
+    assert headline_polarity("Goldman Sachs Adjusts Price Target on Northrop Grumman to $525 From $518") == 0.5
+    assert headline_polarity("Prudential buys back 3,990,793 shares") == 0.2
+    assert headline_polarity("Entain set to axe a fifth of customer care jobs globally") == -0.5
+    assert headline_polarity("How Revenue Recognition Lawsuits At Gildan Have Changed Its Story") == -1.0
+    assert headline_polarity("Lululemon (LULU) Faces Securities Investigations") == -0.5
+    assert headline_polarity("Weekly Recap: UPS job, facility cuts") == -0.5
+    assert headline_polarity("A Look At Premium Brands After Recent Share Price Weakness") == -0.5
+    assert headline_polarity("Brookfield Pulls Back As Valuation Questions Grow") == -0.5
+
+
 def test_finbert_style_financial_phrases():
     assert headline_polarity("Nokia profit rose in the third quarter") == 0.5
     assert headline_polarity("Sales increased and order intake improved") == 0.5
@@ -113,6 +138,7 @@ if __name__ == "__main__":
     test_phrases_from_other_screens()
     test_honeywell_project_wins_are_mild_positive()
     test_live_headline_gaps()
+    test_live_screen_headline_gaps()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_gildan_average_is_bearish()

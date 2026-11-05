@@ -119,6 +119,15 @@ _MILD_NEGATIVE = (
     "contamination",
     "gambling ban",
     "hit from",
+    "shares sold",
+    "stock sold",
+    "position lessened",
+    "dividend cut",
+    "downgraded",
+    "sell rating",
+    "decreases stake",
+    "lags consensus",
+    "weaker earnings",
 )
 
 _STRONG_POSITIVE = (
@@ -169,6 +178,10 @@ _STRONG_POSITIVE = (
     "guidance raise",
     "raised to buy",
     "upbeat",
+    "upgraded",
+    "upgrades",
+    "outperforming",
+    "raised to outperform",
 )
 
 _MILD_POSITIVE = (
@@ -207,6 +220,19 @@ _MILD_POSITIVE = (
     "shareholder return",
     "month high",
     "in grants",
+    "shares bought",
+    "stock bought",
+    "shares purchased",
+    "stock purchased",
+    "shares acquired",
+    "stock acquired",
+    "moved up",
+    "maintained at overweight",
+    "partner of the year",
+    "profits rise",
+    "revenue edges up",
+    "restores power",
+    "remains a buy",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -226,12 +252,35 @@ def _sells_shares(text: str) -> bool:
     return "shares" in text and re.search(r"\bsells\b", text) is not None
 
 
+def _institutions_bought(text: str) -> bool:
+    """'Shares in X Purchased' is a filing buy even when the words are not adjacent."""
+    return re.search(r"\b(shares|stock)\b", text) is not None and re.search(
+        r"\b(bought|purchased|acquired)\b", text
+    ) is not None
+
+
 def _tops_estimates(text: str) -> bool:
     return re.search(r"\btops?\b", text) is not None and "estimate" in text
 
 
 def _raises_outlook(text: str) -> bool:
-    return "outlook" in text and re.search(r"\braises?\b|\braised\b", text) is not None
+    return "outlook" in text and re.search(r"\braises?\b|\braised\b|\blifts?\b|\blifted\b", text) is not None
+
+
+def _raises_forecast(text: str) -> bool:
+    return "forecast" in text and re.search(r"\braises?\b|\braised\b|\braising\b", text) is not None
+
+
+def _beats_results(text: str) -> bool:
+    return re.search(r"\bbeats?\b", text) is not None and re.search(
+        r"\b(earnings|revenue|revenues|guidance|profit|forecast)\b", text
+    ) is not None
+
+
+def _cuts_jobs(text: str) -> bool:
+    return re.search(r"\bcut\b", text) is not None and re.search(
+        r"\b(jobs|workforce|employees)\b", text
+    ) is not None
 
 
 def _mentions_target(text: str) -> bool:
@@ -341,6 +390,7 @@ def headline_polarity(headline: str) -> float:
         or _lowers_price_target(text)
         or _cuts_target(text)
         or _axes_jobs(text)
+        or _cuts_jobs(text)
         or _price_down_percent(text)
         or _how_low_can_it_go(text)
         or _rejects_merger(text)
@@ -353,9 +403,11 @@ def headline_polarity(headline: str) -> float:
         or _raises_target(text)
         or _raises_price_target(text)
         or _boosts_forecasts(text)
+        or _raises_forecast(text)
+        or _beats_results(text)
     ):
         return 0.5
-    if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or any(
+    if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or _institutions_bought(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
     ):
         return 0.2

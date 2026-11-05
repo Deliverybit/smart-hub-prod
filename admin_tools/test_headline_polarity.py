@@ -126,6 +126,36 @@ def test_second_scan_phrases():
     assert headline_polarity("HBAR Foundation to give $155M in grants") == 0.2
 
 
+def test_third_scan_phrases():
+    assert headline_polarity("Lowe's Companies $LOW Shares Bought by Assenagon") == 0.2
+    assert headline_polarity("Shares in General Dynamics Purchased by Mirae Asset") == 0.2
+    assert headline_polarity("McDonald's Stock Acquired by Sowell Financial") == 0.2
+    assert headline_polarity("Boeing Shares Sold by Investment House LLC") == -0.5
+    assert headline_polarity("Position Lessened by Fragasso Financial Advisors") == -0.5
+    assert headline_polarity("PepsiCo Cut 112 Jobs at a bottling plant") == -0.5
+    assert headline_polarity("American Express plans to cut workforce by 5%") == -0.5
+    assert headline_polarity("What Telus's Dividend Cut Can Teach Us") == -0.5
+    assert headline_polarity("Coinbase downgraded to Sell equivalent at Morgan Stanley") == -0.5
+    assert headline_polarity("UBS Reaffirms Their Sell Rating on National Grid") == -0.5
+    assert headline_polarity("Bank Decreases Stake in O'Reilly Automotive") == -0.5
+    assert headline_polarity("Full-Year Revenue Outlook Lags Consensus") == -0.5
+    assert headline_polarity("Morgan Stanley cuts the rating on weaker earnings outlook") == -0.5
+    assert headline_polarity("Home Depot Stock Moved Up by 4.07%") == 0.2
+    assert headline_polarity("American Tower REIT Is Maintained at Overweight by Barclays") == 0.2
+    assert headline_polarity("Home Depot Names Steves & Sons Partner of the Year") == 0.2
+    assert headline_polarity("Cameco reports Q3 profit, revenue edges up from year ago") == 0.2
+    assert headline_polarity("Southern Company restores power after the hurricane") == 0.2
+    assert headline_polarity("Wells Fargo Remains a Buy on Dominion Energy") == 0.2
+    assert headline_polarity("National Grid lifts outlook as the stock trades higher") == 0.5
+    assert headline_polarity("Idexx Laboratories Beats Q3 Earnings and Revenue Estimates") == 0.5
+    assert headline_polarity("American Express is raising its profit forecast") == 0.5
+    assert headline_polarity("DA Davidson upgrades The Trade Desk to Hold") == 0.5
+    assert headline_polarity("Prologis Raised to Outperform From Market Perform") == 0.5
+    assert headline_polarity(
+        "American Express profits rise; company plans to cut workforce by 5%"
+    ) == -0.5
+
+
 def test_finbert_style_financial_phrases():
     assert headline_polarity("Nokia profit rose in the third quarter") == 0.5
     assert headline_polarity("Sales increased and order intake improved") == 0.5
@@ -161,6 +191,7 @@ if __name__ == "__main__":
     test_live_headline_gaps()
     test_live_screen_headline_gaps()
     test_second_scan_phrases()
+    test_third_scan_phrases()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_gildan_average_is_bearish()

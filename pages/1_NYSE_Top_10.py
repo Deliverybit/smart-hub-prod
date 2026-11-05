@@ -3094,7 +3094,7 @@ COMPANY_SUMMARIES = {
     "RTX": "Aerospace and defense company formed from Raytheon and United Technologies merger.",
     "ETN": "Power management company in electrical, aerospace, and vehicle components.",
     "WM": "Largest U.S. waste and recycling company serving residential and commercial customers.",
-    "GD": "Defense contractor in combat vehicles, ships, Gulfstream jets, and IT services.",
+    "GD": "Aerospace and defense company in Gulfstream business jets, nuclear submarines, combat vehicles, and mission systems.",
     "NOC": "Aerospace and defense company making bombers, autonomous systems, and mission systems.",
     "T": "Telecommunications giant providing wireless, broadband, and media services.",
     "VZ": "Major U.S. telecom operator offering wireless, internet, and business solutions.",

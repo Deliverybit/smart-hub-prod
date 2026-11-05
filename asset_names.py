@@ -129,11 +129,16 @@ def asset_summary_lookup() -> dict[str, str]:
             text_s = str(text).strip()
             if not key_u or not text_s:
                 continue
-            lookup[key_u] = text_s
             if source.kind == "crypto":
                 lookup[f"{key_u}-USD"] = text_s
+                lookup.setdefault(key_u, text_s)
             elif source.kind == "commodity":
+                # Stock tickers such as GD and GE are loaded first. Do not
+                # replace those descriptions with a same-symbol futures line.
                 lookup[f"{key_u}=F"] = text_s
+                lookup.setdefault(key_u, text_s)
+            else:
+                lookup[key_u] = text_s
     return lookup
 
 

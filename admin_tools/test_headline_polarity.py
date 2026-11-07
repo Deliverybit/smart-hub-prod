@@ -169,6 +169,16 @@ def test_volatility_surge_is_not_a_boost():
     assert score < 0.2
 
 
+def test_keywords_do_not_fire_on_the_wrong_meaning():
+    assert headline_polarity("Results look fine heading into the fall") > -0.5
+    assert headline_polarity("The chief executive declined to comment") == 0.0
+    assert headline_polarity("Costs rose faster than sales") == -0.5
+    assert headline_polarity("Reports net income of $2 billion") != 0.5
+    assert headline_polarity("Order intake was steady") != 0.5
+    assert headline_polarity("Mirae Asset Purchases 26,029 Shares of Celestica") == 0.2
+    assert headline_polarity("Regulators impose a $5 million fine") == -1.0
+
+
 def test_flat_headline_uses_provider_ticker_score():
     title = "Celestica Inc. (CLS:CA) Analysts Update Stock Forecasts"
     assert headline_polarity(title) == 0.0
@@ -206,6 +216,7 @@ if __name__ == "__main__":
     test_third_scan_phrases()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
+    test_keywords_do_not_fire_on_the_wrong_meaning()
     test_flat_headline_uses_provider_ticker_score()
     test_gildan_average_is_bearish()
     print("ok")

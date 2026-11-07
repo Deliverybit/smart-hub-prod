@@ -29,7 +29,6 @@ _SEVERE_NEGATIVE = (
     "elder abuse",
     "fined",
     "fine of",
-    "fine",
     "probe",
     "hack",
     "hacks",
@@ -52,8 +51,6 @@ _MILD_NEGATIVE = (
     "slump",
     "investigation",
     "investigations",
-    "falls",
-    "fall",
     "fallen",
     "crash",
     "drop",
@@ -64,7 +61,6 @@ _MILD_NEGATIVE = (
     "downgrades",
     "strong sell",
     "misses",
-    "miss",
     "miss estimates",
     "earnings miss",
     "growth miss",
@@ -128,6 +124,11 @@ _MILD_NEGATIVE = (
     "decreases stake",
     "lags consensus",
     "weaker earnings",
+    "costs rose",
+    "expenses rose",
+    "losses rose",
+    "record loss",
+    "awarded damages",
 )
 
 _STRONG_POSITIVE = (
@@ -157,7 +158,6 @@ _STRONG_POSITIVE = (
     "revenue gain",
     "margin expands",
     "margins improving",
-    "net income",
     "guidance reaffirmed",
     "fda approval",
     "met primary endpoint",
@@ -173,7 +173,6 @@ _STRONG_POSITIVE = (
     "sales increased",
     "net sales increased",
     "margin rose",
-    "order intake",
     "orders rose",
     "guidance raise",
     "raised to buy",
@@ -204,7 +203,6 @@ _MILD_POSITIVE = (
     "shareholders approve",
     "shareholders back",
     "adding jobs",
-    "purchases",
     "makes new investment",
     "rose",
     "signed an agreement",
@@ -255,8 +253,24 @@ def _sells_shares(text: str) -> bool:
 def _institutions_bought(text: str) -> bool:
     """'Shares in X Purchased' is a filing buy even when the words are not adjacent."""
     return re.search(r"\b(shares|stock)\b", text) is not None and re.search(
-        r"\b(bought|purchased|acquired)\b", text
+        r"\b(bought|purchased|purchases|acquired|buys)\b", text
     ) is not None
+
+
+def _penalty_fine(text: str) -> bool:
+    """A regulatory fine. The adjective 'fine' is not a penalty."""
+    return re.search(r"\b(million|billion|the|a)\s+fine\b", text) is not None
+
+
+def _price_fall(text: str) -> bool:
+    """A price fall. 'This fall' is the season."""
+    text = re.sub(r"\b(this|next|in the|into the)\s+fall\b", " ", text)
+    return re.search(r"\bfalls?\b", text) is not None
+
+
+def _declines_to_act(text: str) -> bool:
+    """'Declined to comment' is not a drop in results."""
+    return re.search(r"\bdeclin\w*\s+to\b", text) is not None
 
 
 def _tops_estimates(text: str) -> bool:
@@ -403,11 +417,13 @@ def headline_polarity(headline: str) -> float:
     headline as a buy rating stays negative. Ordinary wording still uses TextBlob.
     """
     text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
-    if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE):
+    if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE) or _penalty_fine(text):
         return -1.0
+    scored = re.sub(r"\bdeclin\w*\s+to\b", " ", text) if _declines_to_act(text) else text
     if (
-        any(_has_phrase(text, phrase) for phrase in _MILD_NEGATIVE)
-        or _sells_shares(text)
+        any(_has_phrase(scored, phrase) for phrase in _MILD_NEGATIVE)
+        or _price_fall(scored)
+        or _sells_shares(scored)
         or _lowers_price_target(text)
         or _cuts_target(text)
         or _axes_jobs(text)

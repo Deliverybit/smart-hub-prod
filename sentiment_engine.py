@@ -389,24 +389,36 @@ def headline_is_severe(headline: str) -> bool:
     return any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE)
 
 
-def story_polarity(title: str, summary: str = "", ticker_sentiment: float | None = None) -> float:
-    """Score one story.
+def _is_severe(score: float) -> bool:
+    return score <= -0.99
 
-    Keyword and phrase rules on the title plus summary win. When that reading
-    is flat, use the provider's per-ticker sentiment. Alpha Vantage supplies
+
+def story_polarity(title: str, summary: str = "", ticker_sentiment: float | None = None) -> float:
+    """Score one story for the headline shown to the reader.
+
+    The title is scored on its own. A clear title score wins, including a
+    severe title. A severe word in the summary cannot force -1 unless the
+    title itself is severe. When the title is flat, non-severe summary rules
+    apply, then the provider's per-ticker sentiment. Alpha Vantage supplies
     that score today. When an EODHD key is used for Crypto, TSX, and LSE,
-    keep this same structure: rules on title and summary first, provider
-    ticker sentiment only when the text score is flat.
+    keep this same structure.
     """
+    title_score = headline_polarity(title or "")
+    if _is_severe(title_score) or abs(title_score) >= 0.05:
+        return title_score
+
     summary = (summary or "").strip()
-    text = f"{title}. {summary}" if summary else (title or "")
-    ruled = headline_polarity(text)
-    if abs(ruled) >= 0.05 or ticker_sentiment is None:
-        return ruled
+    if summary:
+        summary_score = headline_polarity(summary)
+        if not _is_severe(summary_score) and abs(summary_score) >= 0.05:
+            return summary_score
+
+    if ticker_sentiment is None:
+        return title_score
     try:
         score = float(ticker_sentiment)
     except (TypeError, ValueError):
-        return ruled
+        return title_score
     return max(min(score, 1.0), -1.0)
 
 

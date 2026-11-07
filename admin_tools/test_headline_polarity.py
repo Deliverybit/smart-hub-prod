@@ -191,6 +191,23 @@ def test_flat_headline_uses_provider_ticker_score():
     assert story_polarity("Company faces a securities fraud lawsuit", ticker_sentiment=0.8) == -1.0
 
 
+def test_summary_cannot_pin_a_clear_or_flat_title_at_minus_one():
+    pops = "Coinbase Stock Pops: What's Going On?"
+    assert headline_polarity(pops) == 0.0
+    assert story_polarity(pops, "Exchange faces a criminal probe after a hack") == 0.0
+    assert story_polarity(
+        pops,
+        "Shares are trading higher after a partnership.",
+        ticker_sentiment=-1.0,
+    ) == 0.2
+    battered = "Coinbase has been battered over the past month. Morgan Stanley says steer clear"
+    assert story_polarity(battered, "Regulators open a fraud lawsuit") == headline_polarity(battered)
+    assert story_polarity(
+        "Morgan Stanley cuts Coinbase stock rating on weaker earnings outlook",
+        "The note cites a securities fraud probe.",
+    ) == -0.5
+
+
 def test_gildan_average_is_bearish():
     headlines = [
         "DEADLINE ALERT for Gildan: Securities Fraud Class Actions",
@@ -218,5 +235,6 @@ if __name__ == "__main__":
     test_volatility_surge_is_not_a_boost()
     test_keywords_do_not_fire_on_the_wrong_meaning()
     test_flat_headline_uses_provider_ticker_score()
+    test_summary_cannot_pin_a_clear_or_flat_title_at_minus_one()
     test_gildan_average_is_bearish()
     print("ok")

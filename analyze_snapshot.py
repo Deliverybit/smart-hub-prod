@@ -23,19 +23,36 @@ def _news_from_row(row: dict[str, Any]) -> list[dict[str, str]]:
 
     texts = list(row.get("_headline_texts") or [])
     urls = list(row.get("_headline_urls") or [])
+    summaries = list(row.get("_headline_summaries") or [])
+    av_scores = list(row.get("_headline_av_scores") or [])
     ticker = str(row.get("_source_ticker") or row.get("Ticker") or "")
+    stored = [
+        {
+            "title": title,
+            "url": urls[idx] if idx < len(urls) else "",
+            "summary": summaries[idx] if idx < len(summaries) else "",
+            "ticker_sentiment": av_scores[idx] if idx < len(av_scores) else None,
+        }
+        for idx, title in enumerate(texts)
+    ]
     headlines, headline_urls = headlines_from_news_items(
-        [
-            {"title": title, "url": urls[idx] if idx < len(urls) else ""}
-            for idx, title in enumerate(texts)
-        ],
+        stored,
         ticker=ticker,
         company_name=row_company_name(row),
     )
+    from headline_service import _items_for_titles
+
+    chosen = _items_for_titles(stored, headlines)
     items = [
-        {"title": str(title), "url": str(headline_urls[idx] if idx < len(headline_urls) else ""), "source": ""}
-        for idx, title in enumerate(headlines)
-        if title
+        {
+            "title": str(item.get("title") or ""),
+            "url": str(item.get("url") or (headline_urls[idx] if idx < len(headline_urls) else "")),
+            "source": "",
+            "summary": str(item.get("summary") or ""),
+            "ticker_sentiment": item.get("ticker_sentiment"),
+        }
+        for idx, item in enumerate(chosen)
+        if item.get("title")
     ]
     if not items:
         return [{"title": "No current news found", "url": "", "source": ""}]
@@ -98,7 +115,7 @@ def build_analyze_bundles(
                 continue
             news_items = _news_from_row(row)
             headlines = [item["title"] for item in news_items]
-            sent_result = sentiment_eng.analyze_headlines(sym, headlines)
+            sent_result = sentiment_eng.analyze_headlines(sym, news_items)
             history = list(price.get("history") or [])
             latest_price = price.get("latest_price") or 0
             if len(history) >= 2:
@@ -203,7 +220,7 @@ def build_one_analyze_bundle(
 
         news_items = get_cached_news_items(sym, company_name=row_company_name(row))
     headlines = [item["title"] for item in news_items]
-    sent_result = sentiment_eng.analyze_headlines(sym, headlines)
+    sent_result = sentiment_eng.analyze_headlines(sym, news_items)
     history = list(price.get("history") or [])
     latest_price = price.get("latest_price") or 0
     if len(history) >= 2:

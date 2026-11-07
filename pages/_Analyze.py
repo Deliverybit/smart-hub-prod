@@ -1480,7 +1480,7 @@ def _cached_analyze_core(
     sym = normalize_screener_ticker(ticker)
     news_items = get_cached_news_items(sym, screener_key=screener_key or None)
     headlines = [item["title"] for item in news_items]
-    sent_result = get_sentiment_engine().analyze_headlines(sym, headlines)
+    sent_result = get_sentiment_engine().analyze_headlines(sym, news_items)
     result = get_predictor().predict(
         sym,
         headlines,

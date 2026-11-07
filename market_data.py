@@ -955,6 +955,7 @@ class MarketData:
             if title and key not in seen:
                 seen.add(key)
                 relevance = 0.0
+                ticker_sentiment = None
                 expected = f"CRYPTO:{symbol}" if is_crypto else news_symbol
                 for sentiment in item.get("ticker_sentiment") or []:
                     if sentiment.get("ticker") != expected:
@@ -962,12 +963,19 @@ class MarketData:
                     try:
                         relevance = max(relevance, float(sentiment.get("relevance_score") or 0))
                     except (TypeError, ValueError):
-                        continue
+                        pass
+                    if ticker_sentiment is None:
+                        try:
+                            ticker_sentiment = float(sentiment.get("ticker_sentiment_score"))
+                        except (TypeError, ValueError):
+                            ticker_sentiment = None
                 headlines.append({
                     "title": title,
                     "url": url,
                     "source": source,
                     "relevance": relevance,
+                    "summary": item.get("summary") or "",
+                    "ticker_sentiment": ticker_sentiment,
                 })
 
         result = headlines if headlines else [{"title": f"No current news found for {symbol}", "url": ""}]

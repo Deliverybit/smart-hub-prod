@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 
 from market_data import MarketData
-from sentiment_engine import headline_polarity
+from sentiment_engine import story_polarity
 
 _LEGAL_SUFFIX = re.compile(
     r",?\s+\b(inc|incorporated|corp|corporation|ltd|limited|llc|plc|co|company|etf|etn)\.?\b",
@@ -154,10 +154,36 @@ def headlines_from_news_items(
     return headlines, urls
 
 
+def _items_for_titles(news_items: list, headlines: list[str]) -> list[dict]:
+    pool = [item for item in news_items if isinstance(item, dict)]
+    chosen = []
+    for title in headlines:
+        found = None
+        for index, item in enumerate(pool):
+            if item.get("title") == title:
+                found = pool.pop(index)
+                break
+        chosen.append(found or {"title": title})
+    return chosen
+
+
 def polarity_from_headlines(headlines: list[str]) -> float:
     if not headlines:
         return 0.0
-    return sum(headline_polarity(headline) for headline in headlines) / len(headlines)
+    return sum(story_polarity(headline) for headline in headlines) / len(headlines)
+
+
+def polarity_from_news_items(items: list[dict]) -> float:
+    if not items:
+        return 0.0
+    return sum(
+        story_polarity(
+            str(item.get("title") or ""),
+            str(item.get("summary") or ""),
+            item.get("ticker_sentiment"),
+        )
+        for item in items
+    ) / len(items)
 
 
 def fetch_news_items(ticker: str, *, fail_fast: bool = False) -> list[dict]:
@@ -181,12 +207,15 @@ def enrich_result_row(row: dict) -> dict:
         ticker=str(ticker),
         company_name=company_name,
     )
-    polarity = polarity_from_headlines(headlines)
+    chosen = _items_for_titles(news_items, headlines)
+    polarity = polarity_from_news_items(chosen)
 
     enriched["Headline Sentiment"] = round(polarity, 3)
     enriched["Headlines"] = len(headlines)
     enriched["_headline_texts"] = headlines[:10]
     enriched["_headline_urls"] = urls[:10]
+    enriched["_headline_summaries"] = [str(item.get("summary") or "") for item in chosen]
+    enriched["_headline_av_scores"] = [item.get("ticker_sentiment") for item in chosen]
     return enriched
 
 

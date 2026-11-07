@@ -7,7 +7,7 @@ from headline_service import (
     enrich_result_row,
     fetch_news_items,
     headlines_from_news_items,
-    polarity_from_headlines,
+    polarity_from_news_items,
     row_company_name,
 )
 from market_data import MarketData
@@ -69,23 +69,44 @@ def news_items_from_snapshot(ticker: str, screener_key: str) -> list[dict] | Non
             continue
         texts = list(row.get("_headline_texts") or [])
         urls = list(row.get("_headline_urls") or [])
+        summaries = list(row.get("_headline_summaries") or [])
+        av_scores = list(row.get("_headline_av_scores") or [])
         if not texts:
             continue
         company_name = row_company_name(row)
         source = str(row.get("_source_ticker") or row.get("Ticker") or ticker)
+        stored = [
+            {
+                "title": title,
+                "url": urls[idx] if idx < len(urls) else "",
+                "summary": summaries[idx] if idx < len(summaries) else "",
+                "ticker_sentiment": av_scores[idx] if idx < len(av_scores) else None,
+            }
+            for idx, title in enumerate(texts)
+        ]
         headlines, headline_urls = headlines_from_news_items(
-            [
-                {"title": title, "url": urls[idx] if idx < len(urls) else ""}
-                for idx, title in enumerate(texts)
-            ],
+            stored,
             ticker=source,
             company_name=company_name,
         )
         if not headlines:
             continue
+        chosen = []
+        pool = list(stored)
+        for title in headlines:
+            found = next((item for item in pool if item.get("title") == title), None)
+            if found is not None:
+                pool.remove(found)
+            chosen.append(found or {"title": title, "url": "", "summary": "", "ticker_sentiment": None})
         return [
-            {"title": title, "url": headline_urls[idx] if idx < len(headline_urls) else "", "source": ""}
-            for idx, title in enumerate(headlines)
+            {
+                "title": str(item.get("title") or ""),
+                "url": str(item.get("url") or ""),
+                "source": "",
+                "summary": str(item.get("summary") or ""),
+                "ticker_sentiment": item.get("ticker_sentiment"),
+            }
+            for item in chosen
         ]
     return None
 
@@ -131,12 +152,25 @@ def _cached_news_items(
 ) -> tuple[tuple[str, str, str], ...]:
     """Fetch and cache headline payloads per ticker (matches screener refresh cadence)."""
     sym = normalize_screener_ticker(ticker)
+    news_items = fetch_news_items(sym, fail_fast=True)
     matched, urls = headlines_from_news_items(
-        fetch_news_items(sym, fail_fast=True),
+        news_items,
         ticker=sym,
         company_name=company_name,
     )
-    return tuple((title, urls[idx] if idx < len(urls) else "", "") for idx, title in enumerate(matched))
+    from headline_service import _items_for_titles
+
+    chosen = _items_for_titles(news_items, matched)
+    return tuple(
+        (
+            title,
+            urls[idx] if idx < len(urls) else "",
+            "",
+            str(chosen[idx].get("summary") or "") if idx < len(chosen) else "",
+            chosen[idx].get("ticker_sentiment") if idx < len(chosen) else None,
+        )
+        for idx, title in enumerate(matched)
+    )
 
 
 def get_cached_news_items(
@@ -162,7 +196,19 @@ def get_cached_news_items(
     )
     if not cached_rows:
         return [{"title": f"No current news found for {sym}", "url": "", "source": ""}]
-    return [{"title": t, "url": u, "source": s} for t, u, s in cached_rows]
+    items = []
+    for row in cached_rows:
+        title, url, source = row[0], row[1], row[2]
+        summary = row[3] if len(row) > 3 else ""
+        ticker_sentiment = row[4] if len(row) > 4 else None
+        items.append({
+            "title": title,
+            "url": url,
+            "source": source,
+            "summary": summary,
+            "ticker_sentiment": ticker_sentiment,
+        })
+    return items
 
 
 def enrich_headline_sentiment(
@@ -190,14 +236,21 @@ def enrich_headline_sentiment(
             company_name,
             _cache_version=cache_version,
         )
-        headlines = [t for t, _u, _s in cached_rows]
-        urls = [u for _t, u, _s in cached_rows]
-        polarity = polarity_from_headlines(headlines)
+        headlines = [row[0] for row in cached_rows]
+        urls = [row[1] for row in cached_rows]
+        summaries = [row[3] if len(row) > 3 else "" for row in cached_rows]
+        av_scores = [row[4] if len(row) > 4 else None for row in cached_rows]
+        polarity = polarity_from_news_items([
+            {"title": title, "summary": summaries[index], "ticker_sentiment": av_scores[index]}
+            for index, title in enumerate(headlines)
+        ])
 
         enriched.at[idx, "Headline Sentiment"] = round(polarity, 3)
         enriched.at[idx, "Headlines"] = len(headlines)
         enriched.at[idx, "_headline_texts"] = headlines
         enriched.at[idx, "_headline_urls"] = urls
+        enriched.at[idx, "_headline_summaries"] = summaries
+        enriched.at[idx, "_headline_av_scores"] = av_scores
 
     return enriched
 

@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sentiment_engine import SentimentEngine, headline_polarity  # noqa: E402
+from sentiment_engine import SentimentEngine, headline_polarity, story_polarity  # noqa: E402
 
 
 def test_severe_legal_language_scores_minus_one():
@@ -169,6 +169,18 @@ def test_volatility_surge_is_not_a_boost():
     assert score < 0.2
 
 
+def test_flat_headline_uses_provider_ticker_score():
+    title = "Celestica Inc. (CLS:CA) Analysts Update Stock Forecasts"
+    assert headline_polarity(title) == 0.0
+    assert story_polarity(title, ticker_sentiment=0.35) == 0.35
+    assert story_polarity(
+        title,
+        "Analysts maintained Buy ratings and set higher price targets.",
+        ticker_sentiment=-0.4,
+    ) == 0.2
+    assert story_polarity("Company faces a securities fraud lawsuit", ticker_sentiment=0.8) == -1.0
+
+
 def test_gildan_average_is_bearish():
     headlines = [
         "DEADLINE ALERT for Gildan: Securities Fraud Class Actions",
@@ -194,5 +206,6 @@ if __name__ == "__main__":
     test_third_scan_phrases()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
+    test_flat_headline_uses_provider_ticker_score()
     test_gildan_average_is_bearish()
     print("ok")

@@ -375,6 +375,27 @@ def headline_is_severe(headline: str) -> bool:
     return any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE)
 
 
+def story_polarity(title: str, summary: str = "", ticker_sentiment: float | None = None) -> float:
+    """Score one story.
+
+    Keyword and phrase rules on the title plus summary win. When that reading
+    is flat, use the provider's per-ticker sentiment. Alpha Vantage supplies
+    that score today. When an EODHD key is used for Crypto, TSX, and LSE,
+    keep this same structure: rules on title and summary first, provider
+    ticker sentiment only when the text score is flat.
+    """
+    summary = (summary or "").strip()
+    text = f"{title}. {summary}" if summary else (title or "")
+    ruled = headline_polarity(text)
+    if abs(ruled) >= 0.05 or ticker_sentiment is None:
+        return ruled
+    try:
+        score = float(ticker_sentiment)
+    except (TypeError, ValueError):
+        return ruled
+    return max(min(score, 1.0), -1.0)
+
+
 def headline_polarity(headline: str) -> float:
     """Score one headline from -1 to 1.
 
@@ -432,9 +453,18 @@ class SentimentEngine:
         headline_scores = []
         total_polarity = 0.0
         for headline in headlines:
-            polarity = headline_polarity(headline)
+            if isinstance(headline, dict):
+                label = str(headline.get("title") or "")
+                polarity = story_polarity(
+                    label,
+                    str(headline.get("summary") or ""),
+                    headline.get("ticker_sentiment"),
+                )
+            else:
+                label = headline
+                polarity = headline_polarity(headline)
             total_polarity += polarity
-            headline_scores.append((headline, round(polarity, 2)))
+            headline_scores.append((label, round(polarity, 2)))
 
         avg_polarity = total_polarity / len(headlines)
         if avg_polarity > 0.05:

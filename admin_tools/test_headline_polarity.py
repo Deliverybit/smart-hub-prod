@@ -156,6 +156,67 @@ def test_third_scan_phrases():
     ) == -0.5
 
 
+def test_current_site_headlines():
+    assert headline_polarity(
+        "CenterBook Partners LP Acquires 68,878 Shares of Bank of America Corporation $BAC"
+    ) == 0.2
+    assert headline_polarity(
+        "Bank of America Corporation $BAC Stake Raised by Alta Advisers Ltd"
+    ) == 0.2
+    assert headline_polarity(
+        "BANK OF AMERICA ALERT: Bragar Eagel & Squire, P.C. Reminds"
+    ) == -0.5
+    assert headline_polarity(
+        "General Dynamics (GD) Lifts Guidance Again, Is The Stock Still Cheap?"
+    ) == 0.5
+    assert headline_polarity(
+        "Associated Banc Corp Purchases New Position in Verizon Communications Inc. $VZ"
+    ) == 0.2
+    assert headline_polarity(
+        "Kestra Advisory Services LLC Increases Holdings"
+    ) == 0.2
+    assert headline_polarity(
+        "On November 3, General Dynamics (GD) counsel sold 12,994 shares"
+    ) == -0.5
+    assert headline_polarity("UPS Announces Quarterly Dividend") == 0.2
+    assert headline_polarity("Waste Management stock slips 1.05% from Friday morning") == -0.5
+    assert headline_polarity(
+        "Waste Management suspends Indian River County collection Tuesday due to flooding"
+    ) == -0.5
+    assert headline_polarity("Form 4 Bank of America Corp For: 6 November") == 0.0
+    assert headline_polarity("Bank of America Corporation (BAC-PM) Seasonal Returns Chart") == 0.0
+    assert headline_polarity(
+        "Coinbase has been battered over the past month. Morgan Stanley says steer clear"
+    ) == -0.5
+    assert headline_polarity(
+        "Cadence Design Systems stock breaks below its two hundred day moving average"
+    ) == -0.5
+    assert headline_polarity(
+        "Charter Continues to Lose Internet, Video Customers"
+    ) == -0.5
+    assert headline_polarity("Emera Incorporated (EMA) Tops Q3 EPS by 16c") == 0.5
+    assert headline_polarity(
+        "China's bank commission rules cut Prudential's mainland profit outlook"
+    ) == -0.5
+    assert headline_polarity(
+        "Enbridge Reports Strong Third Quarter Results and Reaffirms 2026 Financial Guidance"
+    ) == 0.5
+    assert headline_polarity("Eaton Reports Record $8.9 Billion in Third-Quarter Sales") == 0.2
+    assert headline_polarity("Honeywell Analysis - Is HON Headed Higher?") == 0.2
+    assert headline_polarity(
+        "Motley Fool: Should You Buy Dogecoin While It's Below $1?"
+    ) == 0.0
+    assert headline_polarity(
+        "Elon Musk's Latest Move Could Send Dogecoin Soaring"
+    ) == 0.2
+    assert headline_polarity(
+        "Algonquin Power & Utilities Corp. Advances +2.01% as shares trade higher"
+    ) == 0.2
+    assert headline_polarity(
+        "Celestica Announces TSX Acceptance of Normal Course Issuer Bid"
+    ) == 0.2
+
+
 def test_finbert_style_financial_phrases():
     assert headline_polarity("Nokia profit rose in the third quarter") == 0.5
     assert headline_polarity("Sales increased and order intake improved") == 0.5
@@ -231,6 +292,7 @@ if __name__ == "__main__":
     test_live_screen_headline_gaps()
     test_second_scan_phrases()
     test_third_scan_phrases()
+    test_current_site_headlines()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_keywords_do_not_fire_on_the_wrong_meaning()

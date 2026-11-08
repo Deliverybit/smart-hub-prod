@@ -88,6 +88,12 @@ _MILD_NEGATIVE = (
     "price weakness",
     "sinks",
     "suspend",
+    "suspends",
+    "slips",
+    "slipped",
+    "battered",
+    "steer clear",
+    "breaks below",
     # Downward financial-news cues (FinBERT / financial phrase style).
     "fell",
     "profit warning",
@@ -231,6 +237,15 @@ _MILD_POSITIVE = (
     "revenue edges up",
     "restores power",
     "remains a buy",
+    "stake raised",
+    "increases holdings",
+    "headed higher",
+    "soaring",
+    "advances",
+    "issuer bid",
+    "reports record",
+    "strong third quarter",
+    "strong results",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -247,14 +262,15 @@ def _declares_dividend(text: str) -> bool:
 
 
 def _sells_shares(text: str) -> bool:
-    return "shares" in text and re.search(r"\bsells\b", text) is not None
+    return "shares" in text and re.search(r"\bsells\b|\bsold\b", text) is not None
 
 
 def _institutions_bought(text: str) -> bool:
     """'Shares in X Purchased' is a filing buy even when the words are not adjacent."""
-    return re.search(r"\b(shares|stock)\b", text) is not None and re.search(
-        r"\b(bought|purchased|purchases|acquired|buys)\b", text
-    ) is not None
+    bought = re.search(r"\b(bought|purchased|purchases|acquired|acquires|buys)\b", text)
+    if bought and re.search(r"\b(shares|stock|holdings)\b", text):
+        return True
+    return bought is not None and "new position" in text
 
 
 def _penalty_fine(text: str) -> bool:
@@ -274,11 +290,45 @@ def _declines_to_act(text: str) -> bool:
 
 
 def _tops_estimates(text: str) -> bool:
-    return re.search(r"\btops?\b", text) is not None and "estimate" in text
+    return re.search(r"\btops?\b", text) is not None and re.search(
+        r"\b(estimate|estimates|eps|earnings|revenue|revenues)\b", text
+    ) is not None
 
 
 def _raises_outlook(text: str) -> bool:
     return "outlook" in text and re.search(r"\braises?\b|\braised\b|\blifts?\b|\blifted\b", text) is not None
+
+
+def _cuts_outlook(text: str) -> bool:
+    return "outlook" in text and re.search(r"\bcuts?\b", text) is not None
+
+
+def _lifts_guidance(text: str) -> bool:
+    return "guidance" in text and re.search(r"\blifts?\b|\blifted\b", text) is not None
+
+
+def _reaffirms_guidance(text: str) -> bool:
+    return "guidance" in text and re.search(r"\breaffirm\w*\b", text) is not None
+
+
+def _announces_dividend(text: str) -> bool:
+    return "dividend" in text and "announc" in text
+
+
+def _loses_customers(text: str) -> bool:
+    return re.search(r"\blose\b|\bloses\b|\blosing\b", text) is not None and re.search(
+        r"\b(customers|subscribers)\b", text
+    ) is not None
+
+
+def _plaintiff_alert(text: str) -> bool:
+    return re.search(r"\balert\b", text) is not None and "remind" in text
+
+
+def _filing_notice(text: str) -> bool:
+    if "seasonal return" in text:
+        return True
+    return re.search(r"\bform\s+(4|8-?k|10-q|424b2|fwp|f-10)\b", text) is not None
 
 
 def _raises_forecast(text: str) -> bool:
@@ -380,7 +430,7 @@ def _comparison_question(text: str) -> bool:
     """Horse-race headlines. The word 'better' is not a rating change."""
     if "?" not in text:
         return False
-    return " vs" in text or "which " in text or text.startswith("should you")
+    return " vs" in text or "which " in text or "should you" in text
 
 
 def headline_is_severe(headline: str) -> bool:
@@ -443,6 +493,9 @@ def headline_polarity(headline: str) -> float:
         or _price_down_percent(text)
         or _how_low_can_it_go(text)
         or _rejects_merger(text)
+        or _cuts_outlook(text)
+        or _loses_customers(text)
+        or _plaintiff_alert(text)
     ):
         return -0.5
     if (
@@ -454,13 +507,15 @@ def headline_polarity(headline: str) -> float:
         or _boosts_forecasts(text)
         or _raises_forecast(text)
         or _beats_results(text)
+        or _lifts_guidance(text)
+        or _reaffirms_guidance(text)
     ):
         return 0.5
-    if _declares_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or _institutions_bought(text) or any(
+    if _declares_dividend(text) or _announces_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or _institutions_bought(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
     ):
         return 0.2
-    if _comparison_question(text):
+    if _comparison_question(text) or _filing_notice(text):
         return 0.0
 
     polarity = TextBlob(headline or "").sentiment.polarity

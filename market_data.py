@@ -451,6 +451,20 @@ class MarketData:
             return cached.copy()
         return None
 
+    def _cached_history_fallback(self, ticker: str, max_rows: int | None) -> pd.DataFrame | None:
+        """Longest saved series when a new daily request returns no bars."""
+        frames = []
+        for outputsize in ("full", "compact"):
+            cached = self._daily_cache.get(self._daily_cache_key(ticker, outputsize))
+            if cached is not None and not cached.empty:
+                frames.append(cached)
+        if not frames:
+            return None
+        best = max(frames, key=len)
+        if max_rows is not None and len(best) > max_rows:
+            return best.tail(max_rows).copy()
+        return best.copy()
+
     def _daily_history_frame(
         self,
         ticker: str,
@@ -507,11 +521,14 @@ class MarketData:
         df = pd.DataFrame(rows)
         if not df.empty:
             df = df.sort_values("date").reset_index(drop=True)
+            self._daily_cache[self._daily_cache_key(ticker, outputsize)] = df
+            if max_rows is not None and len(df) > max_rows:
+                return df.tail(max_rows).copy()
+            return df.copy()
 
-        cache_key = self._daily_cache_key(ticker, outputsize)
-        self._daily_cache[cache_key] = df
-        if max_rows is not None and len(df) > max_rows:
-            return df.tail(max_rows).copy()
+        fallback = self._cached_history_fallback(ticker, max_rows)
+        if fallback is not None:
+            return fallback
         return df.copy()
 
     @staticmethod

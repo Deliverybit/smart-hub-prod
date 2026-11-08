@@ -831,7 +831,18 @@ def _catalog_asset(payload: dict, row: dict, bundle: dict, previous: dict | None
         score = scores[index][1] if index < len(scores) and len(scores[index]) > 1 else None
         headlines.append({"title": title, "href": str(item.get("url") or ""), "score": score})
     history = list(bundle.get("history") or [])
-    series = [{"d": str(point.get("date") or ""), "p": point.get("price")} for point in history]
+    series = [
+        {"d": str(point.get("date") or ""), "p": point.get("price")}
+        for point in history
+        if str(point.get("date") or "").strip() and point.get("price") is not None
+    ]
+    previous_series = [
+        point
+        for point in list(previous.get("series") or [])
+        if isinstance(point, dict) and str(point.get("d") or "").strip() and point.get("p") is not None
+    ]
+    if len(series) < 2 and len(previous_series) >= 2:
+        series = previous_series
     return {
         "ticker": ticker,
         "name": _row_name(row),

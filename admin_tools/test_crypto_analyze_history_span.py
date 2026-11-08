@@ -52,7 +52,7 @@ def test_crypto_full_history_requests_av_outputsize_full() -> None:
 
 def test_analyze_bundle_caps_chart_at_two_years() -> None:
     md = MarketData.__new__(MarketData)
-    long_days = pd.date_range("2021-01-01", periods=2000, freq="D")
+    long_days = pd.date_range(end=pd.Timestamp.now().normalize(), periods=2000, freq="D")
     long_df = pd.DataFrame(
         {
             "date": long_days,
@@ -66,14 +66,14 @@ def test_analyze_bundle_caps_chart_at_two_years() -> None:
         capped = md.get_analyze_price_bundle("DOGE-USD", days=1825)
 
     assert bundle is not None and capped is not None
-    assert len(bundle["history"]) == 730
-    assert len(capped["history"]) == 730
+    assert len(bundle["history"]) == 731
+    assert len(capped["history"]) == 731
 
 
 def test_short_range_uses_compact_when_snapshot_has_52w() -> None:
     md = MarketData.__new__(MarketData)
     md._daily_cache = {}
-    compact_days = pd.date_range("2026-06-01", periods=100, freq="D")
+    compact_days = pd.date_range(end=pd.Timestamp.now().normalize(), periods=100, freq="D")
     compact_df = pd.DataFrame(
         {
             "date": compact_days,
@@ -89,11 +89,55 @@ def test_short_range_uses_compact_when_snapshot_has_52w() -> None:
             snapshot={"Price": 0.16, "52W Low": 0.08, "52W High": 0.42},
             fail_fast=True,
         )
-    assert hist.call_args.kwargs["outputsize"] == "compact"
+    assert hist.call_args.kwargs["outputsize"] == "full"
     assert hist.call_args.kwargs["fail_fast"] is True
-    assert bundle["week52_low"] == 0.08
-    assert bundle["week52_high"] == 0.42
-    assert len(bundle["history"]) == 30
+    assert bundle["week52_low"] == 0.10
+    assert bundle["week52_high"] == 0.20
+    assert len(bundle["history"]) == 31
+
+
+def test_failed_refetch_keeps_the_shorter_cached_series() -> None:
+    md = MarketData.__new__(MarketData)
+    md._CRYPTO_SYMBOLS = MarketData._CRYPTO_SYMBOLS
+    md._CRYPTO_ID_ALIASES = MarketData._CRYPTO_ID_ALIASES
+    md._daily_cache = {}
+    short_days = pd.date_range("2026-06-01", periods=100, freq="D")
+    short_df = pd.DataFrame(
+        {
+            "date": short_days,
+            "price": [10.0] * len(short_days),
+            "low": [9.0] * len(short_days),
+            "high": [11.0] * len(short_days),
+        }
+    )
+    md._daily_cache[md._daily_cache_key("GS", "full")] = short_df
+    with patch.object(md, "_request", return_value={}):
+        df = md._daily_history_frame("GS", outputsize="full", max_rows=740, fail_fast=True)
+    assert len(df) == 100
+    assert len(md._daily_cache[md._daily_cache_key("GS", "full")]) == 100
+
+
+def test_empty_bundle_keeps_the_published_chart() -> None:
+    from preview_tables import _catalog_asset
+
+    previous = {
+        "series": [{"d": "2026-11-01", "p": 100.0}, {"d": "2026-11-02", "p": 101.0}],
+        "description": "Bank.",
+    }
+    payload = {"screener_key": "NYSE", "last_updated_display": "Nov 08, 2026  05:17 PM CT"}
+    row = {"Ticker": "GS", "Company": "Goldman Sachs Group"}
+    bundle = {
+        "news_items": [],
+        "sent_result": {"headline_scores": []},
+        "history": [],
+        "latest_price": 865.82,
+        "week52_low": 754.0,
+        "week52_high": 1153.99,
+    }
+    asset = _catalog_asset(payload, row, bundle, previous)
+    assert asset["price"] == 865.82
+    assert len(asset["series"]) == 2
+    assert asset["series"][0]["d"] == "2026-11-01"
 
 
 def test_history_reuses_full_cache_for_compact_request() -> None:
@@ -122,6 +166,8 @@ def main() -> int:
     test_crypto_full_history_requests_av_outputsize_full()
     test_analyze_bundle_caps_chart_at_two_years()
     test_short_range_uses_compact_when_snapshot_has_52w()
+    test_failed_refetch_keeps_the_shorter_cached_series()
+    test_empty_bundle_keeps_the_published_chart()
     test_history_reuses_full_cache_for_compact_request()
     print("PASS crypto analyze history span")
     return 0

@@ -670,6 +670,14 @@ class MarketData:
             max_rows=max_rows,
             fail_fast=fail_fast,
         )
+        if df.empty and fail_fast:
+            print(f"Retry daily history for {ticker}", flush=True)
+            df = self._daily_history_frame(
+                ticker,
+                outputsize=outputsize,
+                max_rows=max_rows,
+                fail_fast=False,
+            )
         if df.empty:
             if not has_snap_52w:
                 return None

@@ -96,6 +96,36 @@ def test_short_range_uses_compact_when_snapshot_has_52w() -> None:
     assert len(bundle["history"]) == 31
 
 
+def test_empty_chart_request_retries_until_bars_return() -> None:
+    md = MarketData.__new__(MarketData)
+    md._CRYPTO_SYMBOLS = MarketData._CRYPTO_SYMBOLS
+    md._CRYPTO_ID_ALIASES = MarketData._CRYPTO_ID_ALIASES
+    md._INDEX_SYMBOLS = MarketData._INDEX_SYMBOLS
+    md._FUTURES_SYMBOLS = MarketData._FUTURES_SYMBOLS
+    md._daily_cache = {}
+    day = pd.Timestamp.now().normalize()
+    series = {
+        (day - pd.Timedelta(days=offset)).strftime("%Y-%m-%d"): {
+            "2. high": "12",
+            "3. low": "9",
+            "4. close": "10",
+            "5. adjusted close": "10",
+            "8. split coefficient": "1",
+        }
+        for offset in range(40)
+    }
+    with patch.object(md, "_request", side_effect=[{}, {"Time Series (Daily)": series}]) as req:
+        bundle = md.get_analyze_price_bundle(
+            "GS",
+            days=730,
+            snapshot={"Price": 865.0, "52W Low": 754.0, "52W High": 1153.0},
+            fail_fast=True,
+        )
+    assert [call.kwargs["fail_fast"] for call in req.call_args_list] == [True, False]
+    assert bundle is not None
+    assert len(bundle["history"]) >= 2
+
+
 def test_failed_refetch_keeps_the_shorter_cached_series() -> None:
     md = MarketData.__new__(MarketData)
     md._CRYPTO_SYMBOLS = MarketData._CRYPTO_SYMBOLS
@@ -166,6 +196,7 @@ def main() -> int:
     test_crypto_full_history_requests_av_outputsize_full()
     test_analyze_bundle_caps_chart_at_two_years()
     test_short_range_uses_compact_when_snapshot_has_52w()
+    test_empty_chart_request_retries_until_bars_return()
     test_failed_refetch_keeps_the_shorter_cached_series()
     test_empty_bundle_keeps_the_published_chart()
     test_history_reuses_full_cache_for_compact_request()

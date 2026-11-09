@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thescoop52.com/sitemap.xml

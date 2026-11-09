@@ -1,2 +1,14 @@
 /*
-  Cache-Control: public, max-age=300
+  Cache-Control: public, max-age=300, s-maxage=300, stale-while-revalidate=60
+
+/site.css
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/site.js
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/logo-small.png
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/consent.html
+  Cache-Control: no-store

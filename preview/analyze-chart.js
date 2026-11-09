@@ -571,7 +571,7 @@
     return best;
   }
 
-  fetch("analyze-assets.json?v=" + Date.now())
+  fetch("analyze-assets.json")
     .then(function (res) { return res.json(); })
     .then(function (catalog) {
       snapshotUpdated = newestScanStamp(catalog);

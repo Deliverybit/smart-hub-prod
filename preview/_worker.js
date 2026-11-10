@@ -55,6 +55,18 @@ export default {
       return response;
     }
 
-    return env.ASSETS.fetch(request);
+    const origin = await env.ASSETS.fetch(request);
+    const type = origin.headers.get("content-type") || "";
+    if (!type.includes("text/html")) return origin;
+    const headers = new Headers(origin.headers);
+    headers.set(
+      "Cache-Control",
+      "public, max-age=600, s-maxage=600, stale-while-revalidate=60",
+    );
+    return new Response(origin.body, {
+      status: origin.status,
+      statusText: origin.statusText,
+      headers,
+    });
   },
 };

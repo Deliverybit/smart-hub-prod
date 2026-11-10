@@ -1,4 +1,5 @@
-const STATIC = /\.(?:css|js|mjs|png|jpe?g|svg|ico|woff2)$|\/analyze-assets\.json$/i;
+const STATIC = /\.(?:css|js|mjs|png|jpe?g|svg|ico|woff2)$/i;
+const ANALYZE_FRESH = /^\/analyze(?:-assets\.json|-chart\.js|\.html)?$/i;
 const PRIVATE = /^\/(?:admin(?:\.php)?|login)(?:\/|$)/i;
 const SESSION = /(?:^|;\s*)(?:session|sessionid|PHPSESSID)=/i;
 
@@ -11,22 +12,27 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    if (ANALYZE_FRESH.test(path)) {
+      const origin = await env.ASSETS.fetch(request);
+      const headers = new Headers(origin.headers);
+      headers.set("Cache-Control", "no-store");
+      return new Response(origin.body, {
+        status: origin.status,
+        statusText: origin.statusText,
+        headers,
+      });
+    }
+
     if (STATIC.test(path)) {
       url.search = "";
       const cacheKey = new Request(url.toString(), { method: "GET" });
       const cache = caches.default;
       const hit = await cache.match(cacheKey);
-      const freshJson = (hit?.headers.get("cache-control") || "").includes("max-age=600");
-      if (hit && (path !== "/analyze-assets.json" || freshJson)) return hit;
+      if (hit) return hit;
       const origin = await env.ASSETS.fetch(cacheKey);
       if (!origin.ok) return origin;
       const headers = new Headers(origin.headers);
-      if (path === "/analyze-assets.json") {
-        headers.set("Cache-Control", "public, max-age=600, s-maxage=2592000");
-        headers.set("CDN-Cache-Control", "public, max-age=2592000");
-      } else {
-        headers.set("Cache-Control", "public, max-age=2592000");
-      }
+      headers.set("Cache-Control", "public, max-age=2592000");
       const response = new Response(origin.body, {
         status: origin.status,
         statusText: origin.statusText,

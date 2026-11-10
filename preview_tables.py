@@ -179,7 +179,7 @@ def _headlines(count: object, texts: list, urls: list, row_idx: int) -> str:
 
 
 def _analyze(source: str, from_path: str) -> str:
-    url = f"/analyze.html?ticker={quote(str(source).strip(), safe='')}"
+    url = f"/analyze?ticker={quote(str(source).strip(), safe='')}"
     if from_path:
         path = from_path if from_path.startswith("/") else f"/{from_path}"
         url = f"{url}&from={quote(path, safe='')}"

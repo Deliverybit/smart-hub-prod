@@ -12,6 +12,17 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    if (path.endsWith(".html")) {
+      const dest = path.slice(0, -".html".length) || "/";
+      return new Response(null, {
+        status: 308,
+        headers: {
+          Location: dest + url.search,
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
     if (ANALYZE_FRESH.test(path)) {
       const assetUrl = new URL(request.url);
       assetUrl.search = "";

@@ -36,7 +36,7 @@ def test_refill_keeps_header_and_writes_the_new_row() -> None:
     assert updated.count("<tbody>") == page.count("<tbody>")
     assert "Example Co" in updated
     assert 'data-ticker="ZZZ"' in updated
-    assert 'href="/analyze.html?ticker=ZZZ&amp;from=%2FNYSE_Top_10"' in updated
+    assert 'href="/analyze?ticker=ZZZ&amp;from=%2FNYSE_Top_10"' in updated
     assert "Example headline" in updated
     assert "$10.00" in updated
     assert "PEP" not in updated[updated.find("<tbody>"):updated.find("</tbody>")]

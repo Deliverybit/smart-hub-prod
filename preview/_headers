@@ -1,3 +1,36 @@
+/*.css
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.js
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.mjs
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.png
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.jpg
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.jpeg
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.svg
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.ico
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/*.woff2
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/fonts/*
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/static/*
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
 /robots.txt
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600

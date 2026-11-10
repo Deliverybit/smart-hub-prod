@@ -16,7 +16,8 @@ export default {
       const cacheKey = new Request(url.toString(), { method: "GET" });
       const cache = caches.default;
       const hit = await cache.match(cacheKey);
-      if (hit) return hit;
+      const freshJson = (hit?.headers.get("cache-control") || "").includes("max-age=600");
+      if (hit && (path !== "/analyze-assets.json" || freshJson)) return hit;
       const origin = await env.ASSETS.fetch(cacheKey);
       if (!origin.ok) return origin;
       const headers = new Headers(origin.headers);

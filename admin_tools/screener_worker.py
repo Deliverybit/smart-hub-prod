@@ -12,6 +12,7 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import signal
@@ -193,8 +194,27 @@ def _publish_saved_pages(written: list[str], *, start_worker: bool) -> None:
     _purge_edge_cache()
 
 
+SNAPSHOT_CACHE_PATHS = (
+    "/",
+    "/index.html",
+    "/nyse",
+    "/nyse.html",
+    "/nasdaq",
+    "/nasdaq.html",
+    "/tsx",
+    "/tsx.html",
+    "/lse",
+    "/lse.html",
+    "/crypto",
+    "/crypto.html",
+    "/analyze",
+    "/analyze.html",
+    "/analyze-assets.json",
+)
+
+
 def _purge_edge_cache() -> None:
-    """Drop the published HTML from Cloudflare so the next visitor gets this snapshot."""
+    """Drop the published pages and Analyze data. Leave CSS, images, and fonts cached."""
     zone_id = os.environ.get("CLOUDFLARE_ZONE_ID", "").strip()
     api_token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
     if not zone_id or not api_token:
@@ -203,9 +223,14 @@ def _purge_edge_cache() -> None:
             flush=True,
         )
         return
+    files = [
+        f"https://{host}{path}"
+        for host in ("thescoop52.com", "www.thescoop52.com")
+        for path in SNAPSHOT_CACHE_PATHS
+    ]
     request = urllib.request.Request(
         f"https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache",
-        data=b'{"purge_everything":true}',
+        data=json.dumps({"files": files}).encode(),
         headers={
             "Authorization": f"Bearer {api_token}",
             "Content-Type": "application/json",

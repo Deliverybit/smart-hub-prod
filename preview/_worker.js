@@ -1,4 +1,4 @@
-const STATIC = /\.(?:css|js|mjs|png|jpe?g|svg|ico|woff2)$/i;
+const STATIC = /\.(?:css|js|mjs|png|jpe?g|svg|ico|woff2)$|\/analyze-assets\.json$/i;
 const PRIVATE = /^\/(?:admin(?:\.php)?|login)(?:\/|$)/i;
 const SESSION = /(?:^|;\s*)(?:session|sessionid|PHPSESSID)=/i;
 

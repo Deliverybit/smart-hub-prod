@@ -78,12 +78,9 @@
     var text = dark ? "#e2e8f0" : "#334155";
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
-    var tickPx = window.innerWidth >= 1367 ? 40 : 26;
     var narrow = window.innerWidth < 1367;
     var datePx = narrow ? 24 : 28;
-    var padL = tickPx >= 40 ? 210 : 108, padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
-    var plotW = Math.max(10, w - padL - padR);
-    var plotH = h - padT - padB;
+    var padR = narrow ? 8 : 28, padT = 36, padB = narrow ? 48 : 72;
     var prices = slice.map(function (row) { return shownPrice(row.p); });
     var min = Math.min.apply(null, prices);
     var max = Math.max.apply(null, prices);
@@ -91,6 +88,23 @@
     var span = max - min;
     min -= span * 0.06;
     max += span * 0.06;
+    var tickPx = narrow ? 26 : 40;
+    var axisLabels = [];
+    for (var g0 = 0; g0 <= 4; g0++) axisLabels.push(formatMoney(min + ((max - min) * g0) / 4));
+    var labelFont = "\"Source Sans 3\", \"Source Sans Pro\", sans-serif";
+    ctx.font = tickPx + "px " + labelFont;
+    var widest = 0;
+    axisLabels.forEach(function (label) { widest = Math.max(widest, ctx.measureText(label).width); });
+    var maxPad = Math.max(96, Math.floor(w * (narrow ? 0.46 : 0.36)));
+    while (tickPx > (narrow ? 13 : 16) && widest + 18 > maxPad) {
+      tickPx -= 1;
+      ctx.font = tickPx + "px " + labelFont;
+      widest = 0;
+      axisLabels.forEach(function (label) { widest = Math.max(widest, ctx.measureText(label).width); });
+    }
+    var padL = Math.min(maxPad, Math.max(narrow ? 108 : 108, Math.ceil(widest + 18)));
+    var plotW = Math.max(10, w - padL - padR);
+    var plotH = h - padT - padB;
     function xAt(i) { return padL + (slice.length === 1 ? plotW / 2 : (i / (slice.length - 1)) * plotW); }
     function yAt(p) { return padT + (1 - (p - min) / (max - min)) * plotH; }
     ctx.strokeStyle = grid;
@@ -323,11 +337,14 @@
 
   function formatMoney(value) {
     if (value == null || isNaN(Number(value))) return "—";
+    var amount = Number(value);
     var prefix = "$";
     if (currentAsset && currentAsset.currency && !showUsd) {
       prefix = currentAsset.currency === "GBP" ? "£" : "C$";
     }
-    return prefix + Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var crypto = !!(currentAsset && /crypto/i.test(String(currentAsset.market || "")));
+    var digits = crypto && Math.abs(amount) <= 1 ? 8 : 2;
+    return prefix + amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: digits });
   }
 
   function money(value) {

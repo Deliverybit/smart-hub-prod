@@ -5,7 +5,8 @@
   Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=60
 
 /analyze-assets.json
-  Cache-Control: public, max-age=2592000, s-maxage=2592000
+  Cache-Control: public, max-age=600, s-maxage=2592000
+  CDN-Cache-Control: public, max-age=2592000
 
 /*.css
   Cache-Control: public, max-age=2592000, s-maxage=2592000

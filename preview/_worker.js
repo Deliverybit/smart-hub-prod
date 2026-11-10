@@ -20,7 +20,12 @@ export default {
       const origin = await env.ASSETS.fetch(cacheKey);
       if (!origin.ok) return origin;
       const headers = new Headers(origin.headers);
-      headers.set("Cache-Control", "public, max-age=2592000");
+      if (path === "/analyze-assets.json") {
+        headers.set("Cache-Control", "public, max-age=600, s-maxage=2592000");
+        headers.set("CDN-Cache-Control", "public, max-age=2592000");
+      } else {
+        headers.set("Cache-Control", "public, max-age=2592000");
+      }
       const response = new Response(origin.body, {
         status: origin.status,
         statusText: origin.statusText,

@@ -13,7 +13,9 @@ export default {
     const path = url.pathname;
 
     if (ANALYZE_FRESH.test(path)) {
-      const origin = await env.ASSETS.fetch(request);
+      const assetUrl = new URL(request.url);
+      assetUrl.search = "";
+      const origin = await env.ASSETS.fetch(new Request(assetUrl, request));
       const headers = new Headers(origin.headers);
       headers.set("Cache-Control", "no-store");
       return new Response(origin.body, {

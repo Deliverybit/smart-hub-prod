@@ -307,7 +307,7 @@
 
   function assetTicker() {
     var params = new URLSearchParams(window.location.search);
-    var ticker = params.get("ticker") || "";
+    var ticker = params.get("ticker") || "PEP";
     try { ticker = decodeURIComponent(ticker.replace(/\+/g, " ")); } catch (err) {}
     return ticker;
   }
@@ -324,7 +324,7 @@
       if (!asset) return;
       if (!best || String(asset.updated || "") > String(best.updated || "")) best = asset;
     });
-    return best || null;
+    return best || catalog.PEP;
   }
 
   function shownPrice(value) {
@@ -593,13 +593,7 @@
     .then(function (catalog) {
       snapshotUpdated = newestScanStamp(catalog);
       var ticker = assetTicker();
-      var asset = ticker ? lookupAsset(catalog, ticker) : null;
-      if (!asset || !asset.ticker) {
-        document.documentElement.setAttribute("data-scoop-no-ticker", "1");
-        return;
-      }
-      applyAsset(asset);
-      document.documentElement.removeAttribute("data-scoop-analyze-hold");
+      applyAsset(lookupAsset(catalog, ticker));
       bindSlider();
       noteLastUpdate();
       var input = sliderRoot() && sliderRoot().querySelector('input[type="range"]');

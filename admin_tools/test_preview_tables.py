@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from preview_tables import refill_page
+from preview_tables import _without_clock, refill_page
 
 def test_refill_keeps_header_and_writes_the_new_row() -> None:
     page = (ROOT / "preview" / "nyse.html").read_text(encoding="utf-8")
@@ -66,7 +66,16 @@ def test_company_tip_stays_with_its_ticker() -> None:
     assert updated.find("Global food company") < updated.find("How far the current price")
 
 
+def test_clock_only_change_is_the_same_page() -> None:
+    page = '<p class="scoop-screener-last-updated">Last updated: <b>Nov 09, 2026  01:00 AM CT</b></p>'
+    later = '<p class="scoop-screener-last-updated">Last updated: <b>Nov 10, 2026  07:00 PM CT</b></p>'
+    assert _without_clock(page) == _without_clock(later)
+    changed = page.replace("</p>", " PEP</p>")
+    assert _without_clock(page) != _without_clock(changed)
+
+
 if __name__ == "__main__":
     test_refill_keeps_header_and_writes_the_new_row()
     test_company_tip_stays_with_its_ticker()
+    test_clock_only_change_is_the_same_page()
     print("ok")

@@ -634,7 +634,10 @@ def sync_desktop_index_from_nyse() -> bool:
         page = page.replace("<html ", '<html data-scoop-desktop-index="1" ', 1)
     if 'id="scoop-desktop-index-open"' not in page:
         page = page.replace("</head>", DESKTOP_INDEX_STYLE + "</head>", 1)
-    (PREVIEW / "desktop-index.html").write_text(page, encoding="utf-8")
+    dest = PREVIEW / "desktop-index.html"
+    if dest.exists() and dest.read_text(encoding="utf-8") == page:
+        return False
+    dest.write_text(page, encoding="utf-8")
     return True
 
 
@@ -676,6 +679,9 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
         updated = apply_banners(updated, str(payload.get("screener_key") or ""))
+        previous = path.read_text(encoding="utf-8")
+        if _without_clock(previous) == _without_clock(updated):
+            continue
         path.write_text(updated, encoding="utf-8")
         written.append(filename)
         if filename == "nyse.html" and sync_desktop_index_from_nyse():
@@ -766,6 +772,21 @@ MARKETS = {
 }
 
 
+def _catalog_without_clock(raw: str) -> str:
+    import json
+
+    try:
+        catalog = json.loads(raw)
+    except json.JSONDecodeError:
+        return raw
+    if not isinstance(catalog, dict):
+        return raw
+    for asset in catalog.values():
+        if isinstance(asset, dict):
+            asset.pop("updated", None)
+    return json.dumps(catalog, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
 def _newest_stamp(stamps) -> str:
     from datetime import datetime
 
@@ -783,6 +804,11 @@ def _newest_stamp(stamps) -> str:
             newest = text
             newest_at = parsed or newest_at
     return newest
+
+
+def _without_clock(page_html: str) -> str:
+    """Ignore the scan clock so an unchanged table is not published again."""
+    return LAST_UPDATED.sub(r"\1", page_html)
 
 
 def stamp_last_updated(page_html: str, stamp: str) -> str:
@@ -898,7 +924,10 @@ def refresh_analyze_catalog(payloads: list[dict]) -> int:
         for asset in catalog.values():
             if isinstance(asset, dict):
                 asset["updated"] = stamp
-    ASSETS_PATH.write_text(json.dumps(catalog, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    fresh = json.dumps(catalog, ensure_ascii=False, separators=(",", ":"))
+    if ASSETS_PATH.exists() and _catalog_without_clock(ASSETS_PATH.read_text(encoding="utf-8")) == _catalog_without_clock(fresh):
+        return 0
+    ASSETS_PATH.write_text(fresh, encoding="utf-8")
     return written
 
 

@@ -18,13 +18,14 @@ PAGE_KEY = "_scoop_theme_page"
 SKIP_HYDRATE_KEY = "_scoop_theme_skip_hydrate"
 WRITE_SEQ_KEY = "_scoop_theme_write_seq"
 # Parent sessionStorage: same-origin Streamlit iframes each have their own
-# sessionStorage, so iframe writes never stick. New browser tab still starts light.
+# sessionStorage, so iframe writes never stick. A new tab starts dark unless
+# this tab saved an explicit "light" choice.
 _BROWSER_STORAGE = "sessionStorage"
 
 
 def is_dark_mode() -> bool:
-    """Session preference; defaults to light until hydrated or toggled."""
-    return bool(st.session_state.get(SESSION_KEY, False))
+    """Session preference; defaults to dark until an explicit light choice is saved."""
+    return bool(st.session_state.get(SESSION_KEY, True))
 
 
 def _theme_known_in_session() -> bool:
@@ -45,8 +46,9 @@ def _parent_theme_store_js() -> str:
         "  try { session = win.sessionStorage || sessionStorage; } catch (e) { session = sessionStorage; }"
         "  try {"
         "    var local = win.localStorage || localStorage;"
-        "    if (local.getItem(" + storage + ") === \"dark\" && session.getItem(" + storage + ") !== \"dark\") {"
-        "      session.setItem(" + storage + ", \"dark\");"
+        "    var saved = local.getItem(" + storage + ");"
+        "    if ((saved === \"dark\" || saved === \"light\") && !session.getItem(" + storage + ")) {"
+        "      session.setItem(" + storage + ", saved);"
         "    }"
         "    (win.localStorage || localStorage).removeItem(" + storage + ");"
         "  } catch (e) {}"
@@ -81,8 +83,8 @@ def _storage_read_key() -> str:
 
 
 def _dark_from_storage_value(stored: object) -> bool:
-    """Only an explicit saved 'dark' enables dark mode; everything else is light."""
-    return str(stored or "").strip().lower() == "dark"
+    """Dark unless the visitor explicitly saved light. Empty storage stays dark."""
+    return str(stored or "").strip().lower() != "light"
 
 
 def _hydrate_theme_from_storage() -> bool:
@@ -97,7 +99,7 @@ def _hydrate_theme_from_storage() -> bool:
         from streamlit_js_eval import streamlit_js_eval
     except ImportError:
         if not _theme_known_in_session():
-            _set_theme_session(False)
+            _set_theme_session(True)
             st.session_state[PAGE_KEY] = page
         return True
 
@@ -206,7 +208,7 @@ def _apply_theme_dom(theme: str) -> None:
 
 
 def _save_theme_preference(theme: str) -> None:
-    payload = json.dumps("dark" if theme == "dark" else "")
+    payload = json.dumps("light" if theme == "light" else "dark")
     st.html(
         f"""
 <script>
@@ -214,8 +216,7 @@ def _save_theme_preference(theme: str) -> None:
     {_parent_theme_store_js()}
     try {{
         var store = scoopThemeStore();
-        if ({payload} === "dark") store.setItem({json.dumps(STORAGE_KEY)}, "dark");
-        else store.removeItem({json.dumps(STORAGE_KEY)});
+        store.setItem({json.dumps(STORAGE_KEY)}, {payload});
     }} catch (e) {{}}
 }})();
 </script>
@@ -269,11 +270,11 @@ def _early_theme_bootstrap_script() -> None:
     {_parent_theme_store_js()}
     const doc = window.parent && window.parent.document ? window.parent.document : document;
     const root = doc.documentElement;
-    let theme = "light";
+    let theme = "dark";
     try {{
         const stored = scoopThemeStore().getItem({storage});
-        if (stored === "dark") {{
-            theme = "dark";
+        if (stored === "light") {{
+            theme = "light";
         }}
     }} catch (e) {{}}
     root.setAttribute("data-scoop-theme", theme);
@@ -385,8 +386,7 @@ def _inject_snapshot_dark_mode_click() -> None:
         root.classList.toggle("scoop-dark", mode === "dark");
         try {{
             var store = scoopThemeStore();
-            if (mode === "dark") store.setItem({storage}, "dark");
-            else store.removeItem({storage});
+            store.setItem({storage}, mode);
         }} catch (err) {{}}
         doc.querySelectorAll("#scoop-mobile-dark-cb, input[aria-label='Dark mode']").forEach(function (input) {{
             input.checked = next;

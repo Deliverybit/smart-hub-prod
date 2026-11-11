@@ -339,9 +339,9 @@ _JS = r"""
                 break;
             }
         }
-        let theme = "light";
+        let theme = "dark";
         try {
-            if ((w.sessionStorage && w.sessionStorage.getItem("scoop-theme")) === "dark") theme = "dark";
+            if ((w.sessionStorage && w.sessionStorage.getItem("scoop-theme")) === "light") theme = "light";
         } catch (e) {}
         try {
             w.sessionStorage.setItem("scoop-analyze-from", fromPath);

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify dark mode defaults to off and only activates via toggle / saved preference."""
+"""Verify dark mode is the default unless the visitor saved light."""
 
 from __future__ import annotations
 
@@ -29,14 +29,14 @@ def _fresh_session() -> _Session:
     return theme_mode.st.session_state
 
 
-def test_is_dark_mode_defaults_false() -> None:
+def test_is_dark_mode_defaults_true() -> None:
     _fresh_session()
-    assert theme_mode.is_dark_mode() is False
+    assert theme_mode.is_dark_mode() is True
 
 
-def test_session_key_defaults_false() -> None:
+def test_session_key_defaults_dark() -> None:
     ss = _fresh_session()
-    assert ss.get(theme_mode.SESSION_KEY, False) is False
+    assert ss.get(theme_mode.SESSION_KEY, True) is True
 
 
 def test_toggle_key_controls_mode() -> None:
@@ -48,19 +48,19 @@ def test_toggle_key_controls_mode() -> None:
     assert theme_mode.is_dark_mode() is False
 
 
-def test_bootstrap_only_restores_explicit_dark() -> None:
+def test_bootstrap_defaults_dark_unless_saved_light() -> None:
     src = Path(theme_mode.__file__).read_text(encoding="utf-8")
     helper = src.split("def _parent_theme_store_js")[1].split("def _set_theme_session")[0]
     bootstrap = src.split("def _early_theme_bootstrap_script")[1].split("def apply_theme_from_query_param")[0]
-    assert 'let theme = "light";' in bootstrap
-    assert 'if (stored === "dark")' in bootstrap
+    assert 'let theme = "dark";' in bootstrap
+    assert 'if (stored === "light")' in bootstrap
     assert "scoopThemeStore" in bootstrap
     assert "localStorage.removeItem" in helper
     assert 'getAttribute("data-scoop-theme") === "dark"' not in bootstrap
 
 
 def test_dark_from_storage_value() -> None:
-    assert theme_mode._dark_from_storage_value("") is False
+    assert theme_mode._dark_from_storage_value("") is True
     assert theme_mode._dark_from_storage_value("light") is False
     assert theme_mode._dark_from_storage_value("dark") is True
     assert theme_mode._dark_from_storage_value("DARK") is True
@@ -98,14 +98,14 @@ def test_query_param_dark_only_when_explicit() -> None:
 
     theme_mode.st.query_params = _Params()
     theme_mode.apply_theme_from_query_param()
-    assert theme_mode.is_dark_mode() is False
+    assert theme_mode.is_dark_mode() is True
 
     theme_mode.st.query_params = _Params(theme="dark")
     theme_mode.apply_theme_from_query_param()
     assert theme_mode.is_dark_mode() is True
 
 
-def test_hydrate_empty_storage_is_light() -> None:
+def test_hydrate_empty_storage_is_dark() -> None:
     _fresh_session()
 
     class _FakeJsEval:
@@ -115,7 +115,7 @@ def test_hydrate_empty_storage_is_light() -> None:
 
     sys.modules["streamlit_js_eval"] = _FakeJsEval()
     assert theme_mode._hydrate_theme_from_storage() is True
-    assert theme_mode.is_dark_mode() is False
+    assert theme_mode.is_dark_mode() is True
 
 
 def test_hydrate_dark_storage_restores_toggle() -> None:
@@ -166,7 +166,7 @@ def test_page_navigation_rehydrates_from_storage() -> None:
     sys.modules["streamlit_js_eval"] = _FakeJsEval()
     with patch("inspect.stack", return_value=[frame_nyse]):
         theme_mode.apply_theme_early()
-    assert theme_mode.is_dark_mode() is False
+    assert theme_mode.is_dark_mode() is True
 
     ss[theme_mode.HYDRATED_KEY] = True
     ss[theme_mode.PAGE_KEY] = "/project/pages/1_NYSE_Top_10.py"
@@ -238,15 +238,15 @@ def test_static_css_requires_dark_attribute() -> None:
 
 def main() -> int:
     tests = [
-        test_is_dark_mode_defaults_false,
-        test_session_key_defaults_false,
+        test_is_dark_mode_defaults_true,
+        test_session_key_defaults_dark,
         test_toggle_key_controls_mode,
-        test_bootstrap_only_restores_explicit_dark,
+        test_bootstrap_defaults_dark_unless_saved_light,
         test_dark_from_storage_value,
         test_storage_read_key_is_unique_per_page,
         test_render_toggle_skips_until_theme_known,
         test_query_param_dark_only_when_explicit,
-        test_hydrate_empty_storage_is_light,
+        test_hydrate_empty_storage_is_dark,
         test_hydrate_dark_storage_restores_toggle,
         test_apply_theme_uses_session_while_storage_pending,
         test_page_navigation_rehydrates_from_storage,

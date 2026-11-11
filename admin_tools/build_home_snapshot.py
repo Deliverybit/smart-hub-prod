@@ -214,7 +214,7 @@ function scoopSetTheme(next) {
     input.checked = next;
   });
 }
-try { if (localStorage.getItem("scoop-theme") === "dark") scoopSetTheme(true); } catch (err) {}
+try { var _saved="";try{_saved=localStorage.getItem("scoop-theme")||sessionStorage.getItem("scoop-theme")||""}catch(e){}if(typeof scoopSetTheme==="function")scoopSetTheme(_saved!=="light"); } catch (err) {}
 document.addEventListener("click", function (event) {
   var dark = event.target.closest && event.target.closest('[data-testid="stCheckbox"]');
   if (!dark || (dark.innerText || "").indexOf("Dark mode") === -1) return;
@@ -284,7 +284,7 @@ for origin in ORIGINS:
         f"{origin}/media/e84614c848ece5e96dfb8d839d84c62ba8c59d5e8ab7596167c388a1.png",
         "logo.png",
     )
-html = html.replace("<head>", '<head><script>try{if(localStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}</script>', 1)
+html = html.replace("<head>", '<head><script>try{var _st="";try{_st=localStorage.getItem("scoop-theme")||sessionStorage.getItem("scoop-theme")||""}catch(e){}if(_st!=="light")document.documentElement.setAttribute("data-scoop-theme","dark");else document.documentElement.setAttribute("data-scoop-theme","light")}catch(e){}</script>', 1)
 html = html.replace("</body>", extra + "</body>")
 OUT.write_text("<!DOCTYPE html>\n" + html, encoding="utf-8")
 print(OUT, OUT.stat().st_size)

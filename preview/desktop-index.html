@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-scoop-desktop-index="1" data-scoop-consent="0" lang="en" data-scoop-theme="light" style="zoom: 1 !important;" data-scoop-desktop-layout="1" data-scoop-screener-active="1" data-scoop-theme-listen="1" data-scoop-tab-nav="1"><head><link rel="stylesheet" href="card-format.css"><script id="scoop-from-analyze-return">
+<html data-scoop-desktop-index="1" data-scoop-consent="0" lang="en" data-scoop-theme="dark" style="zoom: 1 !important;" data-scoop-desktop-layout="1" data-scoop-screener-active="1" data-scoop-theme-listen="1" data-scoop-tab-nav="1"><head><link rel="stylesheet" href="card-format.css"><script id="scoop-from-analyze-return">
 try {
   if (location.search.indexOf("scoop_from_analyze=1") !== -1) {
     document.documentElement.setAttribute("data-scoop-consent", "1");
@@ -12,7 +12,7 @@ try {
     });
   }
 } catch (e) {}
-</script><link rel="stylesheet" href="gating-mobile.css"><script>try{if(localStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}</script>
+</script><link rel="stylesheet" href="gating-mobile.css"><script>try{var _st="";try{_st=localStorage.getItem("scoop-theme")||sessionStorage.getItem("scoop-theme")||""}catch(e){}if(_st!=="light")document.documentElement.setAttribute("data-scoop-theme","dark");else document.documentElement.setAttribute("data-scoop-theme","light")}catch(e){}</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
     <link rel="shortcut icon" href="logo.png">
@@ -27902,7 +27902,7 @@ function scoopSetTheme(next) {
     input.checked = next;
   });
 }
-try { if (localStorage.getItem("scoop-theme") === "dark") scoopSetTheme(true); } catch (err) {}
+try { var _saved="";try{_saved=localStorage.getItem("scoop-theme")||sessionStorage.getItem("scoop-theme")||""}catch(e){}if(typeof scoopSetTheme==="function")scoopSetTheme(_saved!=="light"); } catch (err) {}
 document.addEventListener("click", function (event) {
   var dark = event.target.closest && event.target.closest('[data-testid="stCheckbox"]');
   if (!dark || (dark.innerText || "").indexOf("Dark mode") === -1) return;

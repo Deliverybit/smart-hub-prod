@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-scoop-theme="light" data-scoop-theme-listen="1" data-scoop-desktop-layout="1" data-scoop-analyze-active="1" data-scoop-tab-nav="1"><head><link rel="stylesheet" href="analyze.css?v=105"><script>try{if(localStorage.getItem("scoop-theme")==="dark"||sessionStorage.getItem("scoop-theme")==="dark")document.documentElement.setAttribute("data-scoop-theme","dark")}catch(e){}document.documentElement.setAttribute("data-scoop-analyze-hold","1");if(!new URLSearchParams(location.search).get("ticker"))document.documentElement.setAttribute("data-scoop-no-ticker","1");</script><style>html[data-scoop-analyze-hold="1"] .stApp{visibility:hidden}html[data-scoop-no-ticker="1"] .stApp{display:none!important}html[data-scoop-no-ticker="1"] body::before{content:"Choose an asset from a market page.";display:block;padding:2rem 1.25rem;font:500 1.25rem "Source Sans 3","Source Sans Pro",sans-serif}</style>
+<html lang="en" data-scoop-theme="dark" data-scoop-theme-listen="1" data-scoop-desktop-layout="1" data-scoop-analyze-active="1" data-scoop-tab-nav="1"><head><link rel="stylesheet" href="analyze.css?v=105"><script>try{var _st="";try{_st=localStorage.getItem("scoop-theme")||sessionStorage.getItem("scoop-theme")||""}catch(e){}if(_st!=="light")document.documentElement.setAttribute("data-scoop-theme","dark");else document.documentElement.setAttribute("data-scoop-theme","light")}catch(e){}document.documentElement.setAttribute("data-scoop-analyze-hold","1");if(!new URLSearchParams(location.search).get("ticker"))document.documentElement.setAttribute("data-scoop-no-ticker","1");</script><style>html[data-scoop-analyze-hold="1"] .stApp{visibility:hidden}html[data-scoop-no-ticker="1"] .stApp{display:none!important}html[data-scoop-no-ticker="1"] body::before{content:"Choose an asset from a market page.";display:block;padding:2rem 1.25rem;font:500 1.25rem "Source Sans 3","Source Sans Pro",sans-serif}</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="shortcut icon" href="logo.png">
@@ -22556,7 +22556,7 @@ function scoopSetTheme(next){
   try { sessionStorage.setItem("scoop-theme", mode); localStorage.setItem("scoop-theme", mode); } catch (e) {}
   document.querySelectorAll('#scoop-mobile-dark-cb, input[aria-label="Dark mode"]').forEach(function (input) { input.checked = next; });
 }
-try { if (sessionStorage.getItem("scoop-theme")==="dark" || localStorage.getItem("scoop-theme")==="dark") scoopSetTheme(true); } catch (e) {}
+try { var _saved="";try{_saved=localStorage.getItem("scoop-theme")||sessionStorage.getItem("scoop-theme")||""}catch(e){}if(typeof scoopSetTheme==="function")scoopSetTheme(_saved!=="light"); } catch (e) {}
 document.addEventListener("click", function (event) {
   var home = event.target.closest && event.target.closest("a.scoop-mobile-back-home");
   if (home) {

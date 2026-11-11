@@ -679,6 +679,7 @@ def refresh_preview_from_payloads(payloads: list[dict]) -> list[str]:
         )
         updated = stamp_last_updated(updated, str(payload.get("last_updated_display") or ""))
         updated = apply_banners(updated, str(payload.get("screener_key") or ""))
+        updated = apply_page_meta(updated, filename)
         previous = path.read_text(encoding="utf-8")
         if _without_clock(previous) == _without_clock(updated):
             continue
@@ -804,6 +805,53 @@ def _newest_stamp(stamps) -> str:
             newest = text
             newest_at = parsed or newest_at
     return newest
+
+
+PAGE_META = {
+    "nyse.html": (
+        "NYSE — The Scoop 52",
+        "Stocks on the NYSE trading at or near their 52-week lows, with headline sentiment checks.",
+    ),
+    "nasdaq.html": (
+        "NASDAQ — The Scoop 52",
+        "Stocks on the NASDAQ trading at or near their 52-week lows, with headline sentiment checks.",
+    ),
+    "crypto.html": (
+        "Crypto — The Scoop 52",
+        "Cryptocurrencies trading at or near their 52-week lows, with headline sentiment checks.",
+    ),
+    "lse.html": (
+        "LSE — The Scoop 52",
+        "Stocks on the London Stock Exchange trading at or near their 52-week lows, with headline sentiment checks.",
+    ),
+    "tsx.html": (
+        "TSX — The Scoop 52",
+        "Stocks on the Toronto Stock Exchange trading at or near their 52-week lows, with headline sentiment checks.",
+    ),
+}
+
+
+def apply_page_meta(page_html: str, filename: str) -> str:
+    """Keep the browser tab title when a snapshot republishes the page."""
+    meta = PAGE_META.get(filename)
+    if not meta or "<title>" not in page_html:
+        return page_html
+    title, description = meta
+    start = page_html.find("<title>")
+    end = page_html.find("</title>", start)
+    if start < 0 or end < 0:
+        return page_html
+    block = (
+        f"<title>{title}</title>\n"
+        f'    <meta name="description" content="{description}">'
+    )
+    rest = page_html[end + len("</title>"):]
+    stripped = rest.lstrip()
+    if stripped.startswith('<meta name="description"'):
+        rest = stripped[stripped.find(">") + 1:]
+        if rest.startswith("\n"):
+            rest = rest[1:]
+    return page_html[:start] + block + rest
 
 
 def _without_clock(page_html: str) -> str:

@@ -18,6 +18,17 @@ function db(env) {
   return sql;
 }
 
+async function resetDb() {
+  const current = sql;
+  sql = null;
+  if (!current) return;
+  try {
+    await current.end({ timeout: 1 });
+  } catch {
+    /* The next insert opens a new connection. */
+  }
+}
+
 function allowedOrigin(request) {
   const origin = (request.headers.get("Origin") || "").replace(/\/$/, "");
   if (ALLOWED_ORIGINS.has(origin)) return origin;
@@ -89,8 +100,23 @@ function offsetMinutes(timeZone, date) {
   }
 }
 
+async function recordVpn(env, id, ip) {
+  try {
+    const vpn = await detectVpn(ip, env);
+    if (vpn.isVpn === null && !vpn.provider) return;
+    await db(env)`
+      UPDATE legal_consents
+      SET is_vpn = ${vpn.isVpn}, vpn_service_provider = ${vpn.provider}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : "consent vpn update failed");
+    await resetDb();
+  }
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname !== "/consent") {
       return json(404, { error: "not found" });
@@ -140,39 +166,52 @@ export default {
     const gpc = request.headers.get("Sec-GPC") === "1";
     const now = new Date();
     const fingerprint = await sha256(`${userAgent}|${acceptLanguage}|public`);
-    const vpn = await detectVpn(ip, env);
+    const id = crypto.randomUUID();
+
+    const insertConsent = () => db(env)`
+      INSERT INTO legal_consents (
+        id, timestamp_utc, timestamp_local, timezone_name, timezone_offset, ip_address, user_agent,
+        tos_version, fingerprint_hash, consent_action,
+        is_vpn, vpn_service_provider,
+        gpc_signal, manual_opt_out, opt_out_effective, opt_out_source, tracking_mode
+      ) VALUES (
+        ${id},
+        ${now},
+        ${now},
+        ${timezoneName},
+        ${offsetMinutes(timezoneName, now)},
+        ${ip},
+        ${userAgent},
+        ${"2026-03-16"},
+        ${fingerprint},
+        ${"click_wrap_accept"},
+        ${null},
+        ${null},
+        ${gpc},
+        ${false},
+        ${gpc},
+        ${gpc ? "gpc" : ""},
+        ${gpc ? "limited" : "standard"}
+      )
+    `;
 
     try {
-      await db(env)`
-        INSERT INTO legal_consents (
-          id, timestamp_utc, timestamp_local, timezone_name, timezone_offset, ip_address, user_agent,
-          tos_version, fingerprint_hash, consent_action,
-          is_vpn, vpn_service_provider,
-          gpc_signal, manual_opt_out, opt_out_effective, opt_out_source, tracking_mode
-        ) VALUES (
-          ${crypto.randomUUID()},
-          ${now},
-          ${now},
-          ${timezoneName},
-          ${offsetMinutes(timezoneName, now)},
-          ${ip},
-          ${userAgent},
-          ${"2026-03-16"},
-          ${fingerprint},
-          ${"click_wrap_accept"},
-          ${vpn.isVpn},
-          ${vpn.provider},
-          ${gpc},
-          ${false},
-          ${gpc},
-          ${gpc ? "gpc" : ""},
-          ${gpc ? "limited" : "standard"}
-        )
-      `;
+      await insertConsent();
     } catch (error) {
       console.error(error instanceof Error ? error.message : "consent insert failed");
-      return json(503, { error: "consent was not stored" }, origin);
+      await resetDb();
+      try {
+        await insertConsent();
+      } catch (retryError) {
+        console.error(retryError instanceof Error ? retryError.message : "consent retry failed");
+        await resetDb();
+        return json(503, { error: "consent was not stored" }, origin);
+      }
     }
+
+    const vpnUpdate = recordVpn(env, id, ip);
+    if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(vpnUpdate);
+    else await vpnUpdate;
 
     return json(201, { ok: true }, origin);
   },

@@ -466,7 +466,11 @@ _FULL_RESULTS_COLUMN_ORDER = (
 
 
 def order_full_results_columns(columns) -> list[str]:
-    """Reorder Full Results table columns to match mobile card field order."""
-    cols = list(columns)
+    """Reorder Full Results table columns to match mobile card field order.
+
+    Columns that start with ``_`` are row metadata (headline text, URLs,
+    summaries, sentiment scores). They must not become visible cells.
+    """
+    cols = [c for c in columns if not str(c).startswith("_")]
     ordered = [c for c in _FULL_RESULTS_COLUMN_ORDER if c in cols]
     return ordered + [c for c in cols if c not in ordered]

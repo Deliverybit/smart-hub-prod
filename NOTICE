@@ -122,6 +122,8 @@ Web fonts (Inter, Roboto, Montserrat via Google Fonts)
 Market data
 -----------
 
-Quotes, history, and news headlines are provided by Alpha Vantage under
-the operator's commercial license. That license is separate from the
-open-source notices above.
+Quotes and price history are provided by Alpha Vantage under the
+operator's commercial license. News headlines for NYSE and Nasdaq are
+also provided by Alpha Vantage. News headlines for Crypto, LSE, and TSX
+are provided by EODHD under the operator's license. Those licenses are
+separate from the open-source notices above.

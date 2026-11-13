@@ -135,7 +135,9 @@ def headlines_from_news_items(
     company_name: str = "",
 ) -> tuple[list[str], list[str]]:
     matched: list[tuple[float, int, str, str]] = []
-    require_mention = bool(ticker or company_name)
+    raw_ticker = (ticker or "").strip().upper()
+    eodhd_market = raw_ticker.endswith(("-USD", ".LON", ".LSE", ".TRT", ".TO"))
+    require_mention = bool(ticker or company_name) and not eodhd_market
     for index, item in enumerate(news_items):
         title = item.get("title", "")
         url = item.get("url", "")

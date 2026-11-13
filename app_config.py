@@ -79,14 +79,19 @@ def get_database_url(required: bool = False) -> str | None:
     return url
 
 
-def get_eodhd_api_key(required: bool = False) -> str | None:
-    """Load the EODHD API key used for LSE, TSX, and crypto headlines."""
-    key = _load_secret("EODHD_API_KEY")
-    if key in {"", "replace-with-your-eodhd-key"}:
+def get_eodhd_api_token(required: bool = False) -> str | None:
+    """Token for EODHD news. Used for Crypto, LSE, and TSX headlines only."""
+    key = _load_secret("EODHD_API_TOKEN") or _load_secret("EODHD_API_KEY")
+    if key in {"", "replace-with-your-eodhd-api-token", "replace-with-your-eodhd-key"}:
         key = None
     if required and not key:
-        raise RuntimeError("EODHD_API_KEY is not configured")
+        raise RuntimeError("EODHD_API_TOKEN is not configured")
     return key
+
+
+def get_eodhd_api_key(required: bool = False) -> str | None:
+    """Load the EODHD API key used for LSE, TSX, and crypto headlines."""
+    return get_eodhd_api_token(required=required)
 
 
 def get_alpha_vantage_api_key(required: bool = False) -> str | None:

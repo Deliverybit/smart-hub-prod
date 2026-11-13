@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 import pandas as pd
 import requests
 
-from app_config import get_alpha_vantage_api_key
+from app_config import get_alpha_vantage_api_key, get_eodhd_api_key
 
 QUOTE_MAX_AGE_DAYS = 14
 # Calendar year of split-adjusted daily highs and lows, ending on the scan date.
@@ -910,10 +910,92 @@ class MarketData:
             return "".join(ch for ch in root if ch.isalnum())
         return symbol
 
+    def _eodhd_symbol(self, symbol: str, is_crypto: bool) -> str | None:
+        """EODHD tickers for the markets that leave Alpha Vantage news."""
+        if is_crypto:
+            base = symbol.replace("-USD", "")
+            return f"{base}-USD.CC" if base else None
+        if symbol.endswith(".LON"):
+            return f"{symbol[:-4]}.LSE"
+        if symbol.endswith(".TRT"):
+            return f"{symbol[:-4]}.TO"
+        return None
+
+    def _eodhd_news_items(self, eodhd_symbol: str, *, fail_fast: bool) -> list[dict] | None:
+        """Headline rows from EODHD. None means the call failed and the caller may fall back."""
+        api_key = get_eodhd_api_key()
+        if not api_key:
+            return None
+        try:
+            response = self._get(
+                "https://eodhd.com/api/news",
+                timeout=20,
+                params={
+                    "s": eodhd_symbol,
+                    "limit": 50,
+                    "api_token": api_key,
+                    "fmt": "json",
+                },
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception as exc:
+            print(f"EODHD news failed for {eodhd_symbol}: {exc}", flush=True)
+            if fail_fast:
+                raise
+            return None
+        if not isinstance(payload, list):
+            return None
+        headlines = []
+        seen = set()
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get("title") or "").strip()
+            url = str(item.get("link") or "").strip()
+            key = (title, url)
+            if not title or key in seen:
+                continue
+            seen.add(key)
+            polarity = None
+            sentiment = item.get("sentiment")
+            if isinstance(sentiment, dict):
+                try:
+                    polarity = float(sentiment.get("polarity"))
+                except (TypeError, ValueError):
+                    polarity = None
+            headlines.append({
+                "title": title,
+                "url": url,
+                "source": "",
+                "relevance": 0.0,
+                "summary": str(item.get("content") or ""),
+                "ticker_sentiment": polarity,
+            })
+        return headlines
+
     def get_news_items(self, ticker, *, fail_fast: bool = False):
-        """Pulls headline + source URL pairs for the specific asset."""
+        """Pulls headline + source URL pairs for the specific asset.
+
+        LSE, TSX, and crypto headlines come from EODHD. NYSE and NASDAQ stay
+        on Alpha Vantage NEWS_SENTIMENT. Each story keeps title, url, summary,
+        and ticker sentiment so story_polarity does not change.
+        """
         symbol = self._format_ticker(ticker)
         is_crypto = self._is_crypto(ticker)
+        eodhd_symbol = self._eodhd_symbol(symbol, is_crypto)
+        if eodhd_symbol:
+            cache_key = (f"eodhd:{eodhd_symbol}", is_crypto)
+            if cache_key in self._news_cache:
+                return [dict(item) for item in self._news_cache[cache_key]]
+            eodhd_items = self._eodhd_news_items(eodhd_symbol, fail_fast=fail_fast)
+            if eodhd_items:
+                self._news_cache[cache_key] = [dict(item) for item in eodhd_items]
+                return [dict(item) for item in eodhd_items]
+            if eodhd_items == []:
+                empty = [{"title": f"No current news found for {symbol}", "url": ""}]
+                self._news_cache[cache_key] = [dict(item) for item in empty]
+                return [dict(item) for item in empty]
         news_symbol = self._listing_news_symbol(symbol)
         cache_key = (news_symbol, is_crypto)
         if cache_key in self._news_cache:

@@ -79,6 +79,16 @@ def get_database_url(required: bool = False) -> str | None:
     return url
 
 
+def get_eodhd_api_key(required: bool = False) -> str | None:
+    """Load the EODHD API key used for LSE, TSX, and crypto headlines."""
+    key = _load_secret("EODHD_API_KEY")
+    if key in {"", "replace-with-your-eodhd-key"}:
+        key = None
+    if required and not key:
+        raise RuntimeError("EODHD_API_KEY is not configured")
+    return key
+
+
 def get_alpha_vantage_api_key(required: bool = False) -> str | None:
     """Load the Alpha Vantage API key from deployment secrets or local env."""
     key = _load_secret("ALPHA_VANTAGE_API_KEY")

@@ -136,8 +136,10 @@ def headlines_from_news_items(
 ) -> tuple[list[str], list[str]]:
     matched: list[tuple[float, int, str, str]] = []
     raw_ticker = (ticker or "").strip().upper()
-    eodhd_market = raw_ticker.endswith(("-USD", ".LON", ".LSE", ".TRT", ".TO"))
-    require_mention = bool(ticker or company_name) and not eodhd_market
+    # London and Toronto feeds are symbol-tagged. Crypto feeds are not:
+    # EODHD can return dollar and gold stories under LPT.
+    eodhd_equity = raw_ticker.endswith((".LON", ".LSE", ".TRT", ".TO"))
+    require_mention = bool(ticker or company_name) and not eodhd_equity
     for index, item in enumerate(news_items):
         title = item.get("title", "")
         url = item.get("url", "")

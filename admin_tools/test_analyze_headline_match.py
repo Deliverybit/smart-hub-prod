@@ -78,6 +78,27 @@ def test_snapshot_drops_headlines_that_omit_name_and_ticker() -> None:
         screener_snapshots.fetch_snapshot = original
 
 
+def test_livepeer_drops_unrelated_macro_headlines() -> None:
+    from headline_service import headlines_from_news_items
+
+    items = [
+        {"title": "Fed Meeting Could Inject Volatility Into Dollar Trading", "url": "https://example.com/fed"},
+        {"title": "Dollar Rises as Investors Move Into Safe Havens", "url": "https://example.com/dollar"},
+        {"title": "Livepeer token slips as video demand cools", "url": "https://example.com/lpt"},
+        {"title": "LPT holds near its yearly low", "url": "https://example.com/ticker"},
+    ]
+    titles, urls = headlines_from_news_items(
+        items,
+        ticker="LPT-USD",
+        company_name="Livepeer",
+    )
+    assert titles == [
+        "Livepeer token slips as video demand cools",
+        "LPT holds near its yearly low",
+    ]
+    assert urls == ["https://example.com/lpt", "https://example.com/ticker"]
+
+
 def test_crypto_close_name_match() -> None:
     from headline_service import title_mentions_asset
 
@@ -114,6 +135,7 @@ def main() -> int:
         test_ticker_matches_crypto_aliases,
         test_news_items_from_snapshot_skips_empty_headline_rows,
         test_snapshot_drops_headlines_that_omit_name_and_ticker,
+        test_livepeer_drops_unrelated_macro_headlines,
         test_crypto_close_name_match,
     ]
     for fn in tests:

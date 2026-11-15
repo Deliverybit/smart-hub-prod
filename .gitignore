@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 .streamlit/secrets.toml
+.x-posts.json
 
 # Virtual Environment
 .venv/

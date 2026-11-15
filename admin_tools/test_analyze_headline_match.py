@@ -105,6 +105,32 @@ def test_livepeer_drops_unrelated_macro_headlines() -> None:
     assert urls == ["https://example.com/lpt", "https://example.com/ticker", "https://example.com/body"]
 
 
+def test_every_market_drops_headlines_that_omit_the_asset() -> None:
+    from headline_service import headlines_from_news_items, scrub_stored_headlines
+
+    titles, _urls = headlines_from_news_items(
+        [
+            {"title": "Dollar rises as investors seek safety", "url": "https://example.com/fx", "summary": "The yen weakened."},
+            {"title": "Shell lifts its dividend", "url": "https://example.com/shel"},
+        ],
+        ticker="SHEL.LON",
+        company_name="Shell",
+    )
+    assert titles == ["Shell lifts its dividend"]
+
+    row = scrub_stored_headlines({
+        "Ticker": "NFLX",
+        "Company": "Netflix Inc.",
+        "_source_ticker": "NFLX",
+        "_headline_texts": ["CX Institutional Buys Shares of The Gap, Inc.", "Netflix adds subscribers"],
+        "_headline_urls": ["https://example.com/gap", "https://example.com/nflx"],
+        "Headlines": 2,
+        "Headline Sentiment": 0.2,
+    })
+    assert row["_headline_texts"] == ["Netflix adds subscribers"]
+    assert row["Headlines"] == 1
+
+
 def test_crypto_close_name_match() -> None:
     from headline_service import title_mentions_asset
 
@@ -142,6 +168,7 @@ def main() -> int:
         test_news_items_from_snapshot_skips_empty_headline_rows,
         test_snapshot_drops_headlines_that_omit_name_and_ticker,
         test_livepeer_drops_unrelated_macro_headlines,
+        test_every_market_drops_headlines_that_omit_the_asset,
         test_crypto_close_name_match,
     ]
     for fn in tests:

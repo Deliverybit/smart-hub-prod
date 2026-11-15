@@ -1474,7 +1474,7 @@ def _cached_analyze_core(
     screener_key: str | None,
     latest_price: float,
     price_change_pct: float,
-    _core_v: int = 6,
+    _core_v: int = 7,
 ) -> dict | None:
     """News / sentiment / score — independent of the chart slider."""
     sym = normalize_screener_ticker(ticker)

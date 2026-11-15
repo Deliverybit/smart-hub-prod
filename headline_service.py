@@ -120,16 +120,8 @@ def title_mentions_asset(title: str, ticker: str, company_name: str = "") -> boo
     return False
 
 
-def _crypto_story_is_about_asset(item: dict, ticker: str, company_name: str, title: str) -> bool:
-    """Crypto must be named in the title or the article text.
-
-    A title-only match is strict. Checking the summary keeps stories whose
-    headline is generic but whose body is about the token, and still drops
-    feeds that never mention the asset at all.
-    """
-    raw = (ticker or "").strip().upper()
-    if not raw.endswith("-USD"):
-        return title_mentions_asset(title, ticker, company_name)
+def story_mentions_asset(item: dict, ticker: str, company_name: str, title: str) -> bool:
+    """The asset must be named in the headline or the article text."""
     summary = str(item.get("summary") or "")
     return title_mentions_asset(title, ticker, company_name) or title_mentions_asset(
         summary, ticker, company_name
@@ -151,17 +143,13 @@ def headlines_from_news_items(
     company_name: str = "",
 ) -> tuple[list[str], list[str]]:
     matched: list[tuple[float, int, str, str]] = []
-    raw_ticker = (ticker or "").strip().upper()
-    # London and Toronto feeds are symbol-tagged. Crypto feeds are not:
-    # EODHD can return dollar and gold stories under LPT.
-    eodhd_equity = raw_ticker.endswith((".LON", ".LSE", ".TRT", ".TO"))
-    require_mention = bool(ticker or company_name) and not eodhd_equity
+    require_mention = bool(ticker or company_name)
     for index, item in enumerate(news_items):
         title = item.get("title", "")
         url = item.get("url", "")
         if not title or (not url and str(title).startswith("No current news found")):
             continue
-        if require_mention and not _crypto_story_is_about_asset(item, ticker, company_name, title):
+        if require_mention and not story_mentions_asset(item, ticker, company_name, title):
             continue
         try:
             relevance = float(item.get("relevance") or 0)
@@ -211,6 +199,43 @@ def fetch_news_items(ticker: str, *, fail_fast: bool = False) -> list[dict]:
         return MarketData().get_news_items(ticker, fail_fast=fail_fast)
     except Exception:
         return []
+
+
+def scrub_stored_headlines(row: dict) -> dict:
+    """Drop saved headlines that do not name this asset, and rescore the rest."""
+    texts = list(row.get("_headline_texts") or [])
+    if not texts:
+        return row
+    urls = list(row.get("_headline_urls") or [])
+    summaries = list(row.get("_headline_summaries") or [])
+    av_scores = list(row.get("_headline_av_scores") or [])
+    ticker = str(row.get("_source_ticker") or row.get("Ticker") or "")
+    company_name = row_company_name(row)
+    stored = [
+        {
+            "title": title,
+            "url": urls[idx] if idx < len(urls) else "",
+            "summary": summaries[idx] if idx < len(summaries) else "",
+            "ticker_sentiment": av_scores[idx] if idx < len(av_scores) else None,
+        }
+        for idx, title in enumerate(texts)
+    ]
+    headlines, headline_urls = headlines_from_news_items(
+        stored,
+        ticker=ticker,
+        company_name=company_name,
+    )
+    if headlines == texts and headline_urls == urls[: len(texts)]:
+        return row
+    chosen = _items_for_titles(stored, headlines)
+    updated = dict(row)
+    updated["_headline_texts"] = headlines
+    updated["_headline_urls"] = headline_urls
+    updated["_headline_summaries"] = [str(item.get("summary") or "") for item in chosen]
+    updated["_headline_av_scores"] = [item.get("ticker_sentiment") for item in chosen]
+    updated["Headlines"] = len(headlines)
+    updated["Headline Sentiment"] = round(polarity_from_news_items(chosen), 3) if chosen else 0.0
+    return updated
 
 
 def enrich_result_row(row: dict) -> dict:

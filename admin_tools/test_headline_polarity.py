@@ -215,6 +215,41 @@ def test_current_site_headlines():
     assert headline_polarity(
         "Celestica Announces TSX Acceptance of Normal Course Issuer Bid"
     ) == 0.2
+    assert headline_polarity("TELUS swings to a Q3 net loss") == -0.5
+    assert headline_polarity("TELUS Reports C$660 Million Loss") == -0.5
+    assert headline_polarity("Vaccines worries hit GSK") == -0.5
+    assert headline_polarity("Haleon stock outlook tightens after slower growth") == -0.5
+    assert headline_polarity("Lloyds stock in focus after Lloyds app outage") == -0.5
+    assert headline_polarity("HOOD Stock Under Pressure As Insider Sales And Q3 Miss") == -0.5
+    assert headline_polarity("Stock Holdings Lowered by Sumitomo Mitsui Trust") == -0.5
+    assert headline_polarity("estimates drift lower") == -0.5
+    assert headline_polarity("BCE Surpasses Q3 Earnings and Revenue Estimates") == 0.5
+    assert headline_polarity("Costco reports double-digital sales growth in October") == 0.2
+    assert headline_polarity("The National Grid dividend is up again") == 0.2
+    assert headline_polarity("Eaton highlights Stronger 2027 Growth Outlook") == 0.2
+    assert headline_polarity("GSK Share Price: 1,904.5p, Up 0.77% Nov 9") == 0.2
+    assert headline_polarity("GSK Share Price: 1,890.0p, Up 0.00% Nov 6") == 0.0
+    assert headline_polarity("Why Is Northrop Grumman Boosting Output Amid Budget Worries?") == 0.0
+    assert headline_polarity("Zoom Financials – Balance Sheet, Profit & Loss, Cash Flow") == 0.0
+    assert headline_polarity("Lucid Expands Service Network as Q3 Wait Times Decline 20 Percent") > -0.5
+    assert headline_polarity("Office Vacancy Falls 210 Basis Points") > -0.5
+    assert headline_polarity("Transaction in Own Shares") == 0.2
+    assert headline_polarity("Form 8.3 - LondonMetric Property Plc") == 0.0
+    assert headline_polarity("School Board opposes Dominion/NextEra merger") == -0.5
+    assert headline_polarity("Brighton Jones LLC Reduces Stake") == -0.5
+    assert headline_polarity("IBM Holdings Raised by Maryland State Retirement") == 0.2
+    assert headline_polarity("Stock Has Been Sliding But Fundamentals Look Strong") == -0.5
+    assert headline_polarity("Bullish insiders loaded up on stock") == 0.2
+    assert headline_polarity("TELUS stock climbs as results deepen loss concerns") == -0.5
+    assert headline_polarity("a16z Bets Big on EigenLayer Again") == 0.2
+    assert headline_polarity("Lucid Reports Q3 Loss, Beats Revenue Estimates") == 0.0
+    assert headline_polarity("Plant Failed to Make Usable Shells") == -0.5
+    assert headline_polarity("IBM ends visa sponsorship amid an H-1B crackdown") == -0.5
+    assert headline_polarity("Japan's finance minister vows 'appropriate steps' to tackle yen moves") == 0.0
+    assert headline_polarity("General Dynamics (GD) Stock: $367.44, Up 1.48% Nov 10") == 0.2
+    assert headline_polarity("Drift Protocol confirms it's under attack") == -0.5
+    assert headline_polarity("Drift Protocol investigates possible $270m exploit") == -0.5
+    assert headline_polarity("Will the mine pay off?") != 0.2
 
 
 def test_finbert_style_financial_phrases():

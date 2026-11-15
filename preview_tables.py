@@ -260,7 +260,10 @@ def build_tbody(
     """Return one tbody using the same cell markup the saved pages already use."""
     columns = [name for name in _columns(rows, label_field) if name != label_field or label_field]
     body = []
+    from headline_service import scrub_stored_headlines
+
     for index, row in enumerate(rows[:10], start=1):
+        row = scrub_stored_headlines(row)
         ticker = str(row.get("Ticker") or "")
         cells = _td("#", str(index))
         for column in columns:

@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Callable
 
 from app_config import get_screener_symbol_limit
+from headline_service import scrub_stored_headlines
 from screener_engine import format_scan_display, selection_from_payload
 from screener_selection import ProximitySelection, select_proximity_results
 from screener_snapshots import fetch_snapshot, snapshot_is_fresh
@@ -53,8 +54,8 @@ def load_screener_page_data(
         payload = payload or {}
         selection = selection_from_payload(payload) if payload else select_proximity_results([])
         return ScreenerPageLoad(
-            all_results=list(payload.get("all_results") or []),
-            display_results=list(payload.get("display_results") or []),
+            all_results=[scrub_stored_headlines(row) for row in list(payload.get("all_results") or [])],
+            display_results=[scrub_stored_headlines(row) for row in list(payload.get("display_results") or [])],
             selection=selection,
             last_updated=_display_last_updated(payload) if payload else "",
             scanned_count=int(payload.get("scanned_count") or 0) if payload else 0,
@@ -69,8 +70,8 @@ def load_screener_page_data(
         stale = not snapshot_is_fresh(payload)
         selection = selection_from_payload(payload)
         return ScreenerPageLoad(
-            all_results=list(payload.get("all_results") or []),
-            display_results=list(payload.get("display_results") or []),
+            all_results=[scrub_stored_headlines(row) for row in list(payload.get("all_results") or [])],
+            display_results=[scrub_stored_headlines(row) for row in list(payload.get("display_results") or [])],
             selection=selection,
             last_updated=_display_last_updated(payload),
             scanned_count=int(payload.get("scanned_count") or 0),
@@ -83,6 +84,7 @@ def load_screener_page_data(
         )
 
     all_results, last_updated = run_live()
+    all_results = [scrub_stored_headlines(row) for row in all_results]
     selection = select_proximity_results(all_results)
     symbol_limit = get_screener_symbol_limit()
     return ScreenerPageLoad(

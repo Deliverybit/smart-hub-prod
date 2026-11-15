@@ -135,6 +135,22 @@ _MILD_NEGATIVE = (
     "losses rose",
     "record loss",
     "awarded damages",
+    "net loss",
+    "million loss",
+    "investor losses",
+    "worries hit",
+    "outlook tightens",
+    "app outage",
+    "holdings lowered",
+    "under pressure",
+    "q3 miss",
+    "drift lower",
+    "failed to",
+    "under attack",
+    "crackdown",
+    "reduces stake",
+    "loss concerns",
+    "sliding",
 )
 
 _STRONG_POSITIVE = (
@@ -246,6 +262,16 @@ _MILD_POSITIVE = (
     "reports record",
     "strong third quarter",
     "strong results",
+    "sales growth",
+    "profit growth",
+    "growth story",
+    "dividend is up",
+    "stronger profit",
+    "forecasts explode",
+    "transaction in own shares",
+    "holdings raised",
+    "loaded up",
+    "bets big",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -271,6 +297,13 @@ def _institutions_bought(text: str) -> bool:
     if bought and re.search(r"\b(shares|stock|holdings)\b", text):
         return True
     return bought is not None and "new position" in text
+
+
+def _protocol_exploit(text: str) -> bool:
+    """A drained protocol is not a company that 'exploits' demand."""
+    return re.search(r"\bexploits?\b", text) is not None and re.search(
+        r"\$|attack|hack|stolen|drained|protocol", text
+    ) is not None
 
 
 def _penalty_fine(text: str) -> bool:
@@ -326,9 +359,9 @@ def _plaintiff_alert(text: str) -> bool:
 
 
 def _filing_notice(text: str) -> bool:
-    if "seasonal return" in text:
+    if "seasonal return" in text or "appropriate steps" in text:
         return True
-    return re.search(r"\bform\s+(4|8-?k|10-q|424b2|fwp|f-10)\b", text) is not None
+    return re.search(r"\bform\s+(4|8\.3|8-?k|10-q|424b2|fwp|f-10)\b", text) is not None
 
 
 def _raises_forecast(text: str) -> bool:
@@ -336,9 +369,35 @@ def _raises_forecast(text: str) -> bool:
 
 
 def _beats_results(text: str) -> bool:
-    return re.search(r"\bbeats?\b", text) is not None and re.search(
-        r"\b(earnings|revenue|revenues|guidance|profit|forecast)\b", text
+    return re.search(r"\b(beats?|surpasses)\b", text) is not None and re.search(
+        r"\b(earnings|revenue|revenues|guidance|profit|forecast|estimates)\b", text
     ) is not None
+
+
+def _quoted_percent_up(text: str) -> float | None:
+    """'Stock: $367, Up 1.48%' is a gain. 'Up 0.00%' is flat, not a rally."""
+    if "share" not in text and "stock" not in text:
+        return None
+    match = re.search(r"\bup\s+(\d+(?:\.\d+)?)%", text)
+    if match is None:
+        return None
+    return 0.2 if float(match.group(1)) > 0 else 0.0
+
+
+_BENIGN_DROP = re.compile(
+    r"\b(wait times?|vacanc(?:y|ies)|costs?|expenses?|unemployment|complaints?)\b"
+    r".{0,40}\b(decline|declines|declined|fall|falls|fell|drop|drops)\b"
+    r"|"
+    r"\b(decline|declines|declined|fall|falls|fell|drop|drops)\b"
+    r".{0,24}\b(wait times?|vacanc(?:y|ies)|costs?|expenses?)\b"
+)
+
+
+def _without_benign_drops(text: str) -> str:
+    """A drop in wait times, vacancy, or costs is not a falling share price."""
+    if not _BENIGN_DROP.search(text):
+        return text
+    return re.sub(r"\b(decline|declines|declined|fall|falls|fell|drop|drops)\b", " ", text)
 
 
 def _cuts_jobs(text: str) -> bool:
@@ -381,11 +440,11 @@ def _how_low_can_it_go(text: str) -> bool:
 
 
 def _rejects_merger(text: str) -> bool:
-    return "reject" in text and "merger" in text
+    return bool(re.search(r"\b(reject|rejects|oppose|opposes|opposed)\b", text)) and "merger" in text
 
 
 def _bullish_outlook(text: str) -> bool:
-    return "outlook" in text and "bullish" in text
+    return "outlook" in text and ("bullish" in text or "stronger" in text)
 
 
 def _boosts_forecasts(text: str) -> bool:
@@ -481,7 +540,10 @@ def headline_polarity(headline: str) -> float:
     text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
     if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE) or _penalty_fine(text):
         return -1.0
-    scored = re.sub(r"\bdeclin\w*\s+to\b", " ", text) if _declines_to_act(text) else text
+    if _beats_results(text) and re.search(r"\bloss\b", text):
+        return 0.0
+    scored = _without_benign_drops(text)
+    scored = re.sub(r"\bdeclin\w*\s+to\b", " ", scored) if _declines_to_act(scored) else scored
     if (
         any(_has_phrase(scored, phrase) for phrase in _MILD_NEGATIVE)
         or _price_fall(scored)
@@ -496,6 +558,7 @@ def headline_polarity(headline: str) -> float:
         or _cuts_outlook(text)
         or _loses_customers(text)
         or _plaintiff_alert(text)
+        or _protocol_exploit(text)
     ):
         return -0.5
     if (
@@ -511,11 +574,14 @@ def headline_polarity(headline: str) -> float:
         or _reaffirms_guidance(text)
     ):
         return 0.5
+    quoted_up = _quoted_percent_up(text)
+    if quoted_up:
+        return quoted_up
     if _declares_dividend(text) or _announces_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or _institutions_bought(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
     ):
         return 0.2
-    if _comparison_question(text) or _filing_notice(text):
+    if quoted_up == 0.0 or _comparison_question(text) or _filing_notice(text):
         return 0.0
 
     polarity = TextBlob(headline or "").sentiment.polarity

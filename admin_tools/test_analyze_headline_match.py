@@ -86,6 +86,11 @@ def test_livepeer_drops_unrelated_macro_headlines() -> None:
         {"title": "Dollar Rises as Investors Move Into Safe Havens", "url": "https://example.com/dollar"},
         {"title": "Livepeer token slips as video demand cools", "url": "https://example.com/lpt"},
         {"title": "LPT holds near its yearly low", "url": "https://example.com/ticker"},
+        {
+            "title": "Video networks see quieter demand",
+            "url": "https://example.com/body",
+            "summary": "Transcoding fees on Livepeer fell with usage.",
+        },
     ]
     titles, urls = headlines_from_news_items(
         items,
@@ -95,8 +100,9 @@ def test_livepeer_drops_unrelated_macro_headlines() -> None:
     assert titles == [
         "Livepeer token slips as video demand cools",
         "LPT holds near its yearly low",
+        "Video networks see quieter demand",
     ]
-    assert urls == ["https://example.com/lpt", "https://example.com/ticker"]
+    assert urls == ["https://example.com/lpt", "https://example.com/ticker", "https://example.com/body"]
 
 
 def test_crypto_close_name_match() -> None:

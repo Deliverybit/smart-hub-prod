@@ -120,6 +120,22 @@ def title_mentions_asset(title: str, ticker: str, company_name: str = "") -> boo
     return False
 
 
+def _crypto_story_is_about_asset(item: dict, ticker: str, company_name: str, title: str) -> bool:
+    """Crypto must be named in the title or the article text.
+
+    A title-only match is strict. Checking the summary keeps stories whose
+    headline is generic but whose body is about the token, and still drops
+    feeds that never mention the asset at all.
+    """
+    raw = (ticker or "").strip().upper()
+    if not raw.endswith("-USD"):
+        return title_mentions_asset(title, ticker, company_name)
+    summary = str(item.get("summary") or "")
+    return title_mentions_asset(title, ticker, company_name) or title_mentions_asset(
+        summary, ticker, company_name
+    )
+
+
 def row_company_name(row: dict) -> str:
     for key in ("Company", "Commodity", "Name"):
         value = str(row.get(key) or "").strip()
@@ -145,7 +161,7 @@ def headlines_from_news_items(
         url = item.get("url", "")
         if not title or (not url and str(title).startswith("No current news found")):
             continue
-        if require_mention and not title_mentions_asset(title, ticker, company_name):
+        if require_mention and not _crypto_story_is_about_asset(item, ticker, company_name, title):
             continue
         try:
             relevance = float(item.get("relevance") or 0)

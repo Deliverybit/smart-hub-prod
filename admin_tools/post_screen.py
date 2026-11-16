@@ -7,13 +7,9 @@ Central time:
         8:00 AM   TSX
         8:30 AM  NYSE
         9:00 AM   NASDAQ
-        4:00 PM  Crypto
+        9:30 AM   Crypto
     Saturday 9:00 AM   one name from each market
     Sunday   4:00 PM   Crypto only
-
-    Catch-up, only when that post was not sent:
-        Weekdays 10:00 LSE, 10:20 TSX, 10:40 NYSE, 11:00 NASDAQ
-        Saturday 10:00 summary
 
     python admin_tools/post_screen.py --market nyse
     python admin_tools/post_screen.py --market nyse --send
@@ -63,16 +59,9 @@ SLOTS = (
     ((0, 1, 2, 3, 4), 8, 0, "tsx"),
     ((0, 1, 2, 3, 4), 8, 30, "nyse"),
     ((0, 1, 2, 3, 4), 9, 0, "nasdaq"),
-    ((0, 1, 2, 3, 4, 6), 16, 0, "crypto"),
+    ((0, 1, 2, 3, 4), 9, 30, "crypto"),
+    ((6,), 16, 0, "crypto"),
     ((5,), 9, 0, "summary"),
-)
-# Second chance for a morning post the first window missed. Each slot stays open 20 minutes.
-CATCHUP = (
-    ((0, 1, 2, 3, 4), 10, 0, "lse"),
-    ((0, 1, 2, 3, 4), 10, 20, "tsx"),
-    ((0, 1, 2, 3, 4), 10, 40, "nyse"),
-    ((0, 1, 2, 3, 4), 11, 0, "nasdaq"),
-    ((5,), 10, 0, "summary"),
 )
 
 
@@ -176,7 +165,7 @@ def due_key(moment: datetime) -> str:
     local = moment.astimezone(CENTRAL)
     now = local.hour * 60 + local.minute
     day = local.date().isoformat()
-    for days, hour, minute, key in (*SLOTS, *CATCHUP):
+    for days, hour, minute, key in SLOTS:
         start = hour * 60 + minute
         if local.weekday() in days and start <= now < start + 20 and not already_sent(day, key):
             return key

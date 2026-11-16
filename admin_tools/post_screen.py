@@ -93,9 +93,9 @@ def dated(moment: datetime) -> str:
 
 def three_names(slug: str, label: str) -> list[str]:
     rows = fetch_rows(slug)
-    if len(rows) < 3:
-        raise RuntimeError(f"{label} did not return three names.")
-    return [ticker for ticker, _pct in rows[:3]]
+    if len(rows) < 6:
+        raise RuntimeError(f"{label} did not return six names.")
+    return [ticker for ticker, _pct in rows[3:6]]
 
 
 def closest_name(slug: str, label: str) -> str:
@@ -107,8 +107,15 @@ def closest_name(slug: str, label: str) -> str:
 
 def market_post(key: str, moment: datetime) -> str:
     label, slug = MARKETS[key]
-    names = ", ".join(three_names(slug, label))
-    return f"{dated(moment)} {label} near 52-week lows\n{names}\n{SITE}/{slug}"
+    names = ", ".join(
+        f"({rank}) {ticker}" for rank, ticker in enumerate(three_names(slug, label), start=4)
+    )
+    return (
+        f"{dated(moment)} {label} near 52-week lows\n"
+        f"{names}\n"
+        f"See the top 3 {label} at The Scoop 52\n"
+        f"{SITE}/{slug}"
+    )
 
 
 def summary_post(moment: datetime) -> str:

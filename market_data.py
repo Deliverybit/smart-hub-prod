@@ -965,6 +965,8 @@ class MarketData:
 
         max_attempts = 1 if fail_fast else 3
         feed: list = []
+        # One alias often returns a short page. Ask for a deeper page and
+        # keep the other symbol forms until ten stories are collected.
         for symbol in symbols:
             payload = None
             for attempt in range(max_attempts):
@@ -972,18 +974,23 @@ class MarketData:
                     response = self._get(
                         "https://eodhd.com/api/news",
                         timeout=12 if fail_fast else 20,
-                        params={"s": symbol, "limit": 10, "fmt": "json", "api_token": token},
+                        params={"s": symbol, "limit": 50, "fmt": "json", "api_token": token},
                     )
                     response.raise_for_status()
                     payload = response.json()
                     break
-                except (requests.RequestException, ValueError):
+                except (requests.RequestException, ValueError) as exc:
                     if attempt + 1 < max_attempts:
                         time.sleep(2 * (attempt + 1))
                         continue
+                    print(f"EODHD news failed for {symbol}: {exc}", flush=True)
                     payload = []
-            feed = payload if isinstance(payload, list) else []
-            if feed:
+            if isinstance(payload, dict):
+                message = payload.get("message") or payload.get("error") or "unexpected payload"
+                print(f"EODHD news rejected {symbol}: {message}", flush=True)
+            page = payload if isinstance(payload, list) else []
+            feed.extend(page)
+            if len(feed) >= 50:
                 break
         headlines = []
         seen = set()

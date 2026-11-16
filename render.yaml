@@ -1,5 +1,7 @@
 # Private snapshot API. Two always-on instances. Not the public site.
 # Continuous scans run on the existing worker scoop52-snapshot-worker.
+# The polarity cron reads the published boards and prints headlines the
+# phrase lists did not score. It does not edit the dictionary.
 services:
   - type: web
     name: scoop52-snapshot-api
@@ -16,3 +18,15 @@ services:
         value: "3.12.8"
       - key: DATABASE_URL
         sync: false
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: EODHD_API_KEY
+        sync: false
+
+  - type: cron
+    name: scoop52-polarity-review
+    runtime: python
+    plan: starter
+    schedule: "30 11 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python admin_tools/review_headline_polarity.py

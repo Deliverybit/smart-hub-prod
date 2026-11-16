@@ -603,12 +603,8 @@ def story_polarity(title: str, summary: str = "", ticker_sentiment: float | None
     return max(min(score, 1.0), -1.0)
 
 
-def headline_polarity(headline: str) -> float:
-    """Score one headline from -1 to 1.
-
-    Severe legal or fraud language wins outright. A target cut in the same
-    headline as a buy rating stays negative. Ordinary wording still uses TextBlob.
-    """
+def ruled_polarity(headline: str) -> float | None:
+    """Phrase-list score, or None when the headline would fall through to TextBlob."""
     text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
     if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE) or _penalty_fine(text) or _protocol_exploit(text):
         return -1.0
@@ -660,7 +656,19 @@ def headline_polarity(headline: str) -> float:
         return 0.2
     if quoted_up == 0.0 or _comparison_question(text) or _filing_notice(text) or _gift_to_charity(text) or _early_warning_filing(text):
         return 0.0
+    return None
 
+
+def headline_polarity(headline: str) -> float:
+    """Score one headline from -1 to 1.
+
+    Severe legal or fraud language wins outright. A target cut in the same
+    headline as a buy rating stays negative. Ordinary wording still uses TextBlob.
+    """
+    ruled = ruled_polarity(headline)
+    if ruled is not None:
+        return ruled
+    text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
     polarity = TextBlob(headline or "").sentiment.polarity
     if any(_has_phrase(text, word) for word in _BOOST_WORDS):
         polarity += 0.1

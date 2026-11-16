@@ -151,6 +151,17 @@ _MILD_NEGATIVE = (
     "reduces stake",
     "loss concerns",
     "sliding",
+    "scrutiny",
+    "moves lower",
+    "weaker returns",
+    "lag estimates",
+    "lags estimates",
+    "loss-making",
+    "borrowed time",
+    "demand weakens",
+    "disconnected",
+    "911 calls",
+    "breakdown",
 )
 
 _STRONG_POSITIVE = (
@@ -272,6 +283,13 @@ _MILD_POSITIVE = (
     "holdings raised",
     "loaded up",
     "bets big",
+    "jumped",
+    "shares rise",
+    "conviction list",
+    "lifeline",
+    "trust charter",
+    "team up",
+    "buying opportunity",
 )
 
 _BOOST_WORDS = ("surge", "rally", "record", "breakout")
@@ -323,8 +341,9 @@ def _declines_to_act(text: str) -> bool:
 
 
 def _tops_estimates(text: str) -> bool:
+    """'Tops estimates' is a beat. 'Revenue tops $1 billion' is a level, not a beat."""
     return re.search(r"\btops?\b", text) is not None and re.search(
-        r"\b(estimate|estimates|eps|earnings|revenue|revenues)\b", text
+        r"\b(estimate|estimates|eps|earnings)\b", text
     ) is not None
 
 
@@ -485,6 +504,59 @@ def _commercial_win(text: str) -> bool:
     return "world's largest" in text
 
 
+def _selloff_is_the_story(text: str) -> bool:
+    """A selloff called a buying opportunity is the bullish call, not the drop."""
+    return "selloff" in text and "buying opportunity" not in text
+
+
+def _stock_is_falling(text: str) -> bool:
+    """'Stock is falling' is a drop. 'Falling profit' beside a guidance raise is mixed."""
+    return re.search(r"\bfalling\b", text) is not None and re.search(
+        r"\b(stock|stocks|shares|share)\b", text
+    ) is not None
+
+
+def _secures_deal(text: str) -> bool:
+    return re.search(r"\bsecur(?:es|ed|ing)\b", text) is not None and (
+        re.search(r"\$", text) is not None or re.search(r"\b(deal|contract)\b", text) is not None
+    )
+
+
+def _priced_contract(text: str) -> bool:
+    return "contract" in text and "$" in text
+
+
+def _holders_up_percent(text: str) -> bool:
+    """'Investors are up 54%' is a gain. 'Up 0.00%' stays flat."""
+    match = re.search(r"\bare\s+up\s+(\d+(?:\.\d+)?)%", text)
+    return match is not None and float(match.group(1)) > 0
+
+
+def _gift_to_charity(text: str) -> bool:
+    return "charity" in text
+
+
+def _early_warning_filing(text: str) -> bool:
+    """A Canadian early-warning release is a holding notice, not a profit warning."""
+    return "early warning" in text
+
+
+def _analyst_cut(text: str) -> bool:
+    return "cut it" in text or bool(re.search(r"\bwhy did\b", text) and re.search(r"\bcut\b", text))
+
+
+def _loses_ground(text: str) -> bool:
+    return re.search(r"\blose\b|\bloses\b|\blosing\b", text) is not None and "ground" in text
+
+
+def _avoid_the_stock(text: str) -> bool:
+    return re.search(r"\bavoid\b", text) is not None and re.search(r"\bstocks?\b", text) is not None
+
+
+def _announces_distribution(text: str) -> bool:
+    return "distribution" in text and "announc" in text
+
+
 def _comparison_question(text: str) -> bool:
     """Horse-race headlines. The word 'better' is not a rating change."""
     if "?" not in text:
@@ -495,7 +567,7 @@ def _comparison_question(text: str) -> bool:
 def headline_is_severe(headline: str) -> bool:
     """True when a headline should remove the name from the Top 10."""
     text = (headline or "").lower()
-    return any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE)
+    return any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE) or _protocol_exploit(text)
 
 
 def _is_severe(score: float) -> bool:
@@ -538,7 +610,7 @@ def headline_polarity(headline: str) -> float:
     headline as a buy rating stays negative. Ordinary wording still uses TextBlob.
     """
     text = (headline or "").lower().replace("\u2019", "'").replace("\u2018", "'")
-    if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE) or _penalty_fine(text):
+    if any(_has_phrase(text, phrase) for phrase in _SEVERE_NEGATIVE) or _penalty_fine(text) or _protocol_exploit(text):
         return -1.0
     if _beats_results(text) and re.search(r"\bloss\b", text):
         return 0.0
@@ -559,6 +631,11 @@ def headline_polarity(headline: str) -> float:
         or _loses_customers(text)
         or _plaintiff_alert(text)
         or _protocol_exploit(text)
+        or _selloff_is_the_story(scored)
+        or _stock_is_falling(scored)
+        or _analyst_cut(text)
+        or _loses_ground(text)
+        or _avoid_the_stock(text)
     ):
         return -0.5
     if (
@@ -577,11 +654,11 @@ def headline_polarity(headline: str) -> float:
     quoted_up = _quoted_percent_up(text)
     if quoted_up:
         return quoted_up
-    if _declares_dividend(text) or _announces_dividend(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or _institutions_bought(text) or any(
+    if _declares_dividend(text) or _announces_dividend(text) or _announces_distribution(text) or _creates_jobs(text) or _commercial_win(text) or _bullish_outlook(text) or _secures_funding(text) or _secures_deal(text) or _priced_contract(text) or _institutions_bought(text) or _holders_up_percent(text) or any(
         _has_phrase(text, phrase) for phrase in _MILD_POSITIVE
     ):
         return 0.2
-    if quoted_up == 0.0 or _comparison_question(text) or _filing_notice(text):
+    if quoted_up == 0.0 or _comparison_question(text) or _filing_notice(text) or _gift_to_charity(text) or _early_warning_filing(text):
         return 0.0
 
     polarity = TextBlob(headline or "").sentiment.polarity

@@ -248,8 +248,41 @@ def test_current_site_headlines():
     assert headline_polarity("Japan's finance minister vows 'appropriate steps' to tackle yen moves") == 0.0
     assert headline_polarity("General Dynamics (GD) Stock: $367.44, Up 1.48% Nov 10") == 0.2
     assert headline_polarity("Drift Protocol confirms it's under attack") == -0.5
-    assert headline_polarity("Drift Protocol investigates possible $270m exploit") == -0.5
+    assert headline_polarity("Drift Protocol investigates possible $270m exploit") == -1.0
     assert headline_polarity("Will the mine pay off?") != 0.2
+
+
+def test_latest_board_phrases():
+    assert headline_polarity("vice chair gives 20,000 common shares to charity") == 0.0
+    assert headline_polarity("Volatility Is Living on Borrowed Time") == -0.5
+    assert headline_polarity("Northrop Grumman Secures $20M Global Hawk Deal") == 0.2
+    assert headline_polarity("Northrop Grumman team up on high-speed military drones") == 0.2
+    assert headline_polarity("Wolfe Research Calls Selloff a Buying Opportunity") == 0.2
+    assert headline_polarity("Avoid This Defense Stock In November") == -0.5
+    assert headline_polarity("Could Be 50% Undervalued On Its Earnings Selloff") == -0.5
+    assert headline_polarity("Verizon issue may affect 911 calls in parts of Pennsylvania") == -0.5
+    assert headline_polarity("residents worry they will be disconnected by Verizon") == -0.5
+    assert headline_polarity("Amazon Joins Goldman Sachs Conviction List") == 0.2
+    assert headline_polarity("Coinbase Joins Circle With Federal Trust Charter") == 0.2
+    assert headline_polarity("Could Booking Lose Travel Search Ground To New AI Gatekeepers?") == -0.5
+    assert headline_polarity("Expedia and Booking shares rise") == 0.2
+    assert headline_polarity("Take-Two Stock Jumped 8% on Earnings") == 0.2
+    assert headline_polarity("Lucid Group Stock Is Falling Thursday") == -0.5
+    assert headline_polarity("Lucid secures $1.75B lifeline from Saudi backer") == 0.2
+    assert headline_polarity("Lucid set to report another loss-making quarter") == -0.5
+    assert headline_polarity("Risks of Breakdown Are Rising") == -0.5
+    assert headline_polarity("ITV warns as demand weakens") == -0.5
+    assert headline_polarity("Stock Trades Below Fair Value With Deal Scrutiny") == -0.5
+    assert headline_polarity("Taylor Wimpey Stock Fair Value Moves Lower") == -0.5
+    assert headline_polarity("Those who invested in Prudential a year ago are up 54%") == 0.2
+    assert headline_polarity("Haleon Faces Weaker Returns") == -0.5
+    assert headline_polarity("Boyd Group Revenue Tops $1 Billion as sales hold") == 0.2
+    assert headline_polarity("CAPREIT Announces October 2026 Distribution") == 0.2
+    assert headline_polarity("Q3 Earnings and Revenues Lag Estimates") == -0.5
+    assert headline_polarity("Pan American Silver: Early Warning News Release") == 0.0
+    assert headline_polarity("Why Did TD Cowen Cut It?") == -0.5
+    assert headline_polarity("expands the Navy help desk contract to $154.5M") == 0.2
+    assert headline_polarity("GSK Share Price: 1,890.0p, Up 0.00% Nov 6") == 0.0
 
 
 def test_finbert_style_financial_phrases():
@@ -328,6 +361,7 @@ if __name__ == "__main__":
     test_second_scan_phrases()
     test_third_scan_phrases()
     test_current_site_headlines()
+    test_latest_board_phrases()
     test_finbert_style_financial_phrases()
     test_volatility_surge_is_not_a_boost()
     test_keywords_do_not_fire_on_the_wrong_meaning()

@@ -1,13 +1,19 @@
-"""Post Scoop 52 screens with one shape and one post per market per day.
+"""Post Scoop 52 screens with one shape and one post per market per round.
 
 Central time:
 
-    Weekdays
+    Weekday morning
         7:00 AM   LSE
         8:00 AM   TSX
-        8:30 AM  NYSE
+        8:30 AM   NYSE
         9:00 AM   NASDAQ
         9:30 AM   Crypto
+    Weekday afternoon
+        1:00 PM   LSE
+        1:30 PM   TSX
+        2:00 PM   NYSE
+        2:30 PM   NASDAQ
+        3:00 PM   Crypto
     Saturday 9:00 AM   one name from each market
     Sunday   4:00 PM   Crypto only
 
@@ -60,6 +66,11 @@ SLOTS = (
     ((0, 1, 2, 3, 4), 8, 30, "nyse"),
     ((0, 1, 2, 3, 4), 9, 0, "nasdaq"),
     ((0, 1, 2, 3, 4), 9, 30, "crypto"),
+    ((0, 1, 2, 3, 4), 13, 0, "lse-afternoon"),
+    ((0, 1, 2, 3, 4), 13, 30, "tsx-afternoon"),
+    ((0, 1, 2, 3, 4), 14, 0, "nyse-afternoon"),
+    ((0, 1, 2, 3, 4), 14, 30, "nasdaq-afternoon"),
+    ((0, 1, 2, 3, 4), 15, 0, "crypto-afternoon"),
     ((6,), 16, 0, "crypto"),
     ((5,), 9, 0, "summary"),
 )
@@ -106,13 +117,18 @@ def closest_name(slug: str, label: str) -> str:
     return min(rows, key=lambda item: item[1])[0]
 
 
+def market_name(key: str) -> str:
+    return key.removesuffix("-afternoon")
+
+
 def market_post(key: str, moment: datetime) -> str:
-    label, slug = MARKETS[key]
+    label, slug = MARKETS[market_name(key)]
     names = ", ".join(
         f"({rank}) {ticker}" for rank, ticker in enumerate(three_names(slug, label), start=4)
     )
+    when = "afternoon " if key.endswith("-afternoon") else ""
     return (
-        f"{dated(moment)} {label} near 52-week lows\n"
+        f"{dated(moment)} {when}{label} near 52-week lows\n"
         f"{names}\n"
         f"See the top 3 {label} at The Scoop 52\n"
         f"{SITE}/{slug}"
@@ -129,6 +145,10 @@ def summary_post(moment: datetime) -> str:
 
 def allowed(key: str, moment: datetime) -> str:
     weekday = moment.astimezone(CENTRAL).weekday()
+    if key.endswith("-afternoon"):
+        if weekday > 4:
+            return "Afternoon posts are weekdays only."
+        key = market_name(key)
     if weekday == 5:
         if key != "summary":
             return "Saturday only sends the summary."

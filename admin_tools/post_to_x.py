@@ -10,8 +10,13 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
+import hmac
 import os
 import sys
+import time
+import urllib.parse
+import uuid
 from pathlib import Path
 
 import requests
@@ -20,7 +25,6 @@ ROOT = Path(__file__).resolve().parent.parent
 ENV_PATH = ROOT / ".env"
 POST_URL = "https://api.x.com/2/tweets"
 MEDIA_URL = "https://api.x.com/2/media/upload"
-REFRESH_URL = "https://api.x.com/2/oauth2/token"
 DEFAULT_LOGO = ROOT / "assets" / "scoop52_logo.png"
 
 
@@ -43,54 +47,65 @@ def require(name: str) -> str:
     return value
 
 
-def refresh_access_token() -> str:
-    client_id = require("X_CLIENT_ID")
-    client_secret = require("X_CLIENT_SECRET")
-    refresh_token = require("X_REFRESH_TOKEN")
-    basic = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
-    response = requests.post(
-        REFRESH_URL,
-        headers={
-            "Authorization": f"Basic {basic}",
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-        data={"grant_type": "refresh_token", "refresh_token": refresh_token},
-        timeout=30,
+def oauth1_header(method: str, url: str) -> str:
+    """Sign with the app's user access token. Those keys do not expire."""
+    consumer_key = require("X_API_KEY")
+    consumer_secret = require("X_API_SECRET")
+    token = require("X_ACCESS_TOKEN")
+    token_secret = require("X_ACCESS_TOKEN_SECRET")
+    oauth = {
+        "oauth_consumer_key": consumer_key,
+        "oauth_nonce": uuid.uuid4().hex,
+        "oauth_signature_method": "HMAC-SHA1",
+        "oauth_timestamp": str(int(time.time())),
+        "oauth_token": token,
+        "oauth_version": "1.0",
+    }
+    encoded = "&".join(
+        f"{urllib.parse.quote(key, safe='')}={urllib.parse.quote(oauth[key], safe='')}"
+        for key in sorted(oauth)
     )
-    if response.status_code != 200:
-        print(response.status_code, response.text, file=sys.stderr)
-        raise SystemExit(1)
-    payload = response.json()
-    token = str(payload.get("access_token") or "")
-    if not token:
-        print("Refresh succeeded but no access token was returned.", file=sys.stderr)
-        raise SystemExit(1)
-    print("Access token was refreshed. Save the new access token in .env.", file=sys.stderr)
-    rotated = payload.get("refresh_token")
-    if rotated:
-        print("A new refresh token was issued. Save that in .env too.", file=sys.stderr)
-    return token
+    base = "&".join(
+        [
+            method.upper(),
+            urllib.parse.quote(url, safe=""),
+            urllib.parse.quote(encoded, safe=""),
+        ]
+    )
+    signing_key = "&".join(
+        [
+            urllib.parse.quote(consumer_secret, safe=""),
+            urllib.parse.quote(token_secret, safe=""),
+        ]
+    )
+    digest = hmac.new(signing_key.encode(), base.encode(), hashlib.sha1).digest()
+    oauth["oauth_signature"] = base64.b64encode(digest).decode()
+    parts = ", ".join(
+        f'{urllib.parse.quote(key, safe="")}="{urllib.parse.quote(oauth[key], safe="")}"'
+        for key in sorted(oauth)
+    )
+    return f"OAuth {parts}"
 
 
-def upload_logo(path: Path, token: str) -> requests.Response:
+def upload_logo(path: Path) -> requests.Response:
     with path.open("rb") as image:
         return requests.post(
             MEDIA_URL,
-            headers={"Authorization": f"Bearer {token}"},
+            headers={"Authorization": oauth1_header("POST", MEDIA_URL)},
             data={"media_category": "tweet_image", "media_type": "image/png"},
             files={"media": (path.name, image, "image/png")},
             timeout=60,
         )
 
 
-def post(text: str, token: str, media_id: str = "") -> requests.Response:
+def post(text: str, media_id: str = "") -> requests.Response:
     body: dict = {"text": text}
     if media_id:
         body["media"] = {"media_ids": [media_id]}
     return requests.post(
         POST_URL,
         headers={
-            "Authorization": f"Bearer {token}",
+            "Authorization": oauth1_header("POST", POST_URL),
             "Content-Type": "application/json",
         },
         json=body,
@@ -123,13 +138,9 @@ def main() -> int:
         return 0
 
     load_env(ENV_PATH)
-    token = require("X_ACCESS_TOKEN")
     media_id = ""
     if logo is not None:
-        uploaded = upload_logo(logo, token)
-        if uploaded.status_code == 401 and os.environ.get("X_REFRESH_TOKEN"):
-            token = refresh_access_token()
-            uploaded = upload_logo(logo, token)
+        uploaded = upload_logo(logo)
         if uploaded.status_code not in (200, 201, 202):
             print(uploaded.status_code, uploaded.text, file=sys.stderr)
             return 1
@@ -137,10 +148,7 @@ def main() -> int:
         if not media_id:
             print(uploaded.text, file=sys.stderr)
             return 1
-    response = post(text, token, media_id)
-    if response.status_code == 401 and os.environ.get("X_REFRESH_TOKEN"):
-        token = refresh_access_token()
-        response = post(text, token, media_id)
+    response = post(text, media_id)
     if response.status_code not in (200, 201):
         print(response.status_code, response.text, file=sys.stderr)
         return 1

@@ -29,7 +29,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from post_to_x import ENV_PATH, load_env, post, refresh_access_token, require
+from post_to_x import ENV_PATH, load_env, post
 
 ROOT = Path(__file__).resolve().parent.parent
 LOG_PATH = ROOT / ".x-posts.json"
@@ -172,14 +172,8 @@ def due_key(moment: datetime) -> str:
 
 
 def publish(text: str) -> str:
-    import os
-
     load_env(ENV_PATH)
-    token = require("X_ACCESS_TOKEN")
-    response = post(text, token)
-    if response.status_code == 401 and os.environ.get("X_REFRESH_TOKEN"):
-        token = refresh_access_token()
-        response = post(text, token)
+    response = post(text)
     if response.status_code not in (200, 201):
         detail = response.text.lower()
         if response.status_code == 403 and "duplicate" in detail:

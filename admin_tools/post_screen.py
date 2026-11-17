@@ -46,10 +46,16 @@ TICKER = re.compile(
     r'data-label="Ticker">(?:(?!</td>).)*<span class="fr-val">([^<]+)',
     re.S,
 )
+NAME = re.compile(
+    r'data-label="(?:Company|Name|Commodity)">(?:(?!</td>).)*?<span class="fr-val">(.*?)</span>\s*</td>',
+    re.S,
+)
 PCT = re.compile(
     r'data-label="% Above Low">(?:(?!</td>).)*<span class="fr-val">([^<]+)',
     re.S,
 )
+TIP = re.compile(r'<span class="tip-text">[\s\S]*?</span>')
+TAG = re.compile(r"<[^>]+>")
 
 MARKETS = {
     "lse": ("LSE", "lse"),
@@ -76,7 +82,12 @@ SLOTS = (
 )
 
 
-def fetch_rows(slug: str) -> list[tuple[str, float]]:
+def plain_name(html: str) -> str:
+    text = TAG.sub("", TIP.sub("", html))
+    return unescape(re.sub(r"\s+", " ", text)).strip()
+
+
+def fetch_rows(slug: str) -> list[tuple[str, str, float]]:
     response = requests.get(
         f"{SITE}/{slug}",
         headers={"User-Agent": "Mozilla/5.0"},
@@ -86,11 +97,12 @@ def fetch_rows(slug: str) -> list[tuple[str, float]]:
     rows = []
     for row in ROW.findall(response.text):
         ticker = TICKER.search(row)
+        name = NAME.search(row)
         pct = PCT.search(row)
-        if not ticker or not pct:
+        if not ticker or not name or not pct:
             continue
         number = pct.group(1).replace("%", "").replace(",", "").strip()
-        rows.append((unescape(ticker.group(1)).strip(), float(number)))
+        rows.append((plain_name(name.group(1)), unescape(ticker.group(1)).strip(), float(number)))
     return rows
 
 
@@ -103,18 +115,18 @@ def dated(moment: datetime) -> str:
     return f"{local.strftime('%A')}, {local.strftime('%b')} {local.day}"
 
 
-def three_names(slug: str, label: str) -> list[str]:
+def three_names(slug: str, label: str) -> list[tuple[str, str]]:
     rows = fetch_rows(slug)
-    if len(rows) < 6:
-        raise RuntimeError(f"{label} did not return six names.")
-    return [ticker for ticker, _pct in rows[3:6]]
+    if len(rows) < 3:
+        raise RuntimeError(f"{label} did not return three names.")
+    return [(name, ticker) for name, ticker, _pct in rows[:3]]
 
 
 def closest_name(slug: str, label: str) -> str:
     rows = fetch_rows(slug)
     if not rows:
         raise RuntimeError(f"{label} did not return a name.")
-    return min(rows, key=lambda item: item[1])[0]
+    return min(rows, key=lambda item: item[2])[1]
 
 
 def market_name(key: str) -> str:
@@ -124,13 +136,14 @@ def market_name(key: str) -> str:
 def market_post(key: str, moment: datetime) -> str:
     label, slug = MARKETS[market_name(key)]
     names = ", ".join(
-        f"({rank}) {ticker}" for rank, ticker in enumerate(three_names(slug, label), start=4)
+        f"({rank}) {name} ({ticker})"
+        for rank, (name, ticker) in enumerate(three_names(slug, label), start=1)
     )
     when = "afternoon " if key.endswith("-afternoon") else ""
     return (
         f"{dated(moment)} {when}{label} near 52-week lows\n"
         f"{names}\n"
-        f"See the top 3 {label} at The Scoop 52\n"
+        f"See the full {label} list at The Scoop 52\n"
         f"{SITE}/{slug}"
     )
 

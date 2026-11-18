@@ -17,7 +17,9 @@ import sys
 import time
 import urllib.parse
 import uuid
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -26,6 +28,15 @@ ENV_PATH = ROOT / ".env"
 POST_URL = "https://api.x.com/2/tweets"
 MEDIA_URL = "https://api.x.com/2/media/upload"
 DEFAULT_LOGO = ROOT / "assets" / "scoop52_logo.png"
+CENTRAL = ZoneInfo("America/Chicago")
+LIVE_LINE = "TheScoop52 is live. Top 10 NYSE, NASDAQ, Crypto, LSE and TSX. https://thescoop52.com"
+
+
+def morning_text(moment: datetime | None = None) -> str:
+    """One daily post. The greeting uses the Central weekday of the send."""
+    when = moment or datetime.now(CENTRAL)
+    day = when.astimezone(CENTRAL).strftime("%A")
+    return f"Happy {day}. {LIVE_LINE}"
 
 
 def load_env(path: Path) -> None:
@@ -115,7 +126,12 @@ def post(text: str, media_id: str = "") -> requests.Response:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Post one update as @TheScoop52.")
-    parser.add_argument("--text", required=True, help="Post text, up to 280 characters.")
+    parser.add_argument("--text", default="", help="Post text, up to 280 characters.")
+    parser.add_argument(
+        "--morning",
+        action="store_true",
+        help="Use the daily live post, with Happy plus today's weekday.",
+    )
     parser.add_argument("--send", action="store_true", help="Publish. Without this, the text is only printed.")
     parser.add_argument("--logo", default="", help="Optional PNG to attach. Omit for a text post.")
     args = parser.parse_args()
@@ -123,7 +139,10 @@ def main() -> int:
     if logo is not None and not logo.is_file():
         print(f"Logo not found: {logo}", file=sys.stderr)
         return 1
-    text = " ".join(args.text.split())
+    if args.morning:
+        text = morning_text()
+    else:
+        text = " ".join(args.text.split())
     if not text:
         print("Post text is empty.", file=sys.stderr)
         return 1

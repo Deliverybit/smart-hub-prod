@@ -30,24 +30,3 @@ services:
     schedule: "30 11 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python admin_tools/review_headline_polarity.py
-
-  # One post a day. 14:00 UTC is 8:00 AM Central standard (9:00 AM Eastern),
-  # 30 minutes before the NYSE open. Daylight time shifts it to 9:00 AM Central.
-  - type: cron
-    name: scoop52-morning-post
-    runtime: python
-    plan: starter
-    schedule: "0 14 * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_to_x.py --morning --send
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: X_API_KEY
-        sync: false
-      - key: X_API_SECRET
-        sync: false
-      - key: X_ACCESS_TOKEN
-        sync: false
-      - key: X_ACCESS_TOKEN_SECRET
-        sync: false

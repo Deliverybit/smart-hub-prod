@@ -3,7 +3,7 @@
 Keys stay in the repo-root .env file, which git ignores. A post that includes
 a link uses about $0.20 of X API credits.
 
-    python admin_tools/post_to_x.py --send --text "TheScoop52 is live. Top 10 NYSE, NASDAQ, Crypto, LSE and TSX. https://thescoop52.com"
+    python admin_tools/post_to_x.py --send --morning
 """
 
 from __future__ import annotations
@@ -29,14 +29,18 @@ POST_URL = "https://api.x.com/2/tweets"
 MEDIA_URL = "https://api.x.com/2/media/upload"
 DEFAULT_LOGO = ROOT / "assets" / "scoop52_logo.png"
 CENTRAL = ZoneInfo("America/Chicago")
-LIVE_LINE = "TheScoop52 is live. Top 10 NYSE, NASDAQ, Crypto, LSE and TSX. https://thescoop52.com"
+# One send only. The Windows task Scoop52MorningX runs this at 8:00 AM Central.
+MORNING_DAY = datetime(2026, 11, 19, tzinfo=CENTRAL).date()
+MORNING_TEXT = (
+    "Market Sentiment + 52 Week Lows = 𝐓𝐡𝐞 𝐒𝐜𝐨𝐨𝐩 𝟓𝟐\n"
+    "\n"
+    "Top 10 NYSE, NASDAQ, Crypto, LSE and TSX"
+)
 
 
-def morning_text(moment: datetime | None = None) -> str:
-    """One daily post. The greeting uses the Central weekday of the send."""
-    when = moment or datetime.now(CENTRAL)
-    day = when.astimezone(CENTRAL).strftime("%A")
-    return f"Happy {day}. {LIVE_LINE}"
+def morning_text() -> str:
+    """The single morning post for November 19, 2026."""
+    return MORNING_TEXT
 
 
 def load_env(path: Path) -> None:
@@ -130,7 +134,7 @@ def main() -> int:
     parser.add_argument(
         "--morning",
         action="store_true",
-        help="Use the daily live post, with Happy plus today's weekday.",
+        help="Use the November 19, 2026 morning post.",
     )
     parser.add_argument("--send", action="store_true", help="Publish. Without this, the text is only printed.")
     parser.add_argument("--logo", default="", help="Optional PNG to attach. Omit for a text post.")
@@ -140,6 +144,10 @@ def main() -> int:
         print(f"Logo not found: {logo}", file=sys.stderr)
         return 1
     if args.morning:
+        today = datetime.now(CENTRAL).date()
+        if today != MORNING_DAY:
+            print(f"Morning post only sends on {MORNING_DAY}. Today is {today}.")
+            return 0
         text = morning_text()
     else:
         text = " ".join(args.text.split())

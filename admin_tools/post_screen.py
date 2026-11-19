@@ -2,7 +2,7 @@
 
 Central time:
 
-    Weekday morning
+    Weekday morning, one market, tickers in ranks 4–6
         7:00 AM   LSE
         8:00 AM   TSX
         8:30 AM   NYSE
@@ -141,15 +141,11 @@ def rank_tickers(slug: str, label: str, start: int, count: int) -> list[str]:
     return [ticker for _name, ticker, _pct in rows[start - 1 : end]]
 
 
-def morning_post() -> str:
-    """Daily morning post: ranks 4–6, tickers only, for every market."""
-    lines = []
-    for key in ("nyse", "nasdaq", "crypto", "lse", "tsx"):
-        label, slug = MARKETS[key]
-        lines.append(f"{label} {', '.join(rank_tickers(slug, label, 4, 3))}")
-    lines.append("")
-    lines.append("See the Top 3 at The Scoop 52")
-    return "\n".join(lines)
+def morning_post(key: str) -> str:
+    """One morning post: ranks 4–6, tickers only, for a single market."""
+    label, slug = MARKETS[key]
+    tickers = ", ".join(rank_tickers(slug, label, 4, 3))
+    return f"{label} {tickers}\n\nSee the Top 3 at The Scoop 52"
 
 
 def market_post(key: str, moment: datetime) -> str:
@@ -249,12 +245,15 @@ def main() -> int:
     parser.add_argument(
         "--morning",
         action="store_true",
-        help="Post ranks 4–6 for every market. This is the daily morning cron.",
+        help="Post ranks 4–6 for one market. This is the morning cron.",
     )
     args = parser.parse_args()
     moment = datetime.now(CENTRAL)
     if args.morning:
-        text = morning_post()
+        if args.market not in MARKETS:
+            print("Name one market with --market.", file=sys.stderr)
+            return 1
+        text = morning_post(args.market)
         if len(text) > 280:
             print(f"Post is {len(text)} characters. X allows 280.", file=sys.stderr)
             return 1

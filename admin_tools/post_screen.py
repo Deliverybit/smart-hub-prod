@@ -269,6 +269,19 @@ def main() -> int:
         if not args.market:
             print("Nothing is due.")
             return 0
+        if args.market in MARKETS:
+            text = morning_post(args.market)
+            if len(text) > 280:
+                print(f"Post is {len(text)} characters. X allows 280.", file=sys.stderr)
+                return 1
+            if not args.send:
+                print(text)
+                print("Not sent. Add --send to publish.")
+                return 0
+            post_id = publish(text)
+            remember(moment.astimezone(CENTRAL).date().isoformat(), args.market)
+            print(f"Posted {post_id}")
+            return 0
     day = moment.astimezone(CENTRAL).date().isoformat()
     keys = (args.market,) if args.market else (("summary",) if moment.weekday() == 5 else ("crypto",) if moment.weekday() == 6 else WEEKDAY_MARKETS)
     if args.send and not args.market:

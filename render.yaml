@@ -31,87 +31,17 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python admin_tools/review_headline_polarity.py
 
-  # Weekday mornings, Central standard time. Daylight time shifts each slot one hour later.
-  # One market per post: tickers in ranks 4, 5, and 6.
+  # One cron, the existing scoop52-x-posts service. Weekday mornings only.
+  # 13:00–15:30 UTC is 7:00–9:30 AM Central standard time. Runs on the hour and
+  # half hour; the script posts the one market whose slot is open.
+  # Daylight time shifts the window to 8:00–10:30 AM Central.
   - type: cron
-    name: scoop52-morning-lse
+    name: scoop52-x-posts
     runtime: python
     plan: starter
-    schedule: "0 13 * * 1-5"
+    schedule: "0,30 13-15 * * 1-5"
     buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_screen.py --morning --market lse --send
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: X_API_KEY
-        sync: false
-      - key: X_API_SECRET
-        sync: false
-      - key: X_ACCESS_TOKEN
-        sync: false
-      - key: X_ACCESS_TOKEN_SECRET
-        sync: false
-  - type: cron
-    name: scoop52-morning-tsx
-    runtime: python
-    plan: starter
-    schedule: "0 14 * * 1-5"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_screen.py --morning --market tsx --send
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: X_API_KEY
-        sync: false
-      - key: X_API_SECRET
-        sync: false
-      - key: X_ACCESS_TOKEN
-        sync: false
-      - key: X_ACCESS_TOKEN_SECRET
-        sync: false
-  - type: cron
-    name: scoop52-morning-nyse
-    runtime: python
-    plan: starter
-    schedule: "30 14 * * 1-5"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_screen.py --morning --market nyse --send
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: X_API_KEY
-        sync: false
-      - key: X_API_SECRET
-        sync: false
-      - key: X_ACCESS_TOKEN
-        sync: false
-      - key: X_ACCESS_TOKEN_SECRET
-        sync: false
-  - type: cron
-    name: scoop52-morning-nasdaq
-    runtime: python
-    plan: starter
-    schedule: "0 15 * * 1-5"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_screen.py --morning --market nasdaq --send
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.8"
-      - key: X_API_KEY
-        sync: false
-      - key: X_API_SECRET
-        sync: false
-      - key: X_ACCESS_TOKEN
-        sync: false
-      - key: X_ACCESS_TOKEN_SECRET
-        sync: false
-  - type: cron
-    name: scoop52-morning-crypto
-    runtime: python
-    plan: starter
-    schedule: "30 15 * * 1-5"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_screen.py --morning --market crypto --send
+    startCommand: python admin_tools/post_screen.py --due --send
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"

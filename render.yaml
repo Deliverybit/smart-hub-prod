@@ -31,15 +31,15 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python admin_tools/review_headline_polarity.py
 
-  # 14:00 UTC is 8:00 AM Central standard time. post_to_x.py sends only on
-  # 2026-11-19 and exits without posting on every other run.
+  # 14:00 UTC is 8:00 AM Central standard time. Daylight time shifts it to 9:00 AM Central.
+  # One morning post: tickers in ranks 4, 5, and 6 for each market.
   - type: cron
     name: scoop52-morning-post
     runtime: python
     plan: starter
     schedule: "0 14 * * *"
     buildCommand: pip install -r requirements.txt
-    startCommand: python admin_tools/post_to_x.py --morning --send
+    startCommand: python admin_tools/post_screen.py --morning --send
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"

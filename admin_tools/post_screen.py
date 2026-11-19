@@ -133,6 +133,25 @@ def market_name(key: str) -> str:
     return key.removesuffix("-afternoon")
 
 
+def rank_tickers(slug: str, label: str, start: int, count: int) -> list[str]:
+    rows = fetch_rows(slug)
+    end = start + count - 1
+    if len(rows) < end:
+        raise RuntimeError(f"{label} did not return rank {end}.")
+    return [ticker for _name, ticker, _pct in rows[start - 1 : end]]
+
+
+def morning_post() -> str:
+    """Daily morning post: ranks 4–6, tickers only, for every market."""
+    lines = []
+    for key in ("nyse", "nasdaq", "crypto", "lse", "tsx"):
+        label, slug = MARKETS[key]
+        lines.append(f"{label} {', '.join(rank_tickers(slug, label, 4, 3))}")
+    lines.append("")
+    lines.append("See the Top 3 at The Scoop 52")
+    return "\n".join(lines)
+
+
 def market_post(key: str, moment: datetime) -> str:
     label, slug = MARKETS[market_name(key)]
     names = ", ".join(
@@ -227,8 +246,25 @@ def main() -> int:
     )
     parser.add_argument("--send", action="store_true", help="Publish. Without this, the text is only printed.")
     parser.add_argument("--due", action="store_true", help="Post the market scheduled for this time, if one is due.")
+    parser.add_argument(
+        "--morning",
+        action="store_true",
+        help="Post ranks 4–6 for every market. This is the daily morning cron.",
+    )
     args = parser.parse_args()
     moment = datetime.now(CENTRAL)
+    if args.morning:
+        text = morning_post()
+        if len(text) > 280:
+            print(f"Post is {len(text)} characters. X allows 280.", file=sys.stderr)
+            return 1
+        if not args.send:
+            print(text)
+            print("Not sent. Add --send to publish.")
+            return 0
+        post_id = publish(text)
+        print(f"Posted {post_id}")
+        return 0
     if args.due:
         args.market = due_key(moment)
         if not args.market:

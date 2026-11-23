@@ -303,6 +303,16 @@ def main() -> int:
 
     persist = not args.dry_run
     on_render = os.environ.get("RENDER") == "true"
+    from app_config import get_eodhd_api_token
+
+    if get_eodhd_api_token():
+        print("EODHD key is set. Crypto, LSE, and TSX headlines use it.", flush=True)
+    else:
+        print(
+            "EODHD_API_KEY is not set on this process. "
+            "Crypto, LSE, and TSX headlines will be empty.",
+            flush=True,
+        )
     _install_stop_handler()
     definitions = (
         [get_definition(args.screener)]

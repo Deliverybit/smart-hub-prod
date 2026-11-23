@@ -27,14 +27,16 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
         run: |
           python - <<'PY'
           import os, sys
-          from app_config import get_database_url, get_alpha_vantage_api_key
+          from app_config import get_database_url, get_alpha_vantage_api_key, get_eodhd_api_token
 
           try:
               get_database_url(required=True)
               get_alpha_vantage_api_key(required=True)
+              get_eodhd_api_token(required=True)
           except RuntimeError as exc:
               print(f"ERROR: {exc}", file=sys.stderr)
               sys.exit(1)
